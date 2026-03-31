@@ -1,0 +1,1033 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ducarazzo Tab Maker</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=Special+Elite&family=Libre+Baskerville:ital,wght@0,400;1,400&display=swap" rel="stylesheet">
+<style>
+:root {
+  --wood-dark:   #3b1e08;
+  --wood-mid:    #6b3a1f;
+  --wood-light:  #a0572a;
+  --fret-silver: #c8c8c8;
+  --string-gold: #d4a843;
+  --string-steel:#bdbdbd;
+  --dot-cream:   #f5edd6;
+  --note-on:     #e84040;
+  --bg:          #1a0f06;
+  --text-cream:  #f0e6c8;
+  --accent:      #c8972a;
+  --accent2:     #e8c050;
+  --border:      rgba(200,150,40,0.2);
+  --panel:       rgba(20,10,3,0.6);
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  background: var(--bg);
+  font-family: 'Special Elite', cursive;
+  color: var(--text-cream);
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 30px 20px 60px;
+  background-image:
+    radial-gradient(ellipse at 20% 10%, rgba(100,50,10,0.3) 0%, transparent 50%),
+    radial-gradient(ellipse at 80% 90%, rgba(80,30,5,0.3) 0%, transparent 50%),
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='200' height='200' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+}
+
+/* ── HEADER ─────────────────────────────────────────────────────────── */
+header { text-align: center; margin-bottom: 24px; width: 100%; max-width: 1100px; }
+
+h1 {
+  font-family: 'Playfair Display', serif;
+  font-size: clamp(2rem, 5vw, 3.4rem);
+  font-weight: 900;
+  color: var(--text-cream);
+  letter-spacing: 0.06em;
+  text-shadow: 0 2px 30px rgba(200,150,40,0.25);
+}
+
+h1 span { color: var(--accent); }
+
+.subtitle {
+  font-family: 'Libre Baskerville', serif;
+  font-style: italic;
+  color: rgba(240,230,200,0.4);
+  font-size: 0.88rem;
+  margin-top: 4px;
+  letter-spacing: 0.15em;
+}
+
+.ornament { color: rgba(200,150,40,0.3); font-size: 1.1rem; letter-spacing: 0.35em; margin: 6px 0; }
+
+.nav-link {
+  display: inline-flex; align-items: center; gap: 6px;
+  font-size: 0.68rem; letter-spacing: 0.15em; color: rgba(200,150,40,0.5);
+  text-decoration: none; border: 1px solid rgba(200,150,40,0.2);
+  padding: 4px 14px; border-radius: 2px; margin-top: 8px;
+  transition: all 0.2s;
+}
+.nav-link:hover { color: var(--accent); border-color: var(--accent); background: rgba(200,150,40,0.06); }
+
+/* ── CONTROLS ────────────────────────────────────────────────────────── */
+.controls-row {
+  display: flex; flex-wrap: wrap; gap: 12px;
+  justify-content: center; align-items: flex-end;
+  margin-bottom: 20px; width: 100%; max-width: 1100px;
+}
+
+.control-group { display: flex; flex-direction: column; align-items: center; gap: 5px; }
+.control-label { font-size: 0.62rem; letter-spacing: 0.2em; color: var(--accent); text-transform: uppercase; }
+
+select, input[type=text] {
+  font-family: 'Special Elite', cursive;
+  background: rgba(60,30,10,0.8);
+  border: 1px solid rgba(200,150,40,0.4);
+  color: var(--text-cream);
+  padding: 7px 12px;
+  border-radius: 3px;
+  cursor: pointer;
+  font-size: 0.82rem;
+  transition: all 0.2s;
+  appearance: none; -webkit-appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%23c8972a'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 8px center;
+  padding-right: 26px;
+}
+input[type=text] {
+  background-image: none; padding-right: 10px;
+}
+select:hover, input[type=text]:focus { border-color: var(--accent); outline: none; color: var(--accent); }
+select option { background: #2a1005; }
+
+.action-btn {
+  font-family: 'Special Elite', cursive;
+  background: rgba(60,30,10,0.8);
+  border: 1px solid rgba(200,150,40,0.4);
+  color: var(--text-cream);
+  padding: 7px 16px;
+  border-radius: 3px;
+  cursor: pointer;
+  font-size: 0.82rem;
+  letter-spacing: 0.08em;
+  transition: all 0.2s;
+}
+.action-btn:hover { border-color: var(--accent); background: rgba(80,40,10,0.9); color: var(--accent); }
+.action-btn.primary { background: var(--accent); color: #120a02; border-color: var(--accent2); font-weight: bold; }
+.action-btn.primary:hover { background: var(--accent2); }
+.action-btn.danger { color: var(--note-on); border-color: rgba(232,64,64,0.3); }
+.action-btn.danger:hover { background: rgba(232,64,64,0.1); border-color: var(--note-on); }
+
+/* ── TAB DISPLAY ─────────────────────────────────────────────────────── */
+.tab-display-wrap {
+  width: 100%; max-width: 1100px;
+  background: rgba(10,5,2,0.7);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  margin-bottom: 20px;
+  overflow-x: auto;
+  padding: 12px 16px 10px;
+}
+.tab-display-wrap::-webkit-scrollbar { height: 3px; }
+.tab-display-wrap::-webkit-scrollbar-thumb { background: var(--accent); border-radius: 2px; }
+
+.tab-hint {
+  font-size: 0.56rem; letter-spacing: 0.18em; color: rgba(200,150,40,0.4);
+  text-transform: uppercase; margin-bottom: 6px;
+}
+
+.tab-staff {
+  font-family: 'Courier New', monospace;
+  font-size: 13px; line-height: 1.75;
+  color: var(--text-cream); white-space: pre;
+  min-width: max-content;
+}
+
+/* ── FRETBOARD ────────────────────────────────────────────────────────── */
+.fretboard-wrap {
+  width: 100%; max-width: 1100px;
+  overflow-x: auto;
+  padding-bottom: 10px;
+}
+.fretboard-wrap::-webkit-scrollbar { height: 3px; }
+.fretboard-wrap::-webkit-scrollbar-thumb { background: var(--accent); border-radius: 2px; }
+
+.fretboard-outer { min-width: 700px; position: relative; }
+
+.fret-numbers {
+  display: flex; margin-left: 50px; margin-bottom: 8px;
+}
+.fret-num {
+  flex: 1; text-align: center; font-size: 0.7rem;
+  color: rgba(240,230,200,0.4); letter-spacing: 0.1em;
+}
+.fret-num.marked { color: var(--accent); }
+.fret-num-open {
+  width: 44px; min-width: 44px; text-align: center; font-size: 0.7rem;
+  color: rgba(240,230,200,0.5); letter-spacing: 0.05em;
+  font-family: 'Special Elite', cursive;
+  display: flex; align-items: center; justify-content: center;
+}
+
+/* Position marker dots below fretboard */
+.pos-dots-row {
+  display: flex;
+  margin-left: 110px;
+  margin-top: 6px;
+  height: 18px;
+  align-items: center;
+}
+.pos-dot-cell {
+  flex: 1; display: flex;
+  justify-content: center; align-items: center;
+  gap: 4px; height: 18px;
+}
+.pos-dot {
+  width: 7px; height: 7px; border-radius: 50%;
+  background: rgba(245,237,214,0.22);
+  box-shadow: 0 0 4px rgba(200,150,40,0.12);
+}
+
+/* Inlay dots — hidden, replaced by pos-dots-row below */
+.fret-dot { display: none; }
+
+.fretboard {
+  display: flex; position: relative;
+  border-radius: 4px; overflow: hidden;
+  box-shadow:
+    0 8px 60px rgba(0,0,0,0.5),
+    inset 0 1px 0 rgba(255,255,255,0.04);
+}
+
+/* Nut */
+.nut {
+  width: 16px; min-width: 16px;
+  background: linear-gradient(to right, #e8dfc0, #f5edd6, #e0d5b0);
+  z-index: 10;
+  box-shadow: 2px 0 8px rgba(0,0,0,0.5);
+  display: flex; flex-direction: column;
+  justify-content: space-around; padding: 20px 0;
+}
+.nut-slot { height: 3px; margin: 0 2px; background: rgba(0,0,0,0.3); border-radius: 1px; }
+
+/* String labels */
+.string-labels {
+  width: 50px; min-width: 50px;
+  display: flex; flex-direction: column;
+  justify-content: space-around; padding: 20px 0;
+  background: rgba(10,5,2,0.5);
+  border-right: 1px solid rgba(200,150,40,0.15);
+}
+.string-label {
+  text-align: center; font-size: 0.72rem;
+  color: var(--accent); letter-spacing: 0.05em;
+}
+
+/* Frets area – warm rosewood */
+.frets-area {
+  flex: 1; position: relative;
+  background: linear-gradient(to bottom,
+    var(--bg) 0%,
+    #2a1205 8%,
+    #3d1c08 25%,
+    #4a2210 50%,
+    #3d1c08 75%,
+    #2a1205 92%,
+    var(--bg) 100%);
+}
+.frets-area::before {
+  content: ''; position: absolute; inset: 0;
+  background-image:
+    repeating-linear-gradient(90deg, transparent, transparent 2px, rgba(0,0,0,0.04) 2px, rgba(0,0,0,0.04) 3px),
+    repeating-linear-gradient(180deg, transparent, transparent 8px, rgba(255,255,255,0.01) 8px, rgba(255,255,255,0.01) 9px);
+  pointer-events: none; z-index: 1;
+}
+
+/* Strings */
+.strings-layer {
+  position: absolute; inset: 0;
+  display: flex; flex-direction: column;
+  justify-content: space-around; padding: 20px 0;
+  pointer-events: none; z-index: 2;
+}
+.string-line { height: 100%; position: relative; }
+.string-line::before {
+  content: ''; position: absolute; top: 50%; left: 0; right: 0;
+  transform: translateY(-50%);
+  background: linear-gradient(to bottom, rgba(255,255,255,0.3), var(--string-gold), rgba(180,130,40,0.8));
+  box-shadow: 0 0 4px rgba(212,168,67,0.5);
+}
+.string-line:nth-child(1)::before { height: 1.2px; }
+.string-line:nth-child(2)::before { height: 1.5px; }
+.string-line:nth-child(3)::before { height: 2px; }
+.string-line:nth-child(4)::before { height: 2.5px; }
+.string-line:nth-child(5)::before { height: 3px; background: linear-gradient(to bottom, rgba(255,255,255,0.2), var(--string-steel), rgba(150,150,150,0.8)); }
+.string-line:nth-child(6)::before { height: 3.5px; background: linear-gradient(to bottom, rgba(255,255,255,0.2), var(--string-steel), rgba(150,150,150,0.8)); }
+
+/* Fret lines */
+.fret-lines {
+  position: absolute; inset: 0;
+  display: flex; pointer-events: none; z-index: 3;
+}
+.fret-line { flex: 1; position: relative; }
+.fret-line::after {
+  content: ''; position: absolute; right: -2px; top: 0; bottom: 0; width: 2px;
+  background: linear-gradient(to bottom, #888, #e0e0e0, #bbb, #e0e0e0, #888);
+  box-shadow: 1px 0 3px rgba(0,0,0,0.4), -1px 0 2px rgba(255,255,255,0.1);
+}
+
+/* Dots */
+.dots-layer { position: absolute; inset: 0; pointer-events: none; z-index: 2; }
+.fret-dot {
+  position: absolute; width: 10px; height: 10px;
+  background: var(--dot-cream); border-radius: 50%;
+  transform: translate(-50%, -50%); opacity: 0.5;
+  box-shadow: inset 0 1px 2px rgba(0,0,0,0.3);
+}
+
+/* Notes grid */
+.notes-grid {
+  position: absolute; inset: 0; display: flex;
+  z-index: 5; padding: 20px 0;
+}
+.fret-col {
+  flex: 1; display: flex; flex-direction: column;
+  justify-content: space-around; align-items: center; position: relative;
+}
+.open-col {
+  width: 44px; min-width: 44px;
+  display: flex; flex-direction: column;
+  justify-content: space-around; align-items: center;
+  padding: 20px 0; z-index: 10;
+  background: linear-gradient(to right, rgba(8,4,1,0.6), rgba(8,4,1,0.0));
+  border-right: none;
+}
+
+/* Capo bar */
+.capo-bar {
+  position: absolute;
+  top: 0; bottom: 0;
+  width: 10px;
+  background: linear-gradient(to right,
+    rgba(180,130,30,0.15),
+    rgba(220,170,50,0.9) 30%,
+    rgba(255,210,80,1) 50%,
+    rgba(220,170,50,0.9) 70%,
+    rgba(180,130,30,0.15));
+  border-radius: 5px;
+  box-shadow:
+    0 0 12px rgba(220,170,50,0.7),
+    0 0 30px rgba(200,140,30,0.4),
+    inset 0 1px 2px rgba(255,255,255,0.4);
+  z-index: 30;
+  pointer-events: none;
+  transform: translateX(-50%);
+}
+
+/* Blocked frets (before capo) */
+.note-btn.blocked {
+  opacity: 0.18;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+.note-btn {
+  width: 28px; height: 28px; border-radius: 50%;
+  border: 1.5px solid rgba(200,150,40,0.5);
+  background: rgba(15,7,2,0.55);
+  color: rgba(240,230,200,0.85);
+  font-family: 'Special Elite', cursive;
+  font-size: 0.62rem;
+  cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  transition: all 0.15s;
+  position: relative; z-index: 6;
+  padding: 0; line-height: 1; text-align: center;
+  touch-action: none; user-select: none;
+}
+.note-btn:hover {
+  border-color: rgba(200,150,40,0.9);
+  background: rgba(60,30,10,0.75);
+  color: var(--text-cream);
+  transform: scale(1.12);
+}
+.note-btn.placed {
+  background: var(--accent);
+  border-color: var(--accent2);
+  color: #120a02;
+  font-weight: bold;
+  box-shadow: 0 0 10px rgba(200,150,40,0.6), 0 0 25px rgba(200,150,40,0.25);
+  transform: scale(1.15);
+}
+
+/* flash */
+@keyframes btnFlash {
+  0%   { background: var(--accent); border-color: var(--accent2); color: #120a02; transform: scale(1.3); box-shadow: 0 0 16px rgba(200,150,40,0.9); }
+  100% { background: rgba(15,7,2,0.55); border-color: rgba(200,150,40,0.5); color: rgba(240,230,200,0.85); transform: scale(1); box-shadow: none; }
+}
+.note-btn.flash { animation: btnFlash 0.5s ease-out forwards; }
+
+/* Gesture visual overlay */
+.gesture-overlay {
+  position: absolute; inset: 0; pointer-events: none; z-index: 40;
+}
+.gesture-line {
+  position: absolute; height: 3px;
+  transform-origin: left center;
+  background: linear-gradient(to right, rgba(232,192,80,0.95), rgba(232,192,80,0.35));
+  border-radius: 999px; box-shadow: 0 0 10px rgba(232,192,80,0.4);
+  opacity: 0;
+}
+.gesture-badge {
+  position: absolute; transform: translate(-50%, -160%);
+  padding: 4px 10px; border-radius: 999px;
+  border: 1px solid rgba(232,192,80,0.4);
+  background: rgba(18,8,2,0.94);
+  color: var(--accent2); font-size: 0.65rem;
+  letter-spacing: 0.1em; white-space: nowrap;
+  box-shadow: 0 6px 16px rgba(0,0,0,0.4); opacity: 0;
+}
+
+/* ── INFO STRIP ────────────────────────────────────────────────────── */
+.info-strip {
+  display: flex; gap: 10px; justify-content: center;
+  flex-wrap: wrap; margin-top: 16px;
+  width: 100%; max-width: 1100px;
+}
+.info-chip {
+  font-size: 0.62rem; letter-spacing: 0.12em;
+  color: rgba(240,230,200,0.35);
+  border: 1px solid rgba(200,150,40,0.15);
+  padding: 4px 14px; border-radius: 20px;
+}
+.info-chip span { color: var(--accent); }
+
+/* ── NOTE NAMES SECTION (same as v1) ────────────────────────────────── */
+.note-names-section {
+  margin-top: 48px; width: 100%; max-width: 900px;
+  display: flex; flex-direction: column; align-items: center; gap: 24px;
+}
+.note-names-title {
+  display: flex; align-items: center; gap: 16px; white-space: nowrap;
+}
+.note-names-heading {
+  font-family: 'Playfair Display', serif;
+  font-size: clamp(1.1rem, 3vw, 1.6rem);
+  font-weight: 700; color: var(--accent);
+  letter-spacing: 0.2em; text-transform: uppercase;
+}
+.ornament-thin { color: rgba(200,150,40,0.35); font-size: 0.8rem; letter-spacing: 0.2em; }
+.note-names-grid { display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; }
+.note-card {
+  display: flex; flex-direction: column; align-items: center; gap: 6px;
+  padding: 20px 18px 16px;
+  background: linear-gradient(160deg, rgba(50,25,8,0.9), rgba(30,14,4,0.95));
+  border: 1px solid rgba(200,150,40,0.18);
+  border-top: 1px solid rgba(200,150,40,0.35);
+  border-radius: 3px; width: 96px; position: relative; overflow: hidden;
+  transition: transform 0.2s, border-color 0.2s, box-shadow 0.2s; cursor: default;
+}
+.note-card::before {
+  content: ''; position: absolute; top: 0; left: 0; right: 0; height: 1px;
+  background: linear-gradient(to right, transparent, rgba(200,150,40,0.6), transparent);
+}
+.note-card:hover {
+  transform: translateY(-4px); border-color: rgba(200,150,40,0.5);
+  box-shadow: 0 8px 30px rgba(0,0,0,0.5), 0 0 20px rgba(200,150,40,0.08);
+}
+.note-card-letter {
+  font-family: 'Playfair Display', serif;
+  font-size: 2.4rem; font-weight: 900; color: var(--accent);
+  line-height: 1; text-shadow: 0 0 20px rgba(200,150,40,0.3);
+}
+.note-card-name { font-size: 0.85rem; color: var(--text-cream); letter-spacing: 0.1em; }
+.note-card-desc {
+  font-family: 'Libre Baskerville', serif; font-style: italic;
+  font-size: 0.65rem; color: rgba(240,230,200,0.35); text-align: center;
+}
+
+/* ── FOOTER ────────────────────────────────────────────────────────── */
+footer {
+  margin-top: 36px; font-size: 0.65rem;
+  color: rgba(240,230,200,0.2); letter-spacing: 0.2em; text-align: center;
+}
+footer a { color: rgba(200,150,40,0.45); text-decoration: none; transition: color 0.2s; }
+footer a:hover { color: var(--accent); }
+
+/* Shortcut legend */
+.shortcut-bar {
+  margin-top: 14px; font-size: 0.6rem;
+  color: rgba(240,230,200,0.25); letter-spacing: 0.1em;
+  display: flex; gap: 16px; flex-wrap: wrap; justify-content: center;
+}
+.shortcut-bar kbd {
+  background: rgba(200,150,40,0.12); border: 1px solid rgba(200,150,40,0.25);
+  border-radius: 2px; padding: 1px 5px; font-size: 0.58rem; color: var(--accent);
+  font-family: monospace;
+}
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<header>
+  <h1>DUCARAZZO <span>TAB MAKER</span></h1>
+  <div class="ornament">✦ ✦ ✦</div>
+  <div class="subtitle">Transcritor de Tablaturas · Modo Professor</div>
+  <a class="nav-link" href="index.html">✦ Ducarazzo Fretboard</a>
+</header>
+
+<!-- CONTROLS -->
+<div class="controls-row">
+  <div class="control-group">
+    <span class="control-label">Música</span>
+    <input type="text" id="songTitle" placeholder="Nome da música..." style="width:160px" oninput="renderTabDisplay()">
+  </div>
+  <div class="control-group">
+    <span class="control-label">Artista</span>
+    <input type="text" id="artistName" placeholder="Artista..." style="width:130px">
+  </div>
+  <div class="control-group">
+    <span class="control-label">Afinação</span>
+    <select id="tuningSelect" onchange="onTuningChange()">
+      <option value="standard">Standard — E A D G B e</option>
+      <option value="dropD">Drop D — D A D G B e</option>
+      <option value="openG">Open G — D G D G B D</option>
+      <option value="openE">Open E — E B E G# B E</option>
+      <option value="openD">Open D — D A D F# A D</option>
+      <option value="dadgad">DADGAD</option>
+      <option value="halfDown">Meio Tom Abaixo</option>
+      <option value="fullDown">Tom Abaixo</option>
+      <option value="dropC">Drop C</option>
+    </select>
+  </div>
+  <div class="control-group">
+    <span class="control-label">Trastes</span>
+    <select id="fretsSelect" onchange="buildFretboard()">
+      <option value="12">12</option>
+      <option value="15">15</option>
+      <option value="17" selected>17</option>
+      <option value="21">21</option>
+      <option value="24">24</option>
+    </select>
+  </div>
+  <div class="control-group">
+    <span class="control-label">Capo</span>
+    <div style="display:flex;align-items:center;gap:6px">
+      <button class="action-btn" style="padding:5px 10px" onclick="changeCapo(-1)">−</button>
+      <span id="capoVal" style="font-family:'Playfair Display',serif;font-size:1rem;color:var(--accent);min-width:20px;text-align:center">0</span>
+      <button class="action-btn" style="padding:5px 10px" onclick="changeCapo(1)">+</button>
+    </div>
+  </div>
+  <div class="control-group" style="justify-content:flex-end">
+    <span class="control-label">&nbsp;</span>
+    <div style="display:flex;gap:8px">
+      <button class="action-btn" onclick="undoLast()">↩ Desfazer</button>
+      <button class="action-btn danger" onclick="clearAll()">✕ Limpar</button>
+      <button class="action-btn primary" onclick="exportPNG()">⬇ PNG</button>
+    </div>
+  </div>
+</div>
+
+<!-- TAB DISPLAY -->
+<div class="tab-display-wrap">
+  <div class="tab-hint">✦ Tablatura — clique nas notas abaixo ou arraste horizontalmente para slide</div>
+  <div class="tab-staff" id="tabStaff"></div>
+</div>
+
+<!-- FRETBOARD -->
+<div class="fretboard-wrap">
+  <div class="fretboard-outer" id="fretboardOuter">
+    <div class="fret-numbers" id="fretNumbers"></div>
+    <div class="fretboard" id="fretboard">
+      <div class="string-labels" id="stringLabels"></div>
+      <div class="open-col" id="openCol"></div>
+      <div class="nut" id="nut"></div>
+      <div class="frets-area" id="fretsArea">
+        <div class="strings-layer" id="stringsLayer"></div>
+        <div class="fret-lines" id="fretLines"></div>
+        <div class="dots-layer" id="dotsLayer"></div>
+        <div class="notes-grid" id="notesGrid"></div>
+        <!-- gesture overlay lives inside frets-area for correct positioning -->
+        <div class="gesture-overlay" id="gestureOverlay">
+          <div class="gesture-line" id="gestureLine"></div>
+          <div class="gesture-badge" id="gestureBadge"></div>
+        </div>
+      </div>
+    </div>
+    <div class="pos-dots-row" id="posDotsRow"></div>
+  </div>
+</div>
+
+<!-- INFO STRIP -->
+<div class="info-strip">
+  <div class="info-chip">Notas: <span id="noteCount">0</span></div>
+  <div class="info-chip">Última: <span id="lastNote">—</span></div>
+
+</div>
+
+<!-- SHORTCUT BAR -->
+<div class="shortcut-bar">
+  <span><kbd>Ctrl+Z</kbd> Desfazer</span>
+  <span><kbd>Ctrl+Shift+Z</kbd> Refazer</span>
+  <span><kbd>Del</kbd> Remove última</span>
+  <span><kbd>Arraste →</kbd> Slide</span>
+  <span><kbd>Arraste ↑</kbd> Bend</span>
+</div>
+
+<!-- NOTE NAMES (igual à página inicial) -->
+<div class="note-names-section">
+  <div class="note-names-title">
+    <div class="ornament-thin">── ✦ ──</div>
+    <div class="note-names-heading">As Notas Musicais</div>
+    <div class="ornament-thin">── ✦ ──</div>
+  </div>
+  <div class="note-names-grid">
+    <div class="note-card"><div class="note-card-letter">F</div><div class="note-card-name">Fá</div><div class="note-card-desc">O repouso</div></div>
+    <div class="note-card"><div class="note-card-letter">G</div><div class="note-card-name">Sol</div><div class="note-card-desc">A alegria</div></div>
+    <div class="note-card"><div class="note-card-letter">A</div><div class="note-card-name">Lá</div><div class="note-card-desc">O padrão</div></div>
+    <div class="note-card"><div class="note-card-letter">B</div><div class="note-card-name">Si</div><div class="note-card-desc">A sensível</div></div>
+    <div class="note-card"><div class="note-card-letter">C</div><div class="note-card-name">Dó</div><div class="note-card-desc">A fundação</div></div>
+    <div class="note-card"><div class="note-card-letter">D</div><div class="note-card-name">Ré</div><div class="note-card-desc">A abertura</div></div>
+    <div class="note-card"><div class="note-card-letter">E</div><div class="note-card-name">Mi</div><div class="note-card-desc">A tensão</div></div>
+  </div>
+</div>
+
+<!-- FOOTER -->
+<footer>
+  Desenvolvido por <a href="#">Everson Araujo</a> &nbsp;—&nbsp; Studio Ema &nbsp;·&nbsp; Copyright 2026
+  &nbsp;&nbsp;|&nbsp;&nbsp;
+  <a href="index.html">← Ducarazzo Fretboard</a>
+</footer>
+
+<canvas id="exportCanvas" style="display:none"></canvas>
+
+<script>
+// ── DATA ─────────────────────────────────────────────────────────────────
+const NOTE_NAMES = ['C','C#','D','D#','E','F','F#','G','G#','A','A#','B'];
+const FRET_DOTS  = {3:1,5:1,7:1,9:1,12:2,15:1,17:1,19:1,21:1,24:2};
+const BASE_OCTAVES = [4,3,3,3,2,2]; // si=0 → high e
+
+const TUNINGS = {
+  standard:{notes:[4,11,7,2,9,4], names:['e','B','G','D','A','E']},
+  dropD:   {notes:[4,11,7,2,9,2], names:['e','B','G','D','A','D']},
+  openG:   {notes:[2,11,7,2,7,2], names:['D','B','G','D','G','D']},
+  openE:   {notes:[4,11,8,4,11,4],names:['e','B','G#','E','B','E']},
+  openD:   {notes:[2,9,6,2,9,2],  names:['D','A','F#','D','A','D']},
+  dadgad:  {notes:[2,9,7,2,9,2],  names:['D','A','G','D','A','D']},
+  halfDown:{notes:[3,10,6,1,8,3], names:['d#','A#','F#','C#','G#','D#']},
+  fullDown:{notes:[2,9,5,0,7,2],  names:['d','A','F','C','G','D']},
+  dropC:   {notes:[2,9,5,0,7,0],  names:['d','A','F','C','G','C']},
+};
+
+let tuning    = TUNINGS.standard;
+let openNotes = [...tuning.notes];
+let strNames  = [...tuning.names];
+let capo      = 0;
+let maxFrets  = 17;
+
+// Tab entries: {type:'note'|'slide'|'bend', si, fret, from?, to?, amount?, direction?}
+let tabData = [];
+let redoStack = [];
+
+// ── NOTE INFO ────────────────────────────────────────────────────────────
+function getMidi(si, fret){
+  return (BASE_OCTAVES[si]+1)*12 + openNotes[si] + fret + capo;
+}
+function getNoteInfo(si, fret){
+  const midi = getMidi(si, fret);
+  const semi = midi % 12;
+  const oct  = Math.floor(midi/12)-1;
+  return { name: NOTE_NAMES[semi], full: NOTE_NAMES[semi]+oct, oct };
+}
+
+// ── TAB TOKENS ───────────────────────────────────────────────────────────
+function entryToken(e){
+  if(e.type==='note')  return e.fret===0 ? '0' : String(e.fret);
+  if(e.type==='slide') return `${e.from}${e.direction==='up'?'/':'\\'}${e.to}`;
+  if(e.type==='bend')  return `${e.fret}b${e.fret+(e.amount===1?2:1)}`;
+  return '?';
+}
+
+// ── RENDER TAB ────────────────────────────────────────────────────────────
+function renderTabDisplay(){
+  if(!tabData.length){
+    document.getElementById('tabStaff').textContent = strNames.map(n=>`${n}|--|`).join('\n');
+    return;
+  }
+  const widths = tabData.map(e=>entryToken(e).length);
+  const rows = strNames.map((name,si)=>{
+    let line = name+'|-';
+    tabData.forEach((e,i)=>{
+      const tok=entryToken(e), w=widths[i];
+      line += e.si===si ? tok.padEnd(w,'-')+'-' : '-'.repeat(w)+'-';
+    });
+    return line+'|';
+  });
+  document.getElementById('tabStaff').textContent = rows.join('\n');
+  const wrap=document.querySelector('.tab-display-wrap');
+  wrap.scrollLeft=wrap.scrollWidth;
+}
+
+function updateStatus(){
+  document.getElementById('noteCount').textContent = tabData.length;
+  if(!tabData.length){ document.getElementById('lastNote').textContent='—'; return; }
+  const e=tabData[tabData.length-1];
+  let label;
+  if(e.type==='note')  label=`${getNoteInfo(e.si,e.fret).full} · ${strNames[e.si]}, traste ${e.fret===0?'solta':e.fret}`;
+  if(e.type==='slide') label=`Slide ${strNames[e.si]}: ${e.from}${e.direction==='up'?'/':'\\'}${e.to}`;
+  if(e.type==='bend')  label=`Bend ${strNames[e.si]}: ${e.fret}b (${e.amount===1?'1 tom':'½ tom'})`;
+  document.getElementById('lastNote').textContent = label;
+}
+
+// ── FRETBOARD BUILD ───────────────────────────────────────────────────────
+function buildFretboard(){
+  maxFrets = parseInt(document.getElementById('fretsSelect').value);
+  const SH=34, TH=SH*6+40;
+  document.getElementById('fretboard').style.height=TH+'px';
+  buildFretNums(); buildStrLabels(); buildNut(); buildStrings(); buildFretLines(); buildDots(); buildNotes(); buildOpenNotes(); buildPosDots();
+  renderTabDisplay();
+  if(capo>0) requestAnimationFrame(()=>requestAnimationFrame(drawCapoBar));
+}
+
+function buildPosDots(){
+  const el=document.getElementById('posDotsRow'); el.innerHTML='';
+  for(let f=1;f<=maxFrets;f++){
+    const cell=document.createElement('div'); cell.className='pos-dot-cell';
+    const count=FRET_DOTS[f]||0;
+    for(let i=0;i<count;i++){ const d=document.createElement('div'); d.className='pos-dot'; cell.appendChild(d); }
+    el.appendChild(cell);
+  }
+}
+
+function buildFretNums(){
+  const el=document.getElementById('fretNumbers'); el.innerHTML='';
+  const o=document.createElement('div'); o.className='fret-num-open'; o.textContent='0'; el.appendChild(o);
+  // nut spacer
+  const nut=document.createElement('div'); nut.style.cssText='width:16px;min-width:16px'; el.appendChild(nut);
+  for(let f=1;f<=maxFrets;f++){
+    const d=document.createElement('div');
+    d.className='fret-num'+(FRET_DOTS[f]?' marked':'');
+    d.textContent=f; el.appendChild(d);
+  }
+}
+function buildStrLabels(){
+  const el=document.getElementById('stringLabels'); el.innerHTML='';
+  strNames.forEach(n=>{const d=document.createElement('div');d.className='string-label';d.textContent=n;el.appendChild(d);});
+}
+function buildNut(){
+  const el=document.getElementById('nut'); el.innerHTML='';
+  for(let i=0;i<6;i++){const s=document.createElement('div');s.className='nut-slot';el.appendChild(s);}
+}
+function buildStrings(){
+  const el=document.getElementById('stringsLayer'); el.innerHTML='';
+  for(let i=0;i<6;i++){const d=document.createElement('div');d.className='string-line';el.appendChild(d);}
+}
+function buildFretLines(){
+  const el=document.getElementById('fretLines'); el.innerHTML='';
+  for(let f=0;f<maxFrets;f++){const d=document.createElement('div');d.className='fret-line';el.appendChild(d);}
+}
+function buildDots(){
+  const el=document.getElementById('dotsLayer'); el.innerHTML='';
+  const fa=document.getElementById('fretsArea');
+  const W=fa.offsetWidth||800, fw=W/maxFrets, SH=34, pt=20;
+  for(const [fret,cnt] of Object.entries(FRET_DOTS)){
+    const f=parseInt(fret); if(f>maxFrets)continue;
+    const cx=(f-0.5)*fw;
+    const mkd=(cy)=>{const d=document.createElement('div');d.className='fret-dot';d.style.cssText=`left:${cx}px;top:${cy}px;`;el.appendChild(d);};
+    if(cnt===1) mkd(pt+SH*2.5);
+    else { mkd(pt+SH*1.5); mkd(pt+SH*3.5); }
+  }
+}
+
+// ── GESTURE STATE ─────────────────────────────────────────────────────────
+let gesture = {
+  active:false, si:null, fret:null, cell:null,
+  startX:0, startY:0,
+  curSi:null, curFret:null, curCell:null,
+  type:null, bendAmount:0
+};
+
+function gLine(){ return document.getElementById('gestureLine'); }
+function gBadge(){ return document.getElementById('gestureBadge'); }
+
+function showGestureLine(fromCell, toCell, label){
+  const fa=document.getElementById('fretsArea');
+  const faR=fa.getBoundingClientRect();
+  function center(c){
+    const r=c.getBoundingClientRect();
+    return {x:r.left-faR.left+r.width/2, y:r.top-faR.top+r.height/2};
+  }
+  const a=center(fromCell), b=center(toCell);
+  const dx=b.x-a.x, dy=b.y-a.y;
+  const dist=Math.sqrt(dx*dx+dy*dy), ang=Math.atan2(dy,dx)*180/Math.PI;
+  const ln=gLine();
+  ln.style.cssText=`left:${a.x}px;top:${a.y}px;width:${dist}px;transform:translateY(-50%) rotate(${ang}deg);opacity:1;`;
+  const bg=gBadge();
+  bg.textContent=label;
+  bg.style.cssText=`left:${(a.x+b.x)/2}px;top:${(a.y+b.y)/2}px;opacity:1;`;
+}
+
+function showBendLine(cell, amount){
+  const fa=document.getElementById('fretsArea');
+  const faR=fa.getBoundingClientRect();
+  const r=cell.getBoundingClientRect();
+  const cx=r.left-faR.left+r.width/2, cy=r.top-faR.top+r.height/2;
+  const lift=amount===1?70:45;
+  const ln=gLine();
+  ln.style.cssText=`left:${cx}px;top:${cy-lift}px;width:${lift}px;transform:translateY(-50%) rotate(-90deg);opacity:1;`;
+  const bg=gBadge();
+  bg.textContent=`BEND ${amount===1?'1 tom':'½ tom'}`;
+  bg.style.cssText=`left:${cx}px;top:${cy-lift}px;opacity:1;`;
+}
+
+function resetGestureVis(){
+  gLine().style.opacity='0';
+  gBadge().style.opacity='0';
+}
+
+function makeBtn(si, fret){
+  const info=getNoteInfo(si,fret);
+  const btn=document.createElement('button');
+  btn.className='note-btn';
+  btn.textContent=info.name;
+  btn.title=`${info.full} · ${strNames[si]} · ${fret===0?'solta':fret}`;
+  btn.dataset.si=si; btn.dataset.fret=fret;
+
+  btn.addEventListener('pointerdown', e=>{
+    e.preventDefault();
+    try{ btn.setPointerCapture(e.pointerId); }catch(_){}
+    gesture={
+      active:true, si, fret, cell:btn,
+      startX:e.clientX, startY:e.clientY,
+      curSi:si, curFret:fret, curCell:btn,
+      type:null, bendAmount:0
+    };
+    resetGestureVis();
+  });
+
+  btn.addEventListener('pointermove', e=>{
+    if(!gesture.active || gesture.cell!==btn) return;
+    const dx=e.clientX-gesture.startX, dy=e.clientY-gesture.startY;
+    const absX=Math.abs(dx), absY=Math.abs(dy);
+    resetGestureVis();
+
+    // Slide: horizontal drag on same string
+    if(absX>20 && absX>absY*1.5){
+      gesture.type='slide';
+      // Estimate target fret from drag distance
+      const fa=document.getElementById('fretsArea');
+      const fw=fa.offsetWidth/maxFrets;
+      const deltFret=Math.round(dx/fw);
+      const targetFret=Math.max(0,Math.min(maxFrets,fret+deltFret));
+      gesture.curFret=targetFret;
+
+      // Find target cell for visual
+      const tBtn=document.querySelector(`.note-btn[data-si="${si}"][data-fret="${targetFret}"]`);
+      gesture.curCell=tBtn||btn;
+
+      if(targetFret!==fret && tBtn){
+        const sym=targetFret>fret?'/':'\\';
+        showGestureLine(btn, tBtn, `${fret}${sym}${targetFret}`);
+      }
+      return;
+    }
+
+    // Bend: upward vertical drag
+    if(dy<-20 && absY>absX*1.5){
+      gesture.type='bend';
+      gesture.bendAmount=absY>60?1:0.5;
+      showBendLine(btn, gesture.bendAmount);
+      return;
+    }
+
+    gesture.type=null;
+  });
+
+  btn.addEventListener('pointerup', e=>{
+    if(!gesture.active || gesture.cell!==btn){ gesture.active=false; resetGestureVis(); return; }
+    const {type,bendAmount,curFret}=gesture;
+    gesture.active=false;
+    resetGestureVis();
+
+    if(type==='slide' && curFret!==fret){
+      redoStack=[];
+      tabData.push({type:'slide', si, from:fret, to:curFret, direction:curFret>fret?'up':'down'});
+      flashBtn(btn);
+      if(gesture.curCell) flashBtn(gesture.curCell);
+    } else if(type==='bend'){
+      redoStack=[];
+      tabData.push({type:'bend', si, fret, amount:bendAmount||0.5});
+      flashBtn(btn);
+    } else {
+      redoStack=[];
+      tabData.push({type:'note', si, fret});
+      flashBtn(btn);
+    }
+    updateStatus(); renderTabDisplay();
+  });
+
+  btn.addEventListener('pointercancel', ()=>{ gesture.active=false; resetGestureVis(); });
+  return btn;
+}
+
+function flashBtn(btn){
+  if(!btn) return;
+  btn.classList.remove('flash');
+  void btn.offsetWidth;
+  btn.classList.add('flash');
+}
+
+function buildNotes(){
+  const grid=document.getElementById('notesGrid'); grid.innerHTML='';
+  for(let f=1;f<=maxFrets;f++){
+    const col=document.createElement('div'); col.className='fret-col';
+    for(let s=0;s<6;s++){
+      const btn=makeBtn(s,f);
+      if(capo>0 && f<capo) btn.classList.add('blocked');
+      col.appendChild(btn);
+    }
+    grid.appendChild(col);
+  }
+  drawCapoBar();
+}
+function buildOpenNotes(){
+  const col=document.getElementById('openCol'); col.innerHTML='';
+  for(let s=0;s<6;s++){
+    const btn=makeBtn(s,0);
+    if(capo>0) btn.classList.add('blocked');
+    col.appendChild(btn);
+  }
+}
+
+function drawCapoBar(){
+  // Remove old capo bar
+  const old=document.getElementById('capoBarEl');
+  if(old) old.remove();
+  if(capo<=0) return;
+
+  const fa=document.getElementById('fretsArea');
+  const cols=fa.querySelectorAll('.fret-col');
+  if(!cols[capo-1]) return;
+
+  // Position: left edge of capo fret column
+  const faRect=fa.getBoundingClientRect();
+  const colRect=cols[capo-1].getBoundingClientRect();
+  const leftPx=colRect.left - faRect.left;
+
+  const bar=document.createElement('div');
+  bar.id='capoBarEl';
+  bar.className='capo-bar';
+  bar.style.left=leftPx+'px';
+  fa.appendChild(bar);
+}
+
+// ── ACTIONS ───────────────────────────────────────────────────────────────
+function undoLast(){
+  if(!tabData.length) return;
+  redoStack.push(tabData.pop());
+  updateStatus(); renderTabDisplay();
+}
+function redoLast(){
+  if(!redoStack.length) return;
+  tabData.push(redoStack.pop());
+  updateStatus(); renderTabDisplay();
+}
+function clearAll(){
+  tabData=[]; redoStack=[]; updateStatus(); renderTabDisplay();
+}
+function changeCapo(d){
+  capo=Math.max(0,Math.min(12,capo+d));
+  document.getElementById('capoVal').textContent=capo;
+  buildFretboard();
+}
+function onTuningChange(){
+  const k=document.getElementById('tuningSelect').value;
+  tuning=TUNINGS[k]||TUNINGS.standard;
+  openNotes.splice(0,6,...tuning.notes);
+  strNames.splice(0,6,...tuning.names);
+  buildFretboard();
+}
+
+// ── PNG EXPORT ────────────────────────────────────────────────────────────
+function exportPNG(){
+  const songTitle  = document.getElementById('songTitle').value.trim()  || 'Tablatura';
+  const artistName = document.getElementById('artistName').value.trim() || '';
+  const tuningLabel= document.getElementById('tuningSelect').options[document.getElementById('tuningSelect').selectedIndex].text.split('—')[0].trim();
+  if(!tabData.length){ alert('Adicione notas antes de exportar.'); return; }
+
+  const canvas=document.getElementById('exportCanvas');
+  const ctx=canvas.getContext('2d');
+  const SC=2,PAD=36,MONO_W=8.4,LINE_H=22,COLS_PER_LINE=28;
+
+  function buildLine(si,s,e){
+    let line=strNames[si]+'|-';
+    for(let c=s;c<e;c++){
+      const tok=entryToken(tabData[c]), w=tok.length;
+      line += tabData[c].si===si ? tok.padEnd(w,'-')+'-' : '-'.repeat(w)+'-';
+    }
+    return line+'|';
+  }
+
+  const count=tabData.length, lines=Math.ceil(count/COLS_PER_LINE);
+  let maxLen=0;
+  for(let ln=0;ln<lines;ln++){
+    const s=ln*COLS_PER_LINE,e=Math.min(s+COLS_PER_LINE,count);
+    for(let si=0;si<6;si++) maxLen=Math.max(maxLen,buildLine(si,s,e).length);
+  }
+
+  const W=Math.max(PAD*2+maxLen*MONO_W+10,400);
+  const BLOCK=6*LINE_H+14;
+  const H=PAD*2+90+lines*BLOCK+(lines-1)*20+30;
+
+  canvas.width=W*SC; canvas.height=H*SC;
+  ctx.setTransform(1,0,0,1,0,0); ctx.scale(SC,SC);
+  ctx.fillStyle='#120a02'; ctx.fillRect(0,0,W,H);
+  ctx.strokeStyle='#c8972a'; ctx.lineWidth=2; ctx.strokeRect(8,8,W-16,H-16);
+  ctx.strokeStyle='rgba(200,150,40,0.2)'; ctx.lineWidth=1; ctx.strokeRect(13,13,W-26,H-26);
+
+  let y=PAD; ctx.textAlign='center';
+  if(artistName){ ctx.fillStyle='#c8972a'; ctx.font='bold 12px monospace'; ctx.fillText(artistName.toUpperCase(),W/2,y); y+=18; }
+  ctx.fillStyle='#f0e6c8'; ctx.font='bold 20px Georgia,serif'; ctx.fillText(songTitle,W/2,y); y+=15;
+  ctx.fillStyle='rgba(200,150,40,0.4)'; ctx.font='10px monospace';
+  ctx.fillText(`Afinação: ${tuningLabel}${capo>0?' · Capo '+capo:''}   ·   Ducarazzo Tab Maker`,W/2,y); y+=20;
+  ctx.strokeStyle='rgba(200,150,40,0.3)'; ctx.lineWidth=1;
+  ctx.beginPath(); ctx.moveTo(PAD,y); ctx.lineTo(W-PAD,y); ctx.stroke(); y+=16;
+
+  ctx.font='14px "Courier New",monospace'; ctx.textAlign='left';
+  for(let ln=0;ln<lines;ln++){
+    const s=ln*COLS_PER_LINE,e=Math.min(s+COLS_PER_LINE,count);
+    for(let si=0;si<6;si++){
+      const txt=buildLine(si,s,e);
+      ctx.fillStyle='#c8972a'; ctx.fillText(strNames[si],PAD,y+si*LINE_H);
+      ctx.fillStyle='#f0e6c8'; ctx.fillText(txt.slice(strNames[si].length),PAD+MONO_W*strNames[si].length,y+si*LINE_H);
+    }
+    y+=BLOCK+(ln<lines-1?20:0);
+  }
+  y+=14; ctx.fillStyle='rgba(200,150,40,0.25)'; ctx.font='10px monospace'; ctx.textAlign='center';
+  ctx.fillText('✦  DUCARAZZO FRETBOARD  ·  Everson Araujo — Studio Ema  ✦',W/2,y);
+
+  const link=document.createElement('a');
+  link.download=`${(artistName?artistName+'-':'')+(songTitle||'tab')}-tab.png`.replace(/\s+/g,'-').toLowerCase();
+  link.href=canvas.toDataURL('image/png'); link.click();
+}
+
+// ── KEYBOARD ─────────────────────────────────────────────────────────────
+document.addEventListener('keydown',e=>{
+  const mod = e.ctrlKey || e.metaKey;
+  if(mod && e.shiftKey && e.key==='z'){ e.preventDefault(); redoLast(); return; }
+  if(mod && e.key==='z'){ e.preventDefault(); undoLast(); return; }
+  if((e.key==='Delete'||e.key==='Backspace')&&!e.target.matches('input')){ e.preventDefault(); undoLast(); }
+});
+
+// ── INIT ─────────────────────────────────────────────────────────────────
+window.addEventListener('load', ()=>{ buildFretboard(); updateStatus(); });
+window.addEventListener('resize', ()=>{ buildDots(); });
+</script>
+</body>
+</html>

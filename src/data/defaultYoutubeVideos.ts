@@ -1,0 +1,55 @@
+import type { YoutubeVideoItem } from "../types/youtubeVideo";
+
+/** Carga inicial — editável pelo painel admin (localStorage). */
+export const DEFAULT_YOUTUBE_VIDEOS: YoutubeVideoItem[] = [
+  {
+    id: 1,
+    title: "Caio Durazzo — registro ao vivo",
+    url: "https://www.youtube.com/watch?v=RNvzgWDqlQQ",
+    label: "Ao vivo",
+    thumbnailUrl: "",
+    isFeatured: true,
+    order: 0,
+    isActive: true,
+  },
+  {
+    id: 2,
+    title: "Performance — palco",
+    url: "https://www.youtube.com/watch?v=SO5ZD43P0zA",
+    label: "Performance",
+    thumbnailUrl: "",
+    isFeatured: false,
+    order: 1,
+    isActive: true,
+  },
+  {
+    id: 3,
+    title: "Rockabilly — registro",
+    url: "https://www.youtube.com/watch?v=0JSky_IkoFM",
+    label: "Registro",
+    thumbnailUrl: "",
+    isFeatured: false,
+    order: 2,
+    isActive: true,
+  },
+  {
+    id: 4,
+    title: "Na estrada",
+    url: "https://www.youtube.com/watch?v=gEuo2gYU9fc",
+    label: "Estrada",
+    thumbnailUrl: "",
+    isFeatured: false,
+    order: 3,
+    isActive: true,
+  },
+  {
+    id: 5,
+    title: "Show — momento ao vivo",
+    url: "https://www.youtube.com/watch?v=rSppKzSGWRc",
+    label: "Palco",
+    thumbnailUrl: "",
+    isFeatured: false,
+    order: 4,
+    isActive: true,
+  },
+];

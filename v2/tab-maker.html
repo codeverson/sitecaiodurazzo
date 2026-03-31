@@ -1,0 +1,788 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ducarazzo Tab Maker</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=Special+Elite&family=Libre+Baskerville:ital,wght@0,400;1,400&family=Bebas+Neue&display=swap" rel="stylesheet">
+<style>
+:root {
+  --string-gold: #d4a843;
+  --string-steel: #bdbdbd;
+  --bg: #1a0f06;
+  --text-cream: #f0e6c8;
+  --accent: #c8972a;
+  --gold2: #e8c050;
+  --correct: #4caf80;
+  --wrong: #e84040;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  background: var(--bg);
+  font-family: 'Special Elite', cursive;
+  color: var(--text-cream);
+  min-height: 100vh;
+  display: flex; flex-direction: column; align-items: center;
+  padding: 80px 20px 60px;
+  background-image:
+    radial-gradient(ellipse at 20% 10%, rgba(100,50,10,0.3) 0%, transparent 50%),
+    radial-gradient(ellipse at 80% 90%, rgba(80,30,5,0.3) 0%, transparent 50%),
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='200' height='200' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+}
+
+/* NAV */
+.nav-bar {
+  position: fixed; top: 0; left: 0; right: 0; z-index: 1000;
+  background: linear-gradient(to bottom, rgb(15,7,2), rgb(25,12,4));
+  border-bottom: 1px solid rgba(200,150,40,0.25);
+  box-shadow: 0 2px 30px rgba(0,0,0,0.7);
+  padding: 0 28px; height: 50px;
+  display: flex; align-items: center; justify-content: space-between;
+}
+.nav-bar::after {
+  content: ''; position: absolute; bottom: 0; left: 0; right: 0; height: 1px;
+  background: linear-gradient(to right, transparent, rgba(200,150,40,0.5), transparent);
+}
+.nav-logo { font-family: 'Playfair Display', serif; font-size: 0.9rem; color: var(--accent); text-decoration: none; letter-spacing: 0.05em; }
+.nav-right { display: flex; gap: 20px; align-items: center; }
+.nav-link { font-size: 0.72rem; color: rgba(240,230,200,0.55); letter-spacing: 0.12em; text-decoration: none; transition: color 0.2s; }
+.nav-link:hover { color: var(--accent); }
+
+/* PAGE HEADER */
+.page-header { text-align: center; margin-bottom: 28px; width: 100%; max-width: 1200px; }
+.page-label { display: block; font-size: 0.6rem; letter-spacing: 0.3em; color: var(--accent); text-transform: uppercase; margin-bottom: 6px; }
+.page-title { font-family: 'Bebas Neue', sans-serif; font-size: clamp(2rem,5vw,3.5rem); letter-spacing: 0.08em; color: var(--text-cream); line-height: 1; }
+.page-title span { color: var(--accent); }
+.page-subtitle { font-family: 'Libre Baskerville', serif; font-style: italic; font-size: 0.78rem; color: rgba(240,230,200,0.38); margin-top: 6px; letter-spacing: 0.1em; }
+
+/* CONTROLS */
+.controls-row { display: flex; align-items: flex-end; gap: 16px; margin-bottom: 20px; flex-wrap: wrap; justify-content: center; width: 100%; max-width: 1200px; }
+.control-group { display: flex; flex-direction: column; gap: 5px; }
+.control-label { font-size: 0.6rem; letter-spacing: 0.2em; color: var(--accent); text-transform: uppercase; }
+select, input[type=text] {
+  background: rgba(20,10,3,0.9); border: 1px solid rgba(200,150,40,0.35);
+  color: var(--text-cream); font-family: 'Special Elite', cursive; font-size: 0.78rem;
+  padding: 7px 28px 7px 12px; border-radius: 4px; cursor: pointer;
+  appearance: none; -webkit-appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%23c8972a'/%3E%3C/svg%3E");
+  background-repeat: no-repeat; background-position: right 10px center;
+  transition: border-color 0.2s;
+}
+input[type=text] { background-image: none; padding-right: 12px; }
+select:focus, input[type=text]:focus { outline: none; border-color: var(--accent); }
+.action-btn {
+  font-family: 'Special Elite', cursive; background: rgba(20,10,3,0.9);
+  border: 1px solid rgba(200,150,40,0.35); color: var(--text-cream);
+  font-size: 0.78rem; padding: 8px 16px; border-radius: 4px;
+  cursor: pointer; letter-spacing: 0.06em; transition: all 0.2s;
+}
+.action-btn:hover { border-color: var(--accent); background: rgba(40,20,5,0.9); color: var(--accent); }
+.action-btn.primary { background: linear-gradient(135deg, #c8972a, #e8c050); color: #1a0f06; border-color: var(--gold2); font-weight: bold; }
+.action-btn.primary:hover { background: linear-gradient(135deg, #e8c050, #c8972a); }
+.action-btn.danger { color: var(--wrong); border-color: rgba(232,64,64,0.3); }
+.action-btn.danger:hover { background: rgba(232,64,64,0.1); border-color: var(--wrong); }
+
+/* TAB DISPLAY */
+.tab-display-wrap {
+  width: 100%; max-width: 1200px; background: rgba(10,5,2,0.7);
+  border: 1px solid rgba(200,150,40,0.2); border-radius: 6px;
+  margin-bottom: 20px; overflow-x: auto; padding: 12px 16px 10px;
+}
+.tab-display-wrap::-webkit-scrollbar { height: 3px; }
+.tab-display-wrap::-webkit-scrollbar-thumb { background: var(--accent); border-radius: 2px; }
+.tab-hint { font-size: 0.56rem; letter-spacing: 0.18em; color: rgba(200,150,40,0.4); text-transform: uppercase; margin-bottom: 6px; }
+.tab-staff { font-family: 'Courier New', monospace; font-size: 13px; line-height: 1.75; color: var(--text-cream); white-space: pre; min-width: max-content; }
+
+/* FRETBOARD */
+.fretboard-wrap { width: 100%; max-width: 1200px; overflow-x: auto; margin-bottom: 16px; }
+.fretboard-wrap::-webkit-scrollbar { height: 4px; }
+.fretboard-wrap::-webkit-scrollbar-thumb { background: var(--accent); border-radius: 2px; }
+.fretboard-outer { min-width: 700px; position: relative; }
+
+.fret-numbers-row { display: flex; margin-bottom: 4px; }
+.fret-num-spacer { flex-shrink: 0; }
+.fret-num-open {
+  text-align: center; font-family: 'Bebas Neue', sans-serif;
+  font-size: 0.75rem; color: rgba(240,230,200,0.5); letter-spacing: 0.04em;
+  display: flex; align-items: center; justify-content: center;
+}
+.fret-num {
+  flex: 1; text-align: center; font-family: 'Bebas Neue', sans-serif;
+  font-size: 0.75rem; color: rgba(240,230,200,0.3); letter-spacing: 0.05em;
+}
+.fret-num.marked { color: var(--accent); }
+
+.fretboard {
+  position: relative; display: flex; align-items: stretch;
+  border-radius: 4px; overflow: hidden;
+  box-shadow: 0 8px 40px rgba(0,0,0,0.7), inset 0 1px 0 rgba(255,255,255,0.05);
+}
+
+/* String labels */
+.string-labels {
+  width: 50px; display: flex; flex-direction: column;
+  justify-content: space-around; padding: 20px 0;
+  background: linear-gradient(to right, rgba(10,5,2,0.9), rgba(20,10,4,0.8));
+  border-right: 1px solid rgba(200,150,40,0.15);
+  z-index: 10; flex-shrink: 0;
+}
+.string-label {
+  text-align: right; padding-right: 8px; font-size: 0.65rem;
+  color: rgba(240,230,200,0.5); letter-spacing: 0.08em;
+  height: 34px; display: flex; align-items: center; justify-content: flex-end;
+}
+
+/* Open strings column */
+.open-col {
+  width: 50px; min-width: 50px; flex-shrink: 0;
+  display: flex; flex-direction: column;
+  justify-content: space-around; align-items: center;
+  padding: 20px 0; z-index: 10;
+  background: linear-gradient(to right, rgba(10,5,2,0.7), rgba(10,5,2,0.1));
+  border-right: 1px solid rgba(200,150,40,0.1);
+}
+
+/* Nut */
+.nut {
+  width: 14px; flex-shrink: 0;
+  background: linear-gradient(to right, #e8e0c0, #f5edd6, #e0d8b8);
+  border-right: 2px solid rgba(200,180,100,0.6);
+  display: flex; flex-direction: column;
+  justify-content: space-around; padding: 20px 0; z-index: 9;
+}
+.nut-slot { width: 100%; height: 34px; position: relative; }
+.nut-slot::after {
+  content: ''; position: absolute; top: 50%; left: 20%; right: 20%;
+  height: 2px; background: rgba(80,40,10,0.5);
+  transform: translateY(-50%); border-radius: 1px;
+}
+
+/* Frets area */
+.frets-area {
+  flex: 1; position: relative;
+  background: linear-gradient(to bottom,
+    var(--bg) 0%, #2a1205 8%, #3d1c08 25%, #4a2210 50%, #3d1c08 75%, #2a1205 92%, var(--bg) 100%);
+}
+.frets-area::before {
+  content: ''; position: absolute; inset: 0;
+  background-image:
+    repeating-linear-gradient(90deg, transparent, transparent 2px, rgba(0,0,0,0.04) 2px, rgba(0,0,0,0.04) 3px),
+    repeating-linear-gradient(180deg, transparent, transparent 8px, rgba(255,255,255,0.01) 8px, rgba(255,255,255,0.01) 9px);
+  pointer-events: none; z-index: 1;
+}
+.strings-layer {
+  position: absolute; inset: 0;
+  display: flex; flex-direction: column;
+  justify-content: space-around; padding: 20px 0;
+  pointer-events: none; z-index: 2;
+}
+.string-line { height: 34px; position: relative; }
+.string-line::before {
+  content: ''; position: absolute; top: 50%; left: 0; right: 0;
+  transform: translateY(-50%);
+  background: linear-gradient(to bottom, rgba(255,255,255,0.3), var(--string-gold), rgba(180,130,40,0.8));
+  box-shadow: 0 0 4px rgba(212,168,67,0.5);
+}
+.string-line:nth-child(1)::before { height: 1.2px; }
+.string-line:nth-child(2)::before { height: 1.5px; }
+.string-line:nth-child(3)::before { height: 2px; }
+.string-line:nth-child(4)::before { height: 2.5px; }
+.string-line:nth-child(5)::before { height: 3px; background: linear-gradient(to bottom, rgba(255,255,255,0.2), var(--string-steel), rgba(150,150,150,0.8)); box-shadow: 0 0 4px rgba(180,180,180,0.4); }
+.string-line:nth-child(6)::before { height: 3.5px; background: linear-gradient(to bottom, rgba(255,255,255,0.2), var(--string-steel), rgba(150,150,150,0.8)); box-shadow: 0 0 4px rgba(180,180,180,0.4); }
+.fret-lines { position: absolute; inset: 0; display: flex; pointer-events: none; z-index: 3; }
+.fret-line { flex: 1; border-right: 2px solid transparent; position: relative; }
+.fret-line::after {
+  content: ''; position: absolute; right: -2px; top: 0; bottom: 0; width: 2px;
+  background: linear-gradient(to bottom, #888, #e0e0e0, #bbb, #e0e0e0, #888);
+  box-shadow: 1px 0 3px rgba(0,0,0,0.4), -1px 0 2px rgba(255,255,255,0.1);
+}
+.notes-grid { position: absolute; inset: 0; display: flex; z-index: 5; padding: 20px 0; }
+.fret-col { flex: 1; display: flex; flex-direction: column; justify-content: space-around; align-items: center; }
+
+/* Note buttons */
+.note-btn {
+  width: 30px; height: 30px; border-radius: 50%;
+  border: 1.5px solid rgba(200,150,40,0.3);
+  background: rgba(15,7,2,0.4);
+  color: rgba(240,230,200,0.6);
+  font-family: 'Special Elite', cursive; font-size: 0.6rem;
+  cursor: pointer; display: flex; align-items: center; justify-content: center;
+  transition: all 0.15s; position: relative; z-index: 6;
+  padding: 0; user-select: none; touch-action: none;
+}
+.note-btn:hover {
+  border-color: rgba(200,150,40,0.7); background: rgba(30,15,4,0.8);
+  color: var(--text-cream); transform: scale(1.1);
+}
+.note-btn.placed {
+  background: radial-gradient(circle at 35% 35%, #e8c050, #c8972a 60%, #8a5c10);
+  border: 1.5px solid rgba(255,220,100,0.7); color: #1a0f06;
+  font-size: 0.65rem; font-weight: bold;
+  box-shadow: 0 0 10px rgba(200,150,40,0.6); transform: scale(1.15);
+}
+.note-btn.blocked { opacity: 0.18; cursor: not-allowed; pointer-events: none; }
+@keyframes btnFlash {
+  0%   { background: var(--accent); border-color: var(--gold2); color: #120a02; transform: scale(1.3); box-shadow: 0 0 16px rgba(200,150,40,0.9); }
+  100% { background: rgba(15,7,2,0.4); border-color: rgba(200,150,40,0.3); color: rgba(240,230,200,0.6); transform: scale(1); box-shadow: none; }
+}
+.note-btn.flash { animation: btnFlash 0.5s ease-out forwards; }
+
+/* Capo bar */
+.capo-bar {
+  position: absolute; top: 0; bottom: 0; width: 10px;
+  background: linear-gradient(to right, rgba(180,130,30,0.15), rgba(220,170,50,0.9) 30%, rgba(255,210,80,1) 50%, rgba(220,170,50,0.9) 70%, rgba(180,130,30,0.15));
+  border-radius: 5px;
+  box-shadow: 0 0 12px rgba(220,170,50,0.7), 0 0 30px rgba(200,140,30,0.4), inset 0 1px 2px rgba(255,255,255,0.4);
+  z-index: 30; pointer-events: none; transform: translateX(-50%);
+}
+
+/* Gesture overlay */
+.gesture-overlay { position: absolute; inset: 0; pointer-events: none; z-index: 40; }
+.gesture-line {
+  position: absolute; height: 3px; transform-origin: left center;
+  background: linear-gradient(to right, rgba(232,192,80,0.95), rgba(232,192,80,0.35));
+  border-radius: 999px; box-shadow: 0 0 10px rgba(232,192,80,0.4); opacity: 0;
+}
+.gesture-badge {
+  position: absolute; transform: translate(-50%, -160%);
+  padding: 4px 10px; border-radius: 999px;
+  border: 1px solid rgba(232,192,80,0.4); background: rgba(18,8,2,0.94);
+  color: var(--gold2); font-size: 0.65rem; letter-spacing: 0.1em; white-space: nowrap;
+  box-shadow: 0 6px 16px rgba(0,0,0,0.4); opacity: 0;
+}
+
+/* Pos dots */
+.pos-dots-row { display: flex; margin-left: 116px; margin-top: 6px; }
+.pos-dot-cell { flex: 1; display: flex; justify-content: center; gap: 3px; height: 14px; align-items: center; }
+.pos-dot { width: 5px; height: 5px; border-radius: 50%; background: rgba(200,150,40,0.35); }
+
+/* Info strip */
+.info-strip { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; margin: 12px 0; width: 100%; max-width: 1200px; }
+.info-chip { font-size: 0.62rem; letter-spacing: 0.12em; color: rgba(240,230,200,0.35); border: 1px solid rgba(200,150,40,0.15); padding: 4px 14px; border-radius: 20px; }
+.info-chip span { color: var(--accent); }
+
+/* Shortcut bar */
+.shortcut-bar { margin-top: 10px; font-size: 0.6rem; color: rgba(240,230,200,0.25); letter-spacing: 0.1em; display: flex; gap: 16px; flex-wrap: wrap; justify-content: center; }
+.shortcut-bar kbd { background: rgba(200,150,40,0.12); border: 1px solid rgba(200,150,40,0.25); border-radius: 2px; padding: 1px 5px; font-size: 0.58rem; color: var(--accent); font-family: monospace; }
+
+/* Note dictionary */
+.note-dict-section { width: 100%; max-width: 1200px; margin-top: 40px; }
+.note-dict-title {
+  font-family: 'Playfair Display', serif; font-size: 1.1rem;
+  letter-spacing: 0.3em; color: var(--accent); text-transform: uppercase;
+  text-align: center; margin-bottom: 24px;
+  display: flex; align-items: center; justify-content: center; gap: 14px;
+}
+.note-dict-title::before, .note-dict-title::after {
+  content: ''; flex: 1; height: 1px;
+  background: linear-gradient(to right, transparent, rgba(200,150,40,0.4));
+}
+.note-dict-title::after { background: linear-gradient(to left, transparent, rgba(200,150,40,0.4)); }
+.note-dict-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 10px; margin-bottom: 12px; }
+.dict-sharps-row { grid-column: 1/-1; display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; }
+.dict-card { background: rgba(15,7,2,0.6); border: 1px solid rgba(200,150,40,0.25); border-radius: 8px; padding: 14px 10px 12px; display: flex; flex-direction: column; align-items: center; gap: 5px; transition: all 0.2s; text-align: center; cursor: default; }
+.dict-card:hover { border-color: rgba(200,150,40,0.6); background: rgba(30,15,4,0.9); transform: translateY(-2px); }
+.dict-card-sharp { width: 140px; background: rgba(10,5,1,0.7); border-color: rgba(200,150,40,0.15); }
+.dict-card-note { font-family: 'Playfair Display', serif; font-size: 2rem; font-weight: 900; color: var(--gold2); line-height: 1; }
+.dict-card-sharp .dict-card-note { font-size: 1.4rem; }
+.dict-card-ptname { font-family: 'Libre Baskerville', serif; font-style: italic; font-size: 0.78rem; color: rgba(240,230,200,0.8); }
+.dict-card-role { font-size: 0.62rem; color: rgba(200,150,40,0.7); letter-spacing: 0.1em; text-transform: uppercase; }
+.dict-card-info { font-size: 0.58rem; color: rgba(240,230,200,0.35); line-height: 1.4; }
+
+/* Footer */
+.site-footer { width: 100%; margin-top: 50px; border-top: 1px solid rgba(200,150,40,0.1); padding: 22px 0 10px; text-align: center; }
+.footer-inner { display: flex; gap: 10px; justify-content: center; align-items: center; flex-wrap: wrap; }
+.footer-credit { font-family: 'Libre Baskerville', serif; font-size: 0.72rem; font-style: italic; color: rgba(240,230,200,0.4); }
+.footer-credit strong { color: rgba(200,150,40,0.6); font-style: normal; }
+.footer-sep { color: rgba(200,150,40,0.25); }
+.footer-copy { font-family: 'Special Elite', cursive; font-size: 0.65rem; color: rgba(240,230,200,0.25); letter-spacing: 0.1em; }
+</style>
+</head>
+<body>
+
+<nav class="nav-bar">
+  <a href="https://caiodurazzo.com" class="nav-logo">Caio Durazzo</a>
+  <div class="nav-right">
+    <a href="https://caiodurazzo.com/fretboard" class="nav-link">🎸 Fretboard</a>
+    <a href="https://caiodurazzo.com/fret-rush" class="nav-link">🎮 Fret Rush</a>
+  </div>
+</nav>
+
+<header class="page-header">
+  <span class="page-label">Transcritor de Tablaturas</span>
+  <div class="page-title">DUCARAZZO <span>TAB MAKER</span></div>
+  <div class="page-subtitle">Modo Professor · Slide · Bend</div>
+</header>
+
+<!-- CONTROLS -->
+<div class="controls-row">
+  <div class="control-group">
+    <span class="control-label">Música</span>
+    <input type="text" id="songTitle" placeholder="Nome da música..." style="width:160px" oninput="window.renderTabDisplay()">
+  </div>
+  <div class="control-group">
+    <span class="control-label">Artista</span>
+    <input type="text" id="artistName" placeholder="Artista..." style="width:130px">
+  </div>
+  <div class="control-group">
+    <span class="control-label">Afinação</span>
+    <select id="tuningSelect" onchange="window.onTuningChange()">
+      <option value="standard">Standard — E A D G B e</option>
+      <option value="dropD">Drop D — D A D G B e</option>
+      <option value="openG">Open G — D G D G B D</option>
+      <option value="openE">Open E — E B E G# B E</option>
+      <option value="openD">Open D — D A D F# A D</option>
+      <option value="dadgad">DADGAD</option>
+      <option value="halfDown">Meio Tom Abaixo</option>
+      <option value="fullDown">Tom Abaixo</option>
+      <option value="dropC">Drop C</option>
+    </select>
+  </div>
+  <div class="control-group">
+    <span class="control-label">Trastes</span>
+    <select id="fretsSelect" onchange="window.buildFretboard()">
+      <option value="12">12</option>
+      <option value="15">15</option>
+      <option value="17" selected>17</option>
+      <option value="21">21</option>
+      <option value="24">24</option>
+    </select>
+  </div>
+  <div class="control-group">
+    <span class="control-label">Capo</span>
+    <div style="display:flex;align-items:center;gap:6px">
+      <button class="action-btn" style="padding:5px 10px" onclick="window.changeCapo(-1)">−</button>
+      <span id="capoVal" style="font-family:'Bebas Neue',sans-serif;font-size:1.3rem;color:var(--accent);min-width:22px;text-align:center">0</span>
+      <button class="action-btn" style="padding:5px 10px" onclick="window.changeCapo(1)">+</button>
+    </div>
+  </div>
+  <div class="control-group" style="justify-content:flex-end">
+    <span class="control-label">&nbsp;</span>
+    <div style="display:flex;gap:8px">
+      <button class="action-btn" onclick="window.undoLast()">↩ Desfazer</button>
+      <button class="action-btn danger" onclick="window.clearAll()">✕ Limpar</button>
+      <button class="action-btn primary" onclick="window.exportPNG()">⬇ PNG</button>
+    </div>
+  </div>
+</div>
+
+<!-- TAB DISPLAY -->
+<div class="tab-display-wrap">
+  <div class="tab-hint">✦ Tablatura — clique nas notas ou arraste horizontalmente para slide / verticalmente para bend</div>
+  <div class="tab-staff" id="tabStaff"></div>
+</div>
+
+<!-- FRETBOARD -->
+<div class="fretboard-wrap">
+  <div class="fretboard-outer" id="fretboardOuter">
+    <div class="fret-numbers-row" id="fretNumbers"></div>
+    <div class="fretboard" id="fretboard">
+      <div class="string-labels" id="stringLabels"></div>
+      <div class="open-col" id="openCol"></div>
+      <div class="nut" id="nut"></div>
+      <div class="frets-area" id="fretsArea">
+        <div class="strings-layer" id="stringsLayer"></div>
+        <div class="fret-lines" id="fretLines"></div>
+        <div class="notes-grid" id="notesGrid"></div>
+        <div class="gesture-overlay" id="gestureOverlay">
+          <div class="gesture-line" id="gestureLine"></div>
+          <div class="gesture-badge" id="gestureBadge"></div>
+        </div>
+      </div>
+    </div>
+    <div class="pos-dots-row" id="posDotsRow"></div>
+  </div>
+</div>
+
+<!-- INFO STRIP -->
+<div class="info-strip">
+  <div class="info-chip">Notas: <span id="noteCount">0</span></div>
+  <div class="info-chip">Última: <span id="lastNote">—</span></div>
+</div>
+
+<!-- SHORTCUTS -->
+<div class="shortcut-bar">
+  <span><kbd>Ctrl+Z</kbd> Desfazer</span>
+  <span><kbd>Ctrl+Shift+Z</kbd> Refazer</span>
+  <span><kbd>Del</kbd> Remove última</span>
+  <span><kbd>Arraste →</kbd> Slide</span>
+  <span><kbd>Arraste ↑</kbd> Bend</span>
+</div>
+
+<!-- NOTE DICTIONARY -->
+<div class="note-dict-section">
+  <div class="note-dict-title">As Notas Musicais</div>
+  <div class="note-dict-grid" id="noteDictGrid"></div>
+</div>
+
+<footer class="site-footer">
+  <div class="footer-inner">
+    <span class="footer-credit">Desenvolvido por <strong>Everson Araujo</strong> — Studio Ema</span>
+    <span class="footer-sep">·</span>
+    <span class="footer-copy">Copyright 2026</span>
+  </div>
+</footer>
+
+<canvas id="exportCanvas" style="display:none"></canvas>
+
+<script>
+(function(){
+const NOTE_NAMES = ['C','C#','D','D#','E','F','F#','G','G#','A','A#','B'];
+const FRET_DOTS  = {3:1,5:1,7:1,9:1,12:2,15:1,17:1,19:1,21:1,24:2};
+const BASE_OCTAVES = [4,3,3,3,2,2];
+const NOTE_INFO = {
+  'C': {ptName:'Dó',  enharmonic:'B#',  role:'A Fundação', desc:'Nota natural · Dó é o início da escala'},
+  'C#':{ptName:'Dó#', enharmonic:'Ré♭', role:'Semiton',    desc:'Entre Dó e Ré · enarmônico de Ré♭'},
+  'D': {ptName:'Ré',  enharmonic:null,  role:'A Abertura',  desc:'Nota natural · corda solta D (4ª)'},
+  'D#':{ptName:'Ré#', enharmonic:'Mi♭', role:'Semiton',    desc:'Entre Ré e Mi · enarmônico de Mi♭'},
+  'E': {ptName:'Mi',  enharmonic:null,  role:'A Tensão',    desc:'Nota natural · cordas 1ª e 6ª soltas'},
+  'F': {ptName:'Fá',  enharmonic:'E#',  role:'O Repouso',   desc:'Nota natural · meio tom acima de Mi'},
+  'F#':{ptName:'Fá#', enharmonic:'Sol♭',role:'O Trítono',  desc:'Entre Fá e Sol · distância de trítono de Dó'},
+  'G': {ptName:'Sol', enharmonic:null,  role:'A Alegria',   desc:'Nota natural · corda solta G (3ª)'},
+  'G#':{ptName:'Sol#',enharmonic:'Lá♭', role:'Semiton',    desc:'Entre Sol e Lá · enarmônico de Lá♭'},
+  'A': {ptName:'Lá',  enharmonic:null,  role:'O Padrão',    desc:'Nota natural · referência 440 Hz · corda 5ª solta'},
+  'A#':{ptName:'Lá#', enharmonic:'Si♭', role:'Semiton',    desc:'Entre Lá e Si · enarmônico de Si♭'},
+  'B': {ptName:'Si',  enharmonic:null,  role:'A Sensível',  desc:'Nota natural · meio tom abaixo de Dó · corda 2ª solta'},
+};
+
+const TUNINGS = {
+  standard:{notes:[4,11,7,2,9,4], names:['e','B','G','D','A','E']},
+  dropD:   {notes:[4,11,7,2,9,2], names:['e','B','G','D','A','D']},
+  openG:   {notes:[2,11,7,2,7,2], names:['D','B','G','D','G','D']},
+  openE:   {notes:[4,11,8,4,11,4],names:['e','B','G#','E','B','E']},
+  openD:   {notes:[2,9,6,2,9,2],  names:['D','A','F#','D','A','D']},
+  dadgad:  {notes:[2,9,7,2,9,2],  names:['D','A','G','D','A','D']},
+  halfDown:{notes:[3,10,6,1,8,3], names:['d#','A#','F#','C#','G#','D#']},
+  fullDown:{notes:[2,9,5,0,7,2],  names:['d','A','F','C','G','D']},
+  dropC:   {notes:[2,9,5,0,7,0],  names:['d','A','F','C','G','C']},
+};
+
+let tuning = TUNINGS.standard;
+let openNotes = [...tuning.notes];
+let strNames  = [...tuning.names];
+let capo = 0;
+let maxFrets = 17;
+let tabData = [];
+let redoStack = [];
+
+function getMidi(si, fret) { return (BASE_OCTAVES[si]+1)*12 + openNotes[si] + fret + capo; }
+function getNoteInfo(si, fret) {
+  const midi = getMidi(si, fret);
+  const semi = midi % 12; const oct = Math.floor(midi/12)-1;
+  return { name: NOTE_NAMES[semi], full: NOTE_NAMES[semi]+oct, oct };
+}
+function entryToken(e) {
+  if (e.type==='note')  return e.fret===0 ? '0' : String(e.fret);
+  if (e.type==='slide') return `${e.from}${e.direction==='up'?'/':'\\'}${e.to}`;
+  if (e.type==='bend')  return `${e.fret}b${e.fret+(e.amount===1?2:1)}`;
+  return '?';
+}
+window.renderTabDisplay = function() {
+  if (!tabData.length) {
+    document.getElementById('tabStaff').textContent = strNames.map(n=>`${n}|--|`).join('\n');
+    return;
+  }
+  const widths = tabData.map(e => entryToken(e).length);
+  const rows = strNames.map((name,si) => {
+    let line = name+'|-';
+    tabData.forEach((e,i) => {
+      const tok=entryToken(e), w=widths[i];
+      line += e.si===si ? tok.padEnd(w,'-')+'-' : '-'.repeat(w)+'-';
+    });
+    return line+'|';
+  });
+  document.getElementById('tabStaff').textContent = rows.join('\n');
+  const wrap = document.querySelector('.tab-display-wrap');
+  wrap.scrollLeft = wrap.scrollWidth;
+};
+function updateStatus() {
+  document.getElementById('noteCount').textContent = tabData.length;
+  if (!tabData.length) { document.getElementById('lastNote').textContent='—'; return; }
+  const e = tabData[tabData.length-1];
+  let label;
+  if (e.type==='note')  label=`${getNoteInfo(e.si,e.fret).full} · ${strNames[e.si]}, ${e.fret===0?'solta':'traste '+e.fret}`;
+  if (e.type==='slide') label=`Slide ${strNames[e.si]}: ${e.from}${e.direction==='up'?'/':'\\'}${e.to}`;
+  if (e.type==='bend')  label=`Bend ${strNames[e.si]}: ${e.fret}b (${e.amount===1?'1 tom':'½ tom'})`;
+  document.getElementById('lastNote').textContent = label;
+}
+
+window.buildFretboard = function() {
+  maxFrets = parseInt(document.getElementById('fretsSelect').value);
+  document.getElementById('fretboard').style.height = (34*6+40)+'px';
+  buildFretNums(); buildStrLabels(); buildNut(); buildStrings();
+  buildFretLines(); buildOpenNotes(); buildNotes(); buildPosDots();
+  window.renderTabDisplay();
+  if (capo>0) requestAnimationFrame(()=>requestAnimationFrame(drawCapoBar));
+};
+
+function buildFretNums() {
+  const el = document.getElementById('fretNumbers');
+  el.innerHTML = '';
+  // spacer: string-labels(50) + open-col(50) + nut(14) = 114px
+  const spacer = document.createElement('div');
+  spacer.className = 'fret-num-spacer';
+  spacer.style.cssText = 'width:50px;min-width:50px';
+  el.appendChild(spacer);
+  // "0" label above open-col
+  const o = document.createElement('div');
+  o.className = 'fret-num-open';
+  o.style.cssText = 'width:50px;min-width:50px';
+  o.textContent = '0';
+  el.appendChild(o);
+  // nut spacer
+  const nutSp = document.createElement('div');
+  nutSp.style.cssText = 'width:14px;min-width:14px;flex-shrink:0';
+  el.appendChild(nutSp);
+  for (let f=1; f<=maxFrets; f++) {
+    const d = document.createElement('div');
+    d.className = 'fret-num'+(FRET_DOTS[f]?' marked':'');
+    d.textContent = f;
+    el.appendChild(d);
+  }
+}
+function buildStrLabels() {
+  const el = document.getElementById('stringLabels'); el.innerHTML = '';
+  strNames.forEach(n => { const d=document.createElement('div'); d.className='string-label'; d.textContent=n; el.appendChild(d); });
+}
+function buildNut() {
+  const el = document.getElementById('nut'); el.innerHTML = '';
+  for (let i=0;i<6;i++) { const s=document.createElement('div'); s.className='nut-slot'; el.appendChild(s); }
+}
+function buildStrings() {
+  const el = document.getElementById('stringsLayer'); el.innerHTML = '';
+  for (let i=0;i<6;i++) { const d=document.createElement('div'); d.className='string-line'; el.appendChild(d); }
+}
+function buildFretLines() {
+  const el = document.getElementById('fretLines'); el.innerHTML = '';
+  for (let f=0;f<maxFrets;f++) { const d=document.createElement('div'); d.className='fret-line'; el.appendChild(d); }
+}
+function buildPosDots() {
+  const el = document.getElementById('posDotsRow'); el.innerHTML = '';
+  for (let f=1;f<=maxFrets;f++) {
+    const cell = document.createElement('div'); cell.className='pos-dot-cell';
+    const cnt = FRET_DOTS[f]||0;
+    for (let i=0;i<cnt;i++) { const d=document.createElement('div'); d.className='pos-dot'; cell.appendChild(d); }
+    el.appendChild(cell);
+  }
+}
+
+// Gesture state
+let gesture = { active:false, si:null, fret:null, cell:null, startX:0, startY:0, curSi:null, curFret:null, curCell:null, type:null, bendAmount:0 };
+function gLine()  { return document.getElementById('gestureLine'); }
+function gBadge() { return document.getElementById('gestureBadge'); }
+function resetGestureVis() { gLine().style.opacity='0'; gBadge().style.opacity='0'; }
+function showGestureLine(fromCell, toCell, label) {
+  const fa=document.getElementById('fretsArea');
+  const faR=fa.getBoundingClientRect();
+  function center(c) { const r=c.getBoundingClientRect(); return {x:r.left-faR.left+r.width/2,y:r.top-faR.top+r.height/2}; }
+  const a=center(fromCell), b=center(toCell);
+  const dx=b.x-a.x, dy=b.y-a.y, dist=Math.sqrt(dx*dx+dy*dy), ang=Math.atan2(dy,dx)*180/Math.PI;
+  const ln=gLine();
+  ln.style.cssText=`left:${a.x}px;top:${a.y}px;width:${dist}px;transform:translateY(-50%) rotate(${ang}deg);opacity:1;`;
+  const bg=gBadge(); bg.textContent=label;
+  bg.style.cssText=`left:${(a.x+b.x)/2}px;top:${(a.y+b.y)/2}px;opacity:1;`;
+}
+function showBendLine(cell, amount) {
+  const fa=document.getElementById('fretsArea'), faR=fa.getBoundingClientRect();
+  const r=cell.getBoundingClientRect();
+  const cx=r.left-faR.left+r.width/2, cy=r.top-faR.top+r.height/2, lift=amount===1?70:45;
+  gLine().style.cssText=`left:${cx}px;top:${cy-lift}px;width:${lift}px;transform:translateY(-50%) rotate(-90deg);opacity:1;`;
+  const bg=gBadge(); bg.textContent=`BEND ${amount===1?'1 tom':'½ tom'}`;
+  bg.style.cssText=`left:${cx}px;top:${cy-lift}px;opacity:1;`;
+}
+
+function makeBtn(si, fret) {
+  const info = getNoteInfo(si, fret);
+  const btn = document.createElement('button');
+  btn.className = 'note-btn';
+  btn.textContent = info.name;
+  btn.title = `${info.full} · ${strNames[si]} · ${fret===0?'solta':'traste '+fret}`;
+  btn.dataset.si = si; btn.dataset.fret = fret;
+
+  btn.addEventListener('pointerdown', e => {
+    e.preventDefault();
+    try { btn.setPointerCapture(e.pointerId); } catch(_) {}
+    gesture = { active:true, si, fret, cell:btn, startX:e.clientX, startY:e.clientY, curSi:si, curFret:fret, curCell:btn, type:null, bendAmount:0 };
+    resetGestureVis();
+  });
+  btn.addEventListener('pointermove', e => {
+    if (!gesture.active || gesture.cell!==btn) return;
+    const dx=e.clientX-gesture.startX, dy=e.clientY-gesture.startY;
+    const absX=Math.abs(dx), absY=Math.abs(dy);
+    resetGestureVis();
+    if (absX>20 && absX>absY*1.5) {
+      gesture.type='slide';
+      const fa=document.getElementById('fretsArea');
+      const fw=fa.offsetWidth/maxFrets;
+      const deltFret=Math.round(dx/fw);
+      const targetFret=Math.max(0,Math.min(maxFrets,fret+deltFret));
+      gesture.curFret=targetFret;
+      const tBtn=document.querySelector(`.note-btn[data-si="${si}"][data-fret="${targetFret}"]`);
+      gesture.curCell=tBtn||btn;
+      if (targetFret!==fret && tBtn) {
+        const sym=targetFret>fret?'/':'\\';
+        showGestureLine(btn, tBtn, `${fret}${sym}${targetFret}`);
+      }
+      return;
+    }
+    if (dy<-20 && absY>absX*1.5) {
+      gesture.type='bend'; gesture.bendAmount=absY>60?1:0.5;
+      showBendLine(btn, gesture.bendAmount); return;
+    }
+    gesture.type=null;
+  });
+  btn.addEventListener('pointerup', e => {
+    if (!gesture.active || gesture.cell!==btn) { gesture.active=false; resetGestureVis(); return; }
+    const {type,bendAmount,curFret}=gesture;
+    gesture.active=false; resetGestureVis();
+    redoStack=[];
+    if (type==='slide' && curFret!==fret) {
+      tabData.push({type:'slide', si, from:fret, to:curFret, direction:curFret>fret?'up':'down'});
+      flashBtn(btn); if (gesture.curCell) flashBtn(gesture.curCell);
+    } else if (type==='bend') {
+      tabData.push({type:'bend', si, fret, amount:bendAmount||0.5});
+      flashBtn(btn);
+    } else {
+      tabData.push({type:'note', si, fret});
+      flashBtn(btn);
+    }
+    updateStatus(); window.renderTabDisplay();
+  });
+  btn.addEventListener('pointercancel', () => { gesture.active=false; resetGestureVis(); });
+  return btn;
+}
+function flashBtn(btn) {
+  if (!btn) return;
+  btn.classList.remove('flash'); void btn.offsetWidth; btn.classList.add('flash');
+}
+
+function buildOpenNotes() {
+  const col = document.getElementById('openCol'); col.innerHTML = '';
+  for (let s=0; s<6; s++) {
+    const btn = makeBtn(s, 0);
+    if (capo>0) btn.classList.add('blocked');
+    col.appendChild(btn);
+  }
+}
+function buildNotes() {
+  const grid = document.getElementById('notesGrid'); grid.innerHTML = '';
+  for (let f=1; f<=maxFrets; f++) {
+    const col = document.createElement('div'); col.className='fret-col';
+    for (let s=0; s<6; s++) {
+      const btn=makeBtn(s,f);
+      if (capo>0 && f<capo) btn.classList.add('blocked');
+      col.appendChild(btn);
+    }
+    grid.appendChild(col);
+  }
+  drawCapoBar();
+}
+
+function drawCapoBar() {
+  const old=document.getElementById('capoBarEl'); if (old) old.remove();
+  if (capo<=0) return;
+  const fa=document.getElementById('fretsArea');
+  const cols=fa.querySelectorAll('.fret-col');
+  if (!cols[capo-1]) return;
+  const faRect=fa.getBoundingClientRect();
+  const colRect=cols[capo-1].getBoundingClientRect();
+  const leftPx=colRect.left-faRect.left;
+  const bar=document.createElement('div'); bar.id='capoBarEl'; bar.className='capo-bar';
+  bar.style.left=leftPx+'px'; fa.appendChild(bar);
+}
+
+window.undoLast = function() { if (!tabData.length) return; redoStack.push(tabData.pop()); updateStatus(); window.renderTabDisplay(); };
+function redoLast() { if (!redoStack.length) return; tabData.push(redoStack.pop()); updateStatus(); window.renderTabDisplay(); }
+window.clearAll = function() { tabData=[]; redoStack=[]; updateStatus(); window.renderTabDisplay(); };
+window.changeCapo = function(d) {
+  capo=Math.max(0,Math.min(12,capo+d));
+  document.getElementById('capoVal').textContent=capo;
+  window.buildFretboard();
+};
+window.onTuningChange = function() {
+  const k=document.getElementById('tuningSelect').value;
+  tuning=TUNINGS[k]||TUNINGS.standard;
+  openNotes.splice(0,6,...tuning.notes);
+  strNames.splice(0,6,...tuning.names);
+  window.buildFretboard();
+};
+
+// Note dictionary
+function buildNoteDict() {
+  const grid = document.getElementById('noteDictGrid'); grid.innerHTML = '';
+  ['C','D','E','F','G','A','B'].forEach(n => {
+    const info=NOTE_INFO[n];
+    const card=document.createElement('div'); card.className='dict-card';
+    card.innerHTML=`<div class="dict-card-note">${n}</div><div class="dict-card-ptname">${info.ptName}</div><div class="dict-card-role">${info.role}</div><div class="dict-card-info">${info.desc}</div>`;
+    grid.appendChild(card);
+  });
+  const sharpsRow=document.createElement('div'); sharpsRow.className='dict-sharps-row';
+  ['C#','D#','F#','G#','A#'].forEach(n => {
+    const info=NOTE_INFO[n];
+    const card=document.createElement('div'); card.className='dict-card dict-card-sharp';
+    card.innerHTML=`<div class="dict-card-note">${n}</div><div class="dict-card-ptname">${info.ptName}</div>${info.enharmonic?`<div class="dict-card-info">= ${info.enharmonic}</div>`:''}<div class="dict-card-info">${info.desc}</div>`;
+    sharpsRow.appendChild(card);
+  });
+  grid.appendChild(sharpsRow);
+}
+
+// PNG Export
+window.exportPNG = function() {
+  const songTitle  = document.getElementById('songTitle').value.trim()  || 'Tablatura';
+  const artistName = document.getElementById('artistName').value.trim() || '';
+  const tuningLabel= document.getElementById('tuningSelect').options[document.getElementById('tuningSelect').selectedIndex].text.split('—')[0].trim();
+  if (!tabData.length) { alert('Adicione notas antes de exportar.'); return; }
+  const canvas=document.getElementById('exportCanvas');
+  const ctx=canvas.getContext('2d');
+  const SC=2, PAD=36, MONO_W=8.4, LINE_H=22, COLS_PER_LINE=28;
+  function buildLine(si,s,e){
+    let line=strNames[si]+'|-';
+    for (let c=s;c<e;c++) { const tok=entryToken(tabData[c]),w=tok.length; line += tabData[c].si===si ? tok.padEnd(w,'-')+'-' : '-'.repeat(w)+'-'; }
+    return line+'|';
+  }
+  const count=tabData.length, lines=Math.ceil(count/COLS_PER_LINE);
+  let maxLen=0;
+  for (let ln=0;ln<lines;ln++) { const s=ln*COLS_PER_LINE,e=Math.min(s+COLS_PER_LINE,count); for (let si=0;si<6;si++) maxLen=Math.max(maxLen,buildLine(si,s,e).length); }
+  const W=Math.max(PAD*2+maxLen*MONO_W+10,400), BLOCK=6*LINE_H+14;
+  const H=PAD*2+90+lines*BLOCK+(lines-1)*20+30;
+  canvas.width=W*SC; canvas.height=H*SC;
+  ctx.setTransform(1,0,0,1,0,0); ctx.scale(SC,SC);
+  ctx.fillStyle='#1a0f06'; ctx.fillRect(0,0,W,H);
+  ctx.strokeStyle='#c8972a'; ctx.lineWidth=2; ctx.strokeRect(8,8,W-16,H-16);
+  let y=PAD; ctx.textAlign='center';
+  if (artistName) { ctx.fillStyle='#c8972a'; ctx.font='bold 12px monospace'; ctx.fillText(artistName.toUpperCase(),W/2,y); y+=18; }
+  ctx.fillStyle='#f0e6c8'; ctx.font='bold 20px Georgia,serif'; ctx.fillText(songTitle,W/2,y); y+=15;
+  ctx.fillStyle='rgba(200,150,40,0.4)'; ctx.font='10px monospace';
+  ctx.fillText(`Afinação: ${tuningLabel}${capo>0?' · Capo '+capo:''}   ·   Ducarazzo Tab Maker`,W/2,y); y+=20;
+  ctx.strokeStyle='rgba(200,150,40,0.3)'; ctx.lineWidth=1;
+  ctx.beginPath(); ctx.moveTo(PAD,y); ctx.lineTo(W-PAD,y); ctx.stroke(); y+=16;
+  ctx.font='14px "Courier New",monospace'; ctx.textAlign='left';
+  for (let ln=0;ln<lines;ln++) {
+    const s=ln*COLS_PER_LINE, e=Math.min(s+COLS_PER_LINE,count);
+    for (let si=0;si<6;si++) {
+      const txt=buildLine(si,s,e);
+      ctx.fillStyle='#c8972a'; ctx.fillText(strNames[si],PAD,y+si*LINE_H);
+      ctx.fillStyle='#f0e6c8'; ctx.fillText(txt.slice(strNames[si].length),PAD+MONO_W*strNames[si].length,y+si*LINE_H);
+    }
+    y+=BLOCK+(ln<lines-1?20:0);
+  }
+  y+=14; ctx.fillStyle='rgba(200,150,40,0.25)'; ctx.font='10px monospace'; ctx.textAlign='center';
+  ctx.fillText('✦  DUCARAZZO FRETBOARD  ·  Everson Araujo — Studio Ema  ✦',W/2,y);
+  const link=document.createElement('a');
+  link.download=`${(artistName?artistName+'-':'')+(songTitle||'tab')}-tab.png`.replace(/\s+/g,'-').toLowerCase();
+  link.href=canvas.toDataURL('image/png'); link.click();
+};
+
+document.addEventListener('keydown', e => {
+  const mod=e.ctrlKey||e.metaKey;
+  if (mod && e.shiftKey && e.key==='z') { e.preventDefault(); redoLast(); return; }
+  if (mod && e.key==='z') { e.preventDefault(); window.undoLast(); return; }
+  if ((e.key==='Delete'||e.key==='Backspace')&&!e.target.matches('input')) { e.preventDefault(); window.undoLast(); }
+});
+
+window.addEventListener('load', () => { window.buildFretboard(); updateStatus(); buildNoteDict(); });
+window.addEventListener('resize', () => { buildPosDots(); });
+})();
+</script>
+</body>
+</html>

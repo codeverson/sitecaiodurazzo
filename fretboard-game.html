@@ -1,0 +1,2155 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Fret Rush — Aprenda o Braço</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=Special+Elite&family=Libre+Baskerville:ital,wght@0,400;1,400&family=Bebas+Neue&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --wood-dark: #3b1e08;
+    --wood-mid: #6b3a1f;
+    --wood-light: #a0572a;
+    --fret-silver: #c8c8c8;
+    --string-gold: #d4a843;
+    --string-steel: #bdbdbd;
+    --bg: #1a0f06;
+    --text-cream: #f0e6c8;
+    --accent: #c8972a;
+    --gold2: #e8c050;
+    --correct: #4caf80;
+    --wrong: #e84040;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    font-family: 'Special Elite', cursive;
+    color: var(--text-cream);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 30px 20px 60px;
+    background-image:
+      radial-gradient(ellipse at 20% 10%, rgba(100,50,10,0.3) 0%, transparent 50%),
+      radial-gradient(ellipse at 80% 90%, rgba(80,30,5,0.3) 0%, transparent 50%),
+      url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='200' height='200' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+  }
+
+  /* ── TOP NAV BAR ── */
+  .nav-bar {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    z-index: 1000;
+    background: linear-gradient(to bottom, rgb(15,7,2), rgb(25,12,4));
+    border-bottom: 1px solid rgba(200,150,40,0.25);
+    box-shadow: 0 2px 30px rgba(0,0,0,0.7);
+    padding: 0 24px;
+    height: 50px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 14px;
+  }
+  .nav-bar::after {
+    content: '';
+    position: absolute;
+    bottom: 0; left: 0; right: 0;
+    height: 1px;
+    background: linear-gradient(to right, transparent, rgba(200,150,40,0.5), transparent);
+  }
+  .nav-logo {
+    font-family: 'Playfair Display', serif;
+    font-size: 0.9rem;
+    color: var(--accent);
+    letter-spacing: 0.05em;
+    text-decoration: none;
+  }
+  .nav-link {
+    font-size: 0.72rem;
+    color: rgba(240,230,200,0.6);
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    text-decoration: none;
+    transition: color 0.2s;
+  }
+  .nav-link:hover { color: var(--accent); }
+  .nav-right { display: flex; gap: 18px; align-items: center; }
+
+  /* ── PAGE HEADER ── */
+  .page-header {
+    margin-top: 80px;
+    text-align: center;
+    margin-bottom: 28px;
+  }
+  .game-label {
+    font-size: 0.7rem;
+    letter-spacing: 0.25em;
+    color: var(--accent);
+    text-transform: uppercase;
+    display: block;
+    margin-bottom: 8px;
+  }
+  .game-title {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: clamp(2.5rem, 6vw, 4.5rem);
+    letter-spacing: 0.08em;
+    color: var(--text-cream);
+    line-height: 1;
+  }
+  .game-title span { color: var(--accent); }
+  .game-subtitle {
+    font-size: 0.78rem;
+    color: rgba(240,230,200,0.5);
+    margin-top: 8px;
+    letter-spacing: 0.1em;
+  }
+
+  /* ── CONTROLS ── */
+  .controls-row {
+    display: flex;
+    align-items: center;
+    gap: 18px;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+  .control-group {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    align-items: flex-start;
+  }
+  .control-label {
+    font-size: 0.6rem;
+    letter-spacing: 0.2em;
+    color: var(--accent);
+    text-transform: uppercase;
+  }
+  select {
+    background: rgba(20,10,3,0.9);
+    border: 1px solid rgba(200,150,40,0.35);
+    color: var(--text-cream);
+    font-family: 'Special Elite', cursive;
+    font-size: 0.78rem;
+    padding: 7px 12px;
+    border-radius: 4px;
+    cursor: pointer;
+    appearance: none;
+    -webkit-appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%23c8972a'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 10px center;
+    padding-right: 28px;
+    transition: border-color 0.2s;
+  }
+  select:focus { outline: none; border-color: var(--accent); }
+
+  .btn-start {
+    background: linear-gradient(135deg, #c8972a, #e8c050);
+    color: #1a0f06;
+    border: none;
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 1rem;
+    letter-spacing: 0.15em;
+    padding: 9px 24px;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.2s;
+    box-shadow: 0 2px 12px rgba(200,150,40,0.3);
+    align-self: flex-end;
+    margin-bottom: 0;
+  }
+  .btn-start:hover { transform: translateY(-1px); box-shadow: 0 4px 18px rgba(200,150,40,0.5); }
+  .btn-start:active { transform: translateY(0); }
+  .btn-start.paused {
+    background: linear-gradient(135deg, #6b3a1f, #a0572a);
+    color: var(--text-cream);
+  }
+
+  /* Note display row */
+  .note-display-row {
+    display: flex;
+    gap: 32px;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 18px;
+    flex-wrap: wrap;
+  }
+  .last-note-box { text-align: center; }
+  .avg-box { text-align: center; }
+  .avg-value {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 2.2rem;
+    color: rgba(240,230,200,0.5);
+    letter-spacing: 0.08em;
+    line-height: 1;
+    min-height: 1.2em;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  /* Timer pulse */
+  .hud-timer { font-variant-numeric: tabular-nums; }
+  .hud-timer.ticking { animation: timerPulse 1s ease-in-out infinite; }
+  @keyframes timerPulse {
+    0%,100% { opacity: 1; }
+    50% { opacity: 0.7; }
+  }
+
+  /* Streak glow */
+  .hud-streak-fire { animation: streakGlow 0.4s ease; }
+  @keyframes streakGlow {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.3); color: #fff; text-shadow: 0 0 20px var(--gold2); }
+    100% { transform: scale(1); }
+  }
+
+  /* Last note card */
+  .last-note-box { text-align: center; }
+  .last-note-card {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    min-height: 80px;
+    justify-content: center;
+  }
+  .last-note-letter {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: clamp(3rem, 8vw, 5rem);
+    color: var(--gold2);
+    text-shadow: 0 0 30px rgba(232,192,80,0.4);
+    line-height: 1;
+    transition: all 0.3s;
+  }
+  /* Hard mode censored note */
+  .last-note-card.censored .last-note-letter {
+    color: transparent;
+    background: rgba(200,150,40,0.15);
+    border-radius: 6px;
+    letter-spacing: 0.05em;
+    min-width: 80px;
+    text-align: center;
+    position: relative;
+    user-select: none;
+    text-shadow: none;
+    filter: blur(12px);
+    transition: filter 0.3s;
+  }
+  .last-note-card.censored .last-note-ptname {
+    filter: blur(8px);
+    opacity: 0.3;
+    user-select: none;
+    transition: filter 0.3s;
+  }
+
+  .last-note-ptname {
+    font-family: 'Libre Baskerville', serif;
+    font-style: italic;
+    font-size: 1rem;
+    color: rgba(240,230,200,0.55);
+    letter-spacing: 0.08em;
+    min-height: 1.3em;
+  }
+
+  /* Avg in HUD */
+  .hud-avg {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 1.6rem;
+    line-height: 1;
+    color: rgba(240,230,200,0.7);
+    letter-spacing: 0.05em;
+  }
+
+  /* Note dictionary */
+  .note-dict-section {
+    width: 100%;
+    max-width: 900px;
+    margin-top: 36px;
+    padding-top: 10px;
+  }
+  .note-dict-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.1rem;
+    letter-spacing: 0.3em;
+    color: var(--accent);
+    text-transform: uppercase;
+    text-align: center;
+    margin-bottom: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 14px;
+  }
+  .note-dict-title::before,
+  .note-dict-title::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: linear-gradient(to right, transparent, rgba(200,150,40,0.4));
+  }
+  .note-dict-title::after {
+    background: linear-gradient(to left, transparent, rgba(200,150,40,0.4));
+  }
+  .note-dict-grid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 10px;
+    margin-bottom: 12px;
+  }
+  .dict-sharps-row {
+    grid-column: 1 / -1;
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+  .dict-card {
+    background: rgba(15,7,2,0.6);
+    border: 1px solid rgba(200,150,40,0.25);
+    border-radius: 8px;
+    padding: 14px 10px 12px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 5px;
+    transition: border-color 0.2s, background 0.2s, transform 0.2s;
+    text-align: center;
+  }
+  .dict-card:hover {
+    border-color: rgba(200,150,40,0.6);
+    background: rgba(30,15,4,0.9);
+    transform: translateY(-2px);
+  }
+  .dict-card-natural { min-width: 0; }
+  .dict-card-sharp {
+    width: 140px;
+    background: rgba(10,5,1,0.7);
+    border-color: rgba(200,150,40,0.15);
+  }
+  .dict-card-note {
+    font-family: 'Playfair Display', serif;
+    font-size: 2rem;
+    font-weight: 900;
+    color: var(--gold2);
+    line-height: 1;
+    letter-spacing: 0.02em;
+  }
+  .dict-card-sharp .dict-card-note { font-size: 1.4rem; }
+  .dict-card-ptname {
+    font-family: 'Libre Baskerville', serif;
+    font-size: 0.78rem;
+    font-style: italic;
+    color: rgba(240,230,200,0.8);
+    letter-spacing: 0.04em;
+  }
+  .dict-card-role {
+    font-family: 'Special Elite', cursive;
+    font-size: 0.62rem;
+    color: rgba(200,150,40,0.7);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+  }
+  .dict-card-info {
+    font-size: 0.58rem;
+    color: rgba(240,230,200,0.35);
+    letter-spacing: 0.05em;
+    line-height: 1.4;
+  }
+
+  /* Pause overlay */
+  .pause-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(5,2,0,0.0);
+    z-index: 300;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    pointer-events: none;
+    transition: background 0.4s;
+  }
+  .pause-overlay.active {
+    pointer-events: all;
+    background: rgba(5,2,0,0.88);
+  }
+  .pause-message {
+    text-align: center;
+    opacity: 0;
+    transform: scale(0.85);
+    transition: all 0.4s 0.15s cubic-bezier(.22,1,.36,1);
+  }
+  .pause-overlay.active .pause-message { opacity: 1; transform: scale(1); }
+  .pause-emoji { font-size: 3rem; display: block; margin-bottom: 10px; }
+  .pause-title {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 2.5rem;
+    letter-spacing: 0.1em;
+    color: var(--text-cream);
+    margin-bottom: 6px;
+  }
+  .pause-sub {
+    font-size: 0.78rem;
+    color: rgba(240,230,200,0.5);
+    letter-spacing: 0.1em;
+    margin-bottom: 22px;
+  }
+  .pause-actions { display: flex; gap: 12px; justify-content: center; }
+  .pause-btn {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 1rem;
+    letter-spacing: 0.15em;
+    padding: 10px 28px;
+    border-radius: 4px;
+    border: none;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .pause-btn.continue {
+    background: linear-gradient(135deg, #c8972a, #e8c050);
+    color: #1a0f06;
+  }
+  .pause-btn.reset {
+    background: rgba(200,150,40,0.12);
+    border: 1px solid rgba(200,150,40,0.3);
+    color: var(--text-cream);
+  }
+  .pause-btn:hover { transform: scale(1.04); }
+
+  /* Difficulty popup */
+  .diff-toggle {
+    background: rgba(15,7,2,0.8);
+    border: 1px solid rgba(200,150,40,0.35);
+    color: var(--text-cream);
+    font-family: 'Special Elite', cursive;
+    font-size: 0.78rem;
+    padding: 7px 12px 7px 10px;
+    border-radius: 4px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    transition: border-color 0.2s;
+    white-space: nowrap;
+  }
+  .diff-toggle:hover { border-color: var(--accent); }
+  .diff-arrow { font-size: 0.65rem; color: var(--accent); transition: transform 0.2s; }
+  .diff-toggle.open .diff-arrow { transform: rotate(180deg); }
+
+  .diff-popup {
+    position: absolute;
+    top: calc(100% + 6px);
+    left: 0;
+    z-index: 500;
+    background: linear-gradient(135deg, #1a0f06, #200c04);
+    border: 1px solid rgba(200,150,40,0.4);
+    border-radius: 8px;
+    min-width: 260px;
+    box-shadow: 0 12px 40px rgba(0,0,0,0.8);
+    display: none;
+    flex-direction: column;
+    overflow: hidden;
+  }
+  .diff-popup.open { display: flex; }
+
+  .diff-option {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 11px 16px;
+    cursor: pointer;
+    border-bottom: 1px solid rgba(200,150,40,0.1);
+    transition: background 0.15s;
+  }
+  .diff-option:last-of-type { border-bottom: none; }
+  .diff-option:hover { background: rgba(200,150,40,0.12); }
+  .diff-option.selected { background: rgba(200,150,40,0.18); }
+  .diff-opt-icon { font-size: 0.9rem; }
+  .diff-opt-name {
+    font-family: 'Special Elite', cursive;
+    font-size: 0.8rem;
+    color: var(--text-cream);
+    letter-spacing: 0.06em;
+  }
+
+  .diff-preview-box {
+    padding: 12px 16px;
+    border-top: 1px solid rgba(200,150,40,0.15);
+    background: rgba(10,5,2,0.5);
+    min-height: 72px;
+  }
+  .diff-preview-title {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 0.9rem;
+    letter-spacing: 0.15em;
+    color: var(--accent);
+    margin-bottom: 5px;
+  }
+  .diff-preview-desc {
+    font-size: 0.68rem;
+    color: rgba(240,230,200,0.5);
+    letter-spacing: 0.06em;
+    line-height: 1.6;
+  }
+
+  /* Hard mode: revealed notes show as dots only */
+  .note-btn.revealed-hard {
+    background: radial-gradient(circle at 50% 50%, #e8c050 30%, #a06a10 100%);
+    border: 1.5px solid rgba(255,220,100,0.7);
+    color: transparent;
+    font-size: 0;
+    box-shadow: 0 0 8px rgba(200,150,40,0.5);
+    cursor: default;
+    pointer-events: none;
+  }
+  .note-btn.revealed-hard::after {
+    content: '';
+    display: block;
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    background: rgba(30,10,0,0.6);
+    margin: auto;
+  }
+
+  /* ── HUD ── */
+  .hud {
+    display: flex;
+    align-items: center;
+    gap: 32px;
+    margin-bottom: 16px;
+    padding: 12px 28px;
+    background: rgba(10,5,2,0.7);
+    border: 1px solid rgba(200,150,40,0.2);
+    border-radius: 6px;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+  .hud-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 3px;
+  }
+  .hud-label {
+    font-size: 0.55rem;
+    letter-spacing: 0.22em;
+    color: var(--accent);
+    text-transform: uppercase;
+  }
+  .hud-value {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 1.6rem;
+    line-height: 1;
+    color: var(--text-cream);
+  }
+  .hud-divider {
+    width: 1px;
+    height: 36px;
+    background: rgba(200,150,40,0.2);
+  }
+
+  /* Lives display */
+  .lives-row {
+    display: flex;
+    gap: 5px;
+    align-items: center;
+  }
+  .life-icon {
+    font-size: 1rem;
+    transition: all 0.3s;
+  }
+  .life-icon.lost {
+    opacity: 0.2;
+    filter: grayscale(1);
+  }
+  .life-icon.shake {
+    animation: lifeShake 0.4s ease;
+  }
+  @keyframes lifeShake {
+    0%,100% { transform: translateX(0); }
+    25% { transform: translateX(-4px) rotate(-10deg); }
+    75% { transform: translateX(4px) rotate(10deg); }
+  }
+
+  /* ── TARGET NOTE DISPLAY ── */
+  .target-area {
+    text-align: center;
+    margin-bottom: 18px;
+  }
+  .target-label {
+    font-size: 0.65rem;
+    letter-spacing: 0.22em;
+    color: rgba(240,230,200,0.5);
+    text-transform: uppercase;
+    margin-bottom: 6px;
+  }
+  .target-note {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: clamp(3rem, 8vw, 5.5rem);
+    line-height: 1;
+    color: var(--gold2);
+    text-shadow: 0 0 30px rgba(232,192,80,0.5);
+    transition: all 0.3s;
+    min-height: 1.1em;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+  }
+  .target-note .string-hint {
+    font-size: 1.2rem;
+    color: rgba(240,230,200,0.4);
+    font-family: 'Special Elite', cursive;
+    align-self: flex-end;
+    padding-bottom: 8px;
+    letter-spacing: 0.1em;
+  }
+  .last-note-card.correct-flash {
+    animation: correctFlash 0.4s ease;
+  }
+  .last-note-card.wrong-flash {
+    animation: wrongFlash 0.4s ease;
+  }
+  @keyframes correctFlash {
+    0% { color: var(--gold2); }
+    50% { color: var(--correct); text-shadow: 0 0 40px rgba(76,175,128,0.8); transform: scale(1.05); }
+    100% { color: var(--gold2); }
+  }
+  @keyframes wrongFlash {
+    0% { color: var(--gold2); }
+    30% { color: var(--wrong); text-shadow: 0 0 40px rgba(232,64,64,0.8); transform: scale(0.95) rotate(-2deg); }
+    100% { color: var(--gold2); }
+  }
+
+  /* Progress bar */
+  .progress-row {
+    width: 100%;
+    max-width: 900px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 12px;
+  }
+  .progress-label {
+    font-size: 0.6rem;
+    letter-spacing: 0.18em;
+    color: var(--accent);
+    text-transform: uppercase;
+    white-space: nowrap;
+  }
+  .progress-track {
+    flex: 1;
+    height: 4px;
+    background: rgba(200,150,40,0.15);
+    border-radius: 2px;
+    overflow: hidden;
+  }
+  .progress-fill {
+    height: 100%;
+    background: linear-gradient(to right, var(--accent), var(--gold2));
+    border-radius: 2px;
+    transition: width 0.4s cubic-bezier(.22,1,.36,1);
+    width: 0%;
+  }
+  .progress-count {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 0.9rem;
+    color: rgba(240,230,200,0.5);
+    white-space: nowrap;
+  }
+
+  /* ── FRETBOARD ── */
+  .fretboard-wrapper {
+    width: 100%;
+    max-width: 1200px;
+    margin-bottom: 28px;
+    transition: opacity 0.6s, filter 0.6s;
+  }
+  .fretboard-wrapper.wiped {
+    opacity: 0;
+    filter: blur(12px) brightness(0.2);
+  }
+
+  .fret-numbers-row {
+    display: flex;
+    margin-left: 66px;
+    margin-bottom: 4px;
+  }
+  .fret-num {
+    flex: 1;
+    text-align: center;
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 0.75rem;
+    color: rgba(240,230,200,0.3);
+    letter-spacing: 0.05em;
+  }
+  .fret-num.marked { color: var(--accent); }
+
+  .fretboard {
+    position: relative;
+    display: flex;
+    align-items: stretch;
+    border-radius: 4px;
+    overflow: hidden;
+    box-shadow: 0 8px 40px rgba(0,0,0,0.7), inset 0 1px 0 rgba(255,255,255,0.05);
+  }
+
+  .string-labels {
+    width: 50px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-around;
+    padding: 20px 0;
+    background: linear-gradient(to right, rgba(10,5,2,0.9), rgba(20,10,4,0.8));
+    border-right: 1px solid rgba(200,150,40,0.15);
+    z-index: 10;
+    flex-shrink: 0;
+  }
+  .string-label {
+    text-align: right;
+    padding-right: 8px;
+    font-size: 0.65rem;
+    color: rgba(240,230,200,0.5);
+    letter-spacing: 0.08em;
+    height: 34px;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+  }
+
+  .nut {
+    width: 14px;
+    background: linear-gradient(to right, #e8e0c0, #f5edd6, #e0d8b8);
+    border-right: 2px solid rgba(200,180,100,0.6);
+    display: flex;
+    flex-direction: column;
+    justify-content: space-around;
+    padding: 20px 0;
+    flex-shrink: 0;
+    z-index: 9;
+  }
+  .nut-slot {
+    width: 100%;
+    height: 34px;
+    position: relative;
+  }
+  .nut-slot::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 20%;
+    right: 20%;
+    height: 2px;
+    background: rgba(80,40,10,0.5);
+    transform: translateY(-50%);
+    border-radius: 1px;
+  }
+
+  .frets-area {
+    flex: 1;
+    position: relative;
+    background: linear-gradient(to bottom,
+      var(--bg) 0%,
+      #2a1205 8%,
+      #3d1c08 25%,
+      #4a2210 50%,
+      #3d1c08 75%,
+      #2a1205 92%,
+      var(--bg) 100%);
+  }
+  .frets-area::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background-image:
+      repeating-linear-gradient(90deg, transparent, transparent 2px, rgba(0,0,0,0.04) 2px, rgba(0,0,0,0.04) 3px),
+      repeating-linear-gradient(180deg, transparent, transparent 8px, rgba(255,255,255,0.01) 8px, rgba(255,255,255,0.01) 9px);
+    pointer-events: none;
+    z-index: 1;
+  }
+
+  .strings-layer {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-around;
+    padding: 20px 0;
+    pointer-events: none;
+    z-index: 2;
+  }
+  .string-line { height: 34px; position: relative; }
+  .string-line::before {
+    content: '';
+    position: absolute;
+    top: 50%; left: 0; right: 0;
+    transform: translateY(-50%);
+    background: linear-gradient(to bottom, rgba(255,255,255,0.3), var(--string-gold), rgba(180,130,40,0.8));
+    box-shadow: 0 0 4px rgba(212,168,67,0.5);
+  }
+  .string-line:nth-child(1)::before { height: 1.2px; }
+  .string-line:nth-child(2)::before { height: 1.5px; }
+  .string-line:nth-child(3)::before { height: 2px; }
+  .string-line:nth-child(4)::before { height: 2.5px; }
+  .string-line:nth-child(5)::before { height: 3px; background: linear-gradient(to bottom, rgba(255,255,255,0.2), var(--string-steel), rgba(150,150,150,0.8)); box-shadow: 0 0 4px rgba(180,180,180,0.4); }
+  .string-line:nth-child(6)::before { height: 3.5px; background: linear-gradient(to bottom, rgba(255,255,255,0.2), var(--string-steel), rgba(150,150,150,0.8)); box-shadow: 0 0 4px rgba(180,180,180,0.4); }
+
+  .fret-lines {
+    position: absolute; inset: 0;
+    display: flex;
+    pointer-events: none;
+    z-index: 3;
+  }
+  .fret-line {
+    flex: 1;
+    border-right: 2px solid transparent;
+    position: relative;
+  }
+  .fret-line::after {
+    content: '';
+    position: absolute;
+    right: -2px; top: 0; bottom: 0;
+    width: 2px;
+    background: linear-gradient(to bottom, #888, #e0e0e0, #bbb, #e0e0e0, #888);
+    box-shadow: 1px 0 3px rgba(0,0,0,0.4), -1px 0 2px rgba(255,255,255,0.1);
+  }
+
+  /* Notes grid */
+  .notes-grid {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    z-index: 5;
+    padding: 20px 0;
+  }
+  .fret-col {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-around;
+    align-items: center;
+  }
+
+  /* The actual note button */
+  .note-btn {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    border: 1.5px solid rgba(200,150,40,0.3);
+    background: rgba(15,7,2,0.4);
+    color: rgba(240,230,200,0.6);
+    font-family: 'Special Elite', cursive;
+    font-size: 0.6rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.15s;
+    position: relative;
+    z-index: 6;
+    padding: 0;
+    user-select: none;
+  }
+  .note-btn:hover {
+    border-color: rgba(200,150,40,0.7);
+    background: rgba(30,15,4,0.8);
+    color: var(--text-cream);
+    transform: scale(1.1);
+  }
+  /* States */
+  .note-btn.revealed {
+    background: radial-gradient(circle at 35% 35%, #e8c050, #c8972a 60%, #8a5c10);
+    border: 1.5px solid rgba(255,220,100,0.7);
+    color: #1a0f06;
+    font-size: 0.65rem;
+    box-shadow: 0 0 8px rgba(200,150,40,0.6);
+    cursor: default;
+    pointer-events: none;
+  }
+  .note-btn.correct-pop {
+    animation: correctPop 0.5s ease;
+  }
+  @keyframes correctPop {
+    0% { transform: scale(1); background: radial-gradient(circle at 35% 35%, #e8c050, #c8972a 60%, #8a5c10); }
+    40% { transform: scale(1.35); background: radial-gradient(circle at 35% 35%, #80ffb0, #4caf80); box-shadow: 0 0 20px rgba(76,175,128,0.8); }
+    100% { transform: scale(1); }
+  }
+  .note-btn.wrong-pop {
+    animation: wrongPop 0.5s ease;
+  }
+  @keyframes wrongPop {
+    0% { transform: scale(1); }
+    30% { transform: scale(0.85); background: rgba(200,30,30,0.8); border-color: var(--wrong); box-shadow: 0 0 16px rgba(232,64,64,0.6); }
+    100% { transform: scale(1); }
+  }
+  /* Active / selectable state */
+  .note-btn.active-target {
+    border-color: rgba(232,192,80,0.8);
+    background: rgba(232,192,80,0.12);
+    animation: pulseTarget 1.5s ease-in-out infinite;
+  }
+  @keyframes pulseTarget {
+    0%, 100% { box-shadow: 0 0 0 0 rgba(232,192,80,0); }
+    50% { box-shadow: 0 0 0 5px rgba(232,192,80,0.15); }
+  }
+
+  /* Pos dots below fretboard */
+  .pos-dots-row {
+    display: flex;
+    margin-left: 66px;
+    margin-top: 6px;
+  }
+  .pos-dot-cell {
+    flex: 1;
+    display: flex;
+    justify-content: center;
+    gap: 3px;
+    height: 14px;
+    align-items: center;
+  }
+  .pos-dot {
+    width: 5px; height: 5px;
+    border-radius: 50%;
+    background: rgba(200,150,40,0.35);
+  }
+
+  /* ── NOTE PICKER POPUP ── */
+  .picker-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 200;
+    pointer-events: none;
+  }
+  .picker-popup {
+    position: absolute;
+    background: linear-gradient(135deg, #1a0f06, #250d04);
+    border: 1px solid rgba(200,150,40,0.4);
+    border-radius: 8px;
+    padding: 12px;
+    box-shadow: 0 8px 40px rgba(0,0,0,0.8);
+    pointer-events: all;
+    z-index: 201;
+    display: none;
+    flex-direction: column;
+    gap: 6px;
+    min-width: 140px;
+  }
+  .picker-popup.open { display: flex; }
+  .picker-title {
+    font-size: 0.55rem;
+    letter-spacing: 0.2em;
+    color: var(--accent);
+    text-transform: uppercase;
+    text-align: center;
+    margin-bottom: 2px;
+  }
+  .picker-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 5px;
+  }
+  .picker-btn {
+    background: rgba(15,7,2,0.7);
+    border: 1px solid rgba(200,150,40,0.3);
+    color: var(--text-cream);
+    font-family: 'Special Elite', cursive;
+    font-size: 0.72rem;
+    padding: 7px 4px;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.15s;
+    text-align: center;
+  }
+  .picker-btn:hover {
+    background: rgba(200,150,40,0.2);
+    border-color: var(--accent);
+    transform: scale(1.06);
+  }
+  .picker-btn.sharp {
+    color: var(--gold2);
+    font-size: 0.65rem;
+  }
+  .picker-cancel {
+    background: transparent;
+    border: 1px solid rgba(200,150,40,0.15);
+    color: rgba(240,230,200,0.4);
+    font-family: 'Special Elite', cursive;
+    font-size: 0.62rem;
+    padding: 5px;
+    border-radius: 4px;
+    cursor: pointer;
+    text-align: center;
+    transition: all 0.15s;
+    letter-spacing: 0.1em;
+  }
+  .picker-cancel:hover { color: var(--text-cream); border-color: rgba(200,150,40,0.3); }
+
+  /* ── TOAST FEEDBACK ── */
+  .toast-container {
+    position: fixed;
+    top: 70px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 500;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    pointer-events: none;
+    align-items: center;
+  }
+  .toast {
+    padding: 9px 22px;
+    border-radius: 30px;
+    font-family: 'Special Elite', cursive;
+    font-size: 0.8rem;
+    letter-spacing: 0.1em;
+    opacity: 0;
+    transform: translateY(-8px) scale(0.95);
+    animation: toastIn 0.3s ease forwards, toastOut 0.4s 1.4s ease forwards;
+    pointer-events: none;
+    white-space: nowrap;
+  }
+  .toast.ok {
+    background: rgba(30,80,50,0.95);
+    border: 1px solid rgba(76,175,128,0.5);
+    color: #80ffb0;
+    box-shadow: 0 4px 20px rgba(76,175,128,0.3);
+  }
+  .toast.err {
+    background: rgba(80,15,15,0.95);
+    border: 1px solid rgba(232,64,64,0.4);
+    color: #ff9090;
+    box-shadow: 0 4px 20px rgba(232,64,64,0.3);
+  }
+  @keyframes toastIn {
+    to { opacity: 1; transform: translateY(0) scale(1); }
+  }
+  @keyframes toastOut {
+    to { opacity: 0; transform: translateY(-8px) scale(0.95); }
+  }
+
+  /* ── WIPE OVERLAY ── */
+  .wipe-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(5,2,0,0.0);
+    z-index: 300;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    pointer-events: none;
+    transition: background 0.5s;
+  }
+  .wipe-overlay.active {
+    pointer-events: all;
+    background: rgba(5,2,0,0.92);
+  }
+  .wipe-message {
+    text-align: center;
+    opacity: 0;
+    transform: scale(0.8);
+    transition: all 0.5s 0.4s cubic-bezier(.22,1,.36,1);
+  }
+  .wipe-overlay.active .wipe-message {
+    opacity: 1;
+    transform: scale(1);
+  }
+  .wipe-emoji { font-size: 3.5rem; display: block; margin-bottom: 12px; }
+  .wipe-title {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 2.5rem;
+    letter-spacing: 0.1em;
+    color: var(--wrong);
+    margin-bottom: 8px;
+  }
+  .wipe-sub {
+    font-size: 0.8rem;
+    color: rgba(240,230,200,0.5);
+    letter-spacing: 0.1em;
+    margin-bottom: 22px;
+  }
+  .wipe-btn {
+    background: linear-gradient(135deg, #c8972a, #e8c050);
+    color: #1a0f06;
+    border: none;
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 1.1rem;
+    letter-spacing: 0.15em;
+    padding: 11px 32px;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.2s;
+    pointer-events: all;
+  }
+  .wipe-btn:hover { transform: scale(1.04); }
+
+  /* ── WIN OVERLAY ── */
+  .win-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(5,2,0,0.0);
+    z-index: 300;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    pointer-events: none;
+    transition: background 0.6s;
+  }
+  .win-overlay.active {
+    pointer-events: all;
+    background: rgba(5,2,0,0.88);
+  }
+  .win-message {
+    text-align: center;
+    opacity: 0;
+    transform: scale(0.7) rotate(-3deg);
+    transition: all 0.7s 0.2s cubic-bezier(.22,1,.36,1);
+  }
+  .win-overlay.active .win-message {
+    opacity: 1;
+    transform: scale(1) rotate(0deg);
+  }
+  .win-emoji { font-size: 4rem; display: block; margin-bottom: 10px; animation: winBounce 0.6s 0.9s ease both; }
+  @keyframes winBounce {
+    0% { transform: scale(1); }
+    40% { transform: scale(1.4) rotate(10deg); }
+    70% { transform: scale(0.9) rotate(-5deg); }
+    100% { transform: scale(1.1); }
+  }
+  .win-title {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 3rem;
+    letter-spacing: 0.12em;
+    background: linear-gradient(135deg, #c8972a, #e8c050, #c8972a);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    margin-bottom: 4px;
+  }
+  .win-stats {
+    font-size: 0.82rem;
+    color: rgba(240,230,200,0.6);
+    letter-spacing: 0.1em;
+    margin-bottom: 8px;
+  }
+  .win-score {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 1.8rem;
+    color: var(--gold2);
+    margin-bottom: 20px;
+    letter-spacing: 0.08em;
+  }
+  .win-btn {
+    background: linear-gradient(135deg, #c8972a, #e8c050);
+    color: #1a0f06;
+    border: none;
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 1rem;
+    letter-spacing: 0.15em;
+    padding: 11px 32px;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .win-btn:hover { transform: scale(1.04); }
+
+  /* ── IDLE STATE ── */
+  .idle-message {
+    text-align: center;
+    padding: 30px;
+    opacity: 0.5;
+  }
+  .idle-message p {
+    font-size: 0.8rem;
+    letter-spacing: 0.12em;
+    line-height: 1.8;
+    color: rgba(240,230,200,0.5);
+  }
+
+  /* Footer */
+  .site-footer {
+    width: 100%;
+    margin-top: 50px;
+    border-top: 1px solid rgba(200,150,40,0.1);
+    padding: 22px 0 10px;
+    text-align: center;
+  }
+  .footer-inner {
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+    align-items: center;
+    flex-wrap: wrap;
+  }
+  .footer-credit {
+    font-family: 'Libre Baskerville', serif;
+    font-size: 0.72rem;
+    font-style: italic;
+    color: rgba(240,230,200,0.4);
+    letter-spacing: 0.06em;
+  }
+  .footer-credit strong { color: rgba(200,150,40,0.6); font-style: normal; }
+  .footer-sep { color: rgba(200,150,40,0.25); font-size: 0.7rem; }
+  .footer-copy {
+    font-family: 'Special Elite', cursive;
+    font-size: 0.65rem;
+    color: rgba(240,230,200,0.25);
+    letter-spacing: 0.1em;
+  }
+
+  /* Confetti */
+  .confetti-piece {
+    position: fixed;
+    width: 8px;
+    height: 8px;
+    border-radius: 2px;
+    z-index: 400;
+    pointer-events: none;
+    animation: confettiFall linear forwards;
+  }
+  @keyframes confettiFall {
+    0% { transform: translateY(-20px) rotate(0deg); opacity: 1; }
+    100% { transform: translateY(100vh) rotate(720deg); opacity: 0; }
+  }
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav class="nav-bar">
+  <a href="https://caiodurazzo.com" class="nav-logo">Caio Durazzo</a>
+  <div class="nav-right">
+    <a href="https://caiodurazzo.com/fretboard" class="nav-link">🎸 Fretboard</a>
+    <a href="https://caiodurazzo.com/tabmaker" class="nav-link">🎼 Tab Maker</a>
+  </div>
+</nav>
+
+<!-- TOAST CONTAINER -->
+<div class="toast-container" id="toastContainer"></div>
+
+<!-- PAUSE OVERLAY -->
+<div class="pause-overlay" id="pauseOverlay">
+  <div class="pause-message">
+    <span class="pause-emoji">⏸</span>
+    <div class="pause-title">Jogo Pausado</div>
+    <div class="pause-sub" id="pauseStats">—</div>
+    <div class="pause-actions">
+      <button class="pause-btn continue" onclick="resumeGame()">▶ Continuar</button>
+      <button class="pause-btn reset" onclick="restartGame()">↺ Reiniciar</button>
+    </div>
+  </div>
+</div>
+
+<!-- WIPE OVERLAY -->
+<div class="wipe-overlay" id="wipeOverlay">
+  <div class="wipe-message">
+    <span class="wipe-emoji">💀</span>
+    <div class="wipe-title">5 Erros!</div>
+    <div class="wipe-sub">O braço foi apagado. Tente novamente.</div>
+    <button class="wipe-btn" onclick="restartGame()">Tentar Novamente</button>
+  </div>
+</div>
+
+<!-- WIN OVERLAY -->
+<div class="win-overlay" id="winOverlay">
+  <div class="win-message">
+    <span class="win-emoji">🏆</span>
+    <div class="win-title">Braço Dominado!</div>
+    <div class="win-stats">Você identificou todas as notas do braço!</div>
+    <div class="win-score" id="winScore"></div>
+    <button class="win-btn" onclick="restartGame()">Jogar Novamente</button>
+  </div>
+</div>
+
+<!-- NOTE PICKER POPUP -->
+<div class="picker-overlay" id="pickerOverlay">
+  <div class="picker-popup" id="pickerPopup">
+    <div class="picker-title">Selecione a nota</div>
+    <div class="picker-grid" id="pickerGrid"></div>
+    <button class="picker-cancel" onclick="closePicker()">✕ Cancelar</button>
+  </div>
+</div>
+
+<!-- PAGE HEADER -->
+<div class="page-header">
+  <span class="game-label">Jogo de Aprendizado Interativo</span>
+  <h1 class="game-title">Fret <span>Rush</span></h1>
+  <p class="game-subtitle">Clique em cada posição · Nomeie a nota · Domine o braço</p>
+</div>
+
+<!-- CONTROLS -->
+<div class="controls-row">
+  <div class="control-group">
+    <span class="control-label">Afinação</span>
+    <select id="tuningSelect">
+      <option value="standard">Standard — E A D G B e</option>
+      <option value="dropD">Drop D — D A D G B e</option>
+      <option value="openG">Open G — D G D G B D</option>
+      <option value="openE">Open E — E B E G# B E</option>
+      <option value="openD">Open D — D A D F# A D</option>
+      <option value="dadgad">DADGAD</option>
+      <option value="halfDown">Half Step Down — Eb Ab Db Gb Bb Eb</option>
+      <option value="fullDown">Full Step Down — D G C F A D</option>
+      <option value="dropC">Drop C — C G C F A D</option>
+    </select>
+  </div>
+  <div class="control-group">
+    <span class="control-label">Trastes</span>
+    <select id="fretsSelect">
+      <option value="12">12 frets</option>
+      <option value="17" selected>17 frets</option>
+      <option value="22">22 frets</option>
+      <option value="24">24 frets</option>
+    </select>
+  </div>
+  <div class="control-group" style="position:relative">
+    <span class="control-label">Dificuldade</span>
+    <button class="diff-toggle" id="diffToggle" onclick="toggleDiffPopup()">
+      <span id="diffLabel">🟢 Fácil</span>
+      <span class="diff-arrow">▾</span>
+    </button>
+    <div class="diff-popup" id="diffPopup">
+      <div class="diff-option" data-diff="easy"
+           onmouseenter="previewDiff('easy')"
+           onmouseleave="clearDiffPreview()"
+           onclick="selectDiff('easy')">
+        <span class="diff-opt-icon">🟢</span>
+        <span class="diff-opt-name">Fácil</span>
+      </div>
+      <div class="diff-option" data-diff="medium"
+           onmouseenter="previewDiff('medium')"
+           onmouseleave="clearDiffPreview()"
+           onclick="selectDiff('medium')">
+        <span class="diff-opt-icon">🟡</span>
+        <span class="diff-opt-name">Médio</span>
+      </div>
+      <div class="diff-option" data-diff="hard"
+           onmouseenter="previewDiff('hard')"
+           onmouseleave="clearDiffPreview()"
+           onclick="selectDiff('hard')">
+        <span class="diff-opt-icon">🔴</span>
+        <span class="diff-opt-name">Difícil</span>
+      </div>
+      <div class="diff-preview-box" id="diffPreviewBox">
+        <div class="diff-preview-title" id="diffPreviewTitle"></div>
+        <div class="diff-preview-desc" id="diffPreviewDesc">Passe o mouse sobre uma opção para ver a descrição.</div>
+      </div>
+    </div>
+  </div>
+  <button class="btn-start" id="btnStart" onclick="toggleGame()">▶ Iniciar</button>
+</div>
+
+<!-- HUD -->
+<div class="hud" id="hud">
+  <div class="hud-item">
+    <span class="hud-label">Tempo</span>
+    <span class="hud-value hud-timer" id="hudTimer">0:00</span>
+  </div>
+  <div class="hud-divider"></div>
+  <div class="hud-item">
+    <span class="hud-label">Progresso</span>
+    <span class="hud-value" id="hudProgress">—</span>
+  </div>
+  <div class="hud-divider"></div>
+  <div class="hud-item">
+    <span class="hud-label">Sequência</span>
+    <span class="hud-value" id="hudStreak" style="color:var(--gold2)">0</span>
+  </div>
+  <div class="hud-divider"></div>
+  <div class="hud-item">
+    <span class="hud-label">Vidas</span>
+    <div class="lives-row" id="livesRow">
+      <span class="life-icon" id="life0">🎸</span>
+      <span class="life-icon" id="life1">🎸</span>
+      <span class="life-icon" id="life2">🎸</span>
+      <span class="life-icon" id="life3">🎸</span>
+      <span class="life-icon" id="life4">🎸</span>
+    </div>
+  </div>
+  <div class="hud-divider"></div>
+  <div class="hud-item">
+    <span class="hud-label">Média / Nota</span>
+    <div class="avg-value hud-avg" id="avgValue">—</div>
+  </div>
+</div>
+
+<!-- PROGRESS -->
+<div class="progress-row">
+  <span class="progress-label">Braço</span>
+  <div class="progress-track"><div class="progress-fill" id="progressFill"></div></div>
+  <span class="progress-count" id="progressCount">0 / 0</span>
+</div>
+
+<!-- LAST NOTE -->
+<div class="note-display-row">
+  <div class="last-note-box">
+    <div class="target-label">Última Nota</div>
+    <div class="last-note-card" id="lastNoteCard">
+      <span class="last-note-letter" id="targetNoteText">—</span>
+      <span class="last-note-ptname" id="lastNotePtName"></span>
+    </div>
+  </div>
+</div>
+
+<!-- FRETBOARD -->
+<div class="fretboard-wrapper" id="fretboardWrapper">
+  <div class="fret-numbers-row" id="fretNumbers"></div>
+  <div class="fretboard" id="fretboard">
+    <div class="string-labels" id="stringLabels"></div>
+    <div class="nut" id="nut"></div>
+    <div class="frets-area" id="fretsArea">
+      <div class="strings-layer" id="stringsLayer"></div>
+      <div class="fret-lines" id="fretLines"></div>
+      <div class="notes-grid" id="notesGrid"></div>
+    </div>
+  </div>
+  <div class="pos-dots-row" id="posDotsRow"></div>
+</div>
+
+<!-- IDLE STATE -->
+<div class="idle-message" id="idleMessage">
+  <p>Escolha a afinação e o número de trastes acima,<br>depois pressione <strong style="color:var(--accent)">Iniciar</strong> para começar.</p>
+</div>
+
+<!-- NOTE DICTIONARY -->
+<div class="note-dict-section">
+  <div class="note-dict-title">As Notas Musicais</div>
+  <div class="note-dict-grid" id="noteDictGrid"></div>
+</div>
+
+<script>
+(function(){
+  const NOTES = ['C','C#','D','D#','E','F','F#','G','G#','A','A#','B'];
+  const FRET_DOTS = {3:1,5:1,7:1,9:1,12:2,15:1,17:1,19:1,21:1,24:2};
+
+  const TUNINGS = {
+    standard: { notes:[4,11,7,2,9,4], octaves:[4,3,3,3,2,2], names:['e','B','G','D','A','E'] },
+    dropD:    { notes:[4,11,7,2,9,2], octaves:[4,3,3,3,2,2], names:['e','B','G','D','A','D'] },
+    openG:    { notes:[2,11,7,2,7,2], octaves:[4,3,3,3,2,2], names:['D','B','G','D','G','D'] },
+    openE:    { notes:[4,11,8,4,11,4],octaves:[4,3,3,3,2,2], names:['e','B','G#','E','B','E'] },
+    openD:    { notes:[2,9,6,2,9,2],  octaves:[4,3,3,3,2,2], names:['D','A','F#','D','A','D'] },
+    dadgad:   { notes:[2,9,7,2,9,2],  octaves:[4,3,3,3,2,2], names:['D','A','G','D','A','D'] },
+    halfDown: { notes:[3,10,6,1,8,3], octaves:[4,3,3,3,2,2], names:["d#","A#","F#","C#","G#","D#"] },
+    fullDown: { notes:[2,9,5,0,7,2],  octaves:[4,3,3,3,2,2], names:['d','A','F','C','G','D'] },
+    dropC:    { notes:[2,9,5,0,7,0],  octaves:[4,3,3,3,2,2], names:['d','A','F','C','G','C'] },
+  };
+
+  // Game state
+  let currentDifficulty = 'easy';
+  let gameRunning = false;
+  let gamePaused = false;
+  let currentTuning = null;
+  let currentFrets = 17;
+  let totalCells = 0;
+  let revealedCount = 0;
+  let errorCount = 0;
+  let correctCount = 0;
+  let streakCount = 0;
+  let pendingCell = null;
+  let cellRevealed = [];
+  let lastNoteName = null;
+  let noteHistory = []; // last 5 correct notes
+  // Timer
+  let elapsedSeconds = 0;
+  let timerInterval = null;
+
+  // Map: note name at [stringIdx][fret]
+  function getNoteAt(stringIdx, fret) {
+    const open = currentTuning.notes[stringIdx];
+    return (open + fret) % 12;
+  }
+
+  // --- BUILD FRETBOARD ---
+  function buildFretboard() {
+    const fretboard = document.getElementById('fretboard');
+    fretboard.style.height = (34*6+40)+'px';
+    buildFretNumbers();
+    buildStringLabels();
+    buildNut();
+    buildStrings();
+    buildFretLines();
+    buildNotesGrid();
+    buildPosDots();
+  }
+
+  function buildFretNumbers() {
+    const el = document.getElementById('fretNumbers');
+    el.innerHTML = '';
+    for (let f=1;f<=currentFrets;f++) {
+      const d = document.createElement('div');
+      d.className = 'fret-num'+(FRET_DOTS[f]?' marked':'');
+      d.textContent = f;
+      el.appendChild(d);
+    }
+  }
+
+  function buildStringLabels() {
+    const el = document.getElementById('stringLabels');
+    el.innerHTML = '';
+    currentTuning.names.forEach((n,i) => {
+      const d = document.createElement('div');
+      d.className = 'string-label';
+      d.textContent = `${n} (${i+1}ª)`;
+      el.appendChild(d);
+    });
+  }
+
+  function buildNut() {
+    const el = document.getElementById('nut');
+    el.innerHTML = '';
+    for (let i=0;i<6;i++) {
+      const s = document.createElement('div');
+      s.className = 'nut-slot';
+      el.appendChild(s);
+    }
+  }
+
+  function buildStrings() {
+    const el = document.getElementById('stringsLayer');
+    el.innerHTML = '';
+    for (let i=0;i<6;i++) {
+      const d = document.createElement('div');
+      d.className = 'string-line';
+      el.appendChild(d);
+    }
+  }
+
+  function buildFretLines() {
+    const el = document.getElementById('fretLines');
+    el.innerHTML = '';
+    for (let f=0;f<currentFrets;f++) {
+      const d = document.createElement('div');
+      d.className = 'fret-line';
+      el.appendChild(d);
+    }
+  }
+
+  function buildNotesGrid() {
+    const grid = document.getElementById('notesGrid');
+    grid.innerHTML = '';
+    cellRevealed = [];
+    for (let s=0;s<6;s++) cellRevealed[s] = new Array(currentFrets+1).fill(false);
+
+    for (let f=1;f<=currentFrets;f++) {
+      const col = document.createElement('div');
+      col.className = 'fret-col';
+      for (let s=0;s<6;s++) {
+        const noteIdx = getNoteAt(s, f);
+        const btn = document.createElement('button');
+        btn.className = 'note-btn';
+        btn.dataset.string = s;
+        btn.dataset.fret = f;
+        btn.dataset.note = noteIdx;
+        btn.textContent = '';
+        if (gameRunning) {
+          btn.addEventListener('click', onNoteClick);
+        } else {
+          btn.disabled = true;
+          btn.style.opacity = '0.4';
+        }
+        col.appendChild(btn);
+      }
+      grid.appendChild(col);
+    }
+  }
+
+  function buildPosDots() {
+    const el = document.getElementById('posDotsRow');
+    el.innerHTML = '';
+    for (let f=1;f<=currentFrets;f++) {
+      const cell = document.createElement('div');
+      cell.className = 'pos-dot-cell';
+      const count = FRET_DOTS[f]||0;
+      for (let i=0;i<count;i++) {
+        const dot = document.createElement('div');
+        dot.className = 'pos-dot';
+        cell.appendChild(dot);
+      }
+      el.appendChild(cell);
+    }
+  }
+
+  // --- GAME LOGIC ---
+  function formatTime(s) {
+    const m = Math.floor(s/60);
+    const ss = s%60;
+    return m+':'+(ss<10?'0':'')+ss;
+  }
+
+  function startTimer() {
+    stopTimer();
+    timerInterval = setInterval(() => {
+      elapsedSeconds++;
+      const el = document.getElementById('hudTimer');
+      el.textContent = formatTime(elapsedSeconds);
+      // pulse every second
+      el.classList.remove('ticking');
+      void el.offsetWidth;
+      el.classList.add('ticking');
+      updateAvg();
+    }, 1000);
+  }
+
+  function stopTimer() {
+    if (timerInterval) { clearInterval(timerInterval); timerInterval = null; }
+    document.getElementById('hudTimer').classList.remove('ticking');
+  }
+
+  function updateAvg() {
+    const el = document.getElementById('avgValue');
+    if (correctCount === 0) { el.textContent = '—'; return; }
+    const avg = elapsedSeconds / correctCount;
+    el.textContent = avg.toFixed(1)+'s';
+  }
+
+  function toggleGame() {
+    if (!gameRunning && !gamePaused) {
+      startGame();
+    } else if (gameRunning) {
+      pauseGame();
+    }
+  }
+
+  function startGame() {
+    const tuningKey = document.getElementById('tuningSelect').value;
+    currentTuning = TUNINGS[tuningKey];
+    currentFrets = parseInt(document.getElementById('fretsSelect').value);
+    totalCells = 6 * currentFrets;
+    revealedCount = 0;
+    errorCount = 0;
+    correctCount = 0;
+    streakCount = 0;
+    pendingCell = null;
+    lastNoteName = null;
+    noteHistory = [];
+    elapsedSeconds = 0;
+    gamePaused = false;
+    gameRunning = true;
+
+    document.getElementById('idleMessage').style.display = 'none';
+    document.getElementById('fretboardWrapper').classList.remove('wiped');
+    document.getElementById('wipeOverlay').classList.remove('active');
+    document.getElementById('winOverlay').classList.remove('active');
+    document.getElementById('pauseOverlay').classList.remove('active');
+    document.getElementById('tuningSelect').disabled = true;
+    document.getElementById('fretsSelect').disabled = true;
+    document.getElementById('diffToggle').disabled = true;
+    document.getElementById('diffToggle').style.opacity = '0.5';
+    document.getElementById('btnStart').textContent = '⏸ Pausar';
+    document.getElementById('btnStart').classList.remove('paused');
+    document.getElementById('hudTimer').textContent = '0:00';
+    document.getElementById('avgValue').textContent = '—';
+    document.getElementById('targetNoteText').textContent = '—';
+    // hint cleanup (no-op, new structure has no hints)
+
+    buildFretboard();
+    buildNoteDict();
+    updateHUD();
+    updateProgress();
+    startTimer();
+    // Reset history display
+    noteHistory = [];
+    updateNoteHistory();
+    showToast('Jogo iniciado! Clique em qualquer posição para começar.', 'ok', 2000);
+  }
+
+  function pauseGame() {
+    if (!gameRunning) return;
+    gameRunning = false;
+    gamePaused = true;
+    stopTimer();
+    closePicker();
+    document.getElementById('btnStart').textContent = '▶ Retomar';
+    document.getElementById('btnStart').classList.add('paused');
+    const stats = `${revealedCount}/${totalCells} notes · ${formatTime(elapsedSeconds)} · ${errorCount} error${errorCount!==1?'s':''}`;
+    document.getElementById('pauseStats').textContent = stats;
+    document.getElementById('pauseOverlay').classList.add('active');
+  }
+
+  function resumeGame() {
+    if (!gamePaused) return;
+    gamePaused = false;
+    gameRunning = true;
+    document.getElementById('pauseOverlay').classList.remove('active');
+    document.getElementById('btnStart').textContent = '⏸ Pausar';
+    document.getElementById('btnStart').classList.remove('paused');
+    startTimer();
+  }
+
+  function restartGame() {
+    stopTimer();
+    elapsedSeconds = 0;
+    streakCount = 0;
+    lastNoteName = null;
+    noteHistory = [];
+    gamePaused = false;
+    gameRunning = false;
+    document.getElementById('tuningSelect').disabled = false;
+    document.getElementById('fretsSelect').disabled = false;
+    document.getElementById('diffToggle').disabled = false;
+    document.getElementById('diffToggle').style.opacity = '';
+    document.getElementById('wipeOverlay').classList.remove('active');
+    document.getElementById('winOverlay').classList.remove('active');
+    document.getElementById('pauseOverlay').classList.remove('active');
+    document.getElementById('btnStart').textContent = '▶ Iniciar';
+    document.getElementById('btnStart').classList.remove('paused');
+    document.getElementById('hudTimer').textContent = '0:00';
+    document.getElementById('avgValue').textContent = '—';
+    buildFretboard();
+    setTargetNote('—');
+    updateHUD();
+    document.getElementById('idleMessage').style.display = '';
+    document.getElementById('progressFill').style.width = '0%';
+    document.getElementById('progressCount').textContent = '0 / 0';
+  }
+
+  function onNoteClick(e) {
+    if (!gameRunning) return;
+    const btn = e.currentTarget;
+    const s = parseInt(btn.dataset.string);
+    const f = parseInt(btn.dataset.fret);
+    if (cellRevealed[s][f]) return;
+
+    pendingCell = { stringIdx: s, fret: f, noteIdx: parseInt(btn.dataset.note), btn };
+
+    // Open picker (do NOT reveal note name - that would be cheating!)
+    openPicker(btn, s, f);
+  }
+
+  function setTargetNote(note, stringName) {
+    document.getElementById('targetNoteText').textContent = note || '—';
+    const ptEl = document.getElementById('lastNotePtName');
+    if (ptEl) ptEl.textContent = '';
+    const card = document.getElementById('lastNoteCard');
+    if (card) card.classList.remove('censored');
+  }
+
+  function setLastNote(note, stringName) {
+    const card = document.getElementById('lastNoteCard');
+    document.getElementById('targetNoteText').textContent = note || '—';
+    const ptEl = document.getElementById('lastNotePtName');
+    if (ptEl) {
+      if (note && NOTE_INFO && NOTE_INFO[note]) {
+        ptEl.textContent = NOTE_INFO[note].ptName;
+      } else {
+        ptEl.textContent = '';
+      }
+    }
+    // Hard mode: censor the last note display
+    if (card) {
+      card.classList.toggle('censored', currentDifficulty === 'hard');
+    }
+  }
+
+  function updateNoteHistory() { /* no-op, kept for compat */ }
+
+  // Open picker near the clicked button
+  function openPicker(btn, s, f) {
+    const popup = document.getElementById('pickerPopup');
+    const grid = document.getElementById('pickerGrid');
+    grid.innerHTML = '';
+
+    // Available notes for this position (natural + sharps where they exist)
+    const openNote = currentTuning.notes[s];
+    const noteIdx = (openNote + f) % 12;
+    // Offer all notes as options (shuffle for medium/hard)
+    let options = ['C','D','E','F','G','A','B','C#','D#','F#','G#','A#'];
+    if (currentDifficulty === 'medium' || currentDifficulty === 'hard') {
+      for (let i = options.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [options[i], options[j]] = [options[j], options[i]];
+      }
+    }
+    options.forEach(n => {
+      const b = document.createElement('button');
+      b.className = 'picker-btn' + (n.includes('#') ? ' sharp' : '');
+      b.textContent = n;
+      b.addEventListener('click', () => submitAnswer(n));
+      grid.appendChild(b);
+    });
+
+    // Position popup near button
+    const rect = btn.getBoundingClientRect();
+    const pw = 160, ph = 160;
+    let top = rect.bottom + 8;
+    let left = rect.left - pw/2 + rect.width/2;
+    if (top + ph > window.innerHeight - 20) top = rect.top - ph - 8;
+    if (left < 8) left = 8;
+    if (left + pw > window.innerWidth - 8) left = window.innerWidth - pw - 8;
+
+    popup.style.top = top + 'px';
+    popup.style.left = left + 'px';
+    popup.classList.add('open');
+    document.getElementById('pickerOverlay').addEventListener('click', onOverlayClick);
+
+    // Highlight active target on the button
+    btn.classList.add('active-target');
+  }
+
+  function onOverlayClick(e) {
+    if (e.target === document.getElementById('pickerOverlay')) {
+      closePicker();
+    }
+  }
+
+  function closePicker() {
+    document.getElementById('pickerPopup').classList.remove('open');
+    document.getElementById('pickerOverlay').removeEventListener('click', onOverlayClick);
+    if (pendingCell) {
+      pendingCell.btn.classList.remove('active-target');
+    }
+    pendingCell = null;
+    setTargetNote('—');
+  }
+
+  const DIFF_INFO = {
+    easy: {
+      icon: '🟢', label: 'Fácil',
+      title: 'MODO FÁCIL',
+      desc: 'As notas certas ficam visíveis após acertar. Os botões de escolha aparecem sempre na mesma ordem. Ideal para iniciantes.'
+    },
+    medium: {
+      icon: '🟡', label: 'Médio',
+      title: 'MODO MÉDIO',
+      desc: 'Os botões de escolha são embaralhados a cada clique, forçando você a pensar na nota — não na posição do botão.'
+    },
+    hard: {
+      icon: '🔴', label: 'Difícil',
+      title: 'MODO DIFÍCIL',
+      desc: 'As notas corretas ficam marcadas apenas como ponto dourado, sem texto. Você precisa lembrar de cabeça o que já revelou.'
+    },
+  };
+
+  function toggleDiffPopup() {
+    if (gameRunning) return; // can't change during game
+    const popup = document.getElementById('diffPopup');
+    const toggle = document.getElementById('diffToggle');
+    const isOpen = popup.classList.contains('open');
+    popup.classList.toggle('open', !isOpen);
+    toggle.classList.toggle('open', !isOpen);
+    if (!isOpen) {
+      // Mark selected
+      document.querySelectorAll('.diff-option').forEach(opt => {
+        opt.classList.toggle('selected', opt.dataset.diff === currentDifficulty);
+      });
+      setTimeout(() => {
+        document.addEventListener('click', closeDiffOnOutside);
+      }, 10);
+    }
+  }
+
+  function closeDiffOnOutside(e) {
+    const popup = document.getElementById('diffPopup');
+    const toggle = document.getElementById('diffToggle');
+    if (!popup.contains(e.target) && !toggle.contains(e.target)) {
+      popup.classList.remove('open');
+      toggle.classList.remove('open');
+      document.removeEventListener('click', closeDiffOnOutside);
+      clearDiffPreview();
+    }
+  }
+
+  function previewDiff(d) {
+    const info = DIFF_INFO[d];
+    document.getElementById('diffPreviewTitle').textContent = info.title;
+    document.getElementById('diffPreviewDesc').textContent = info.desc;
+  }
+
+  function clearDiffPreview() {
+    // Only clear if no option is currently hovered (let last hover linger)
+  }
+
+  function selectDiff(d) {
+    currentDifficulty = d;
+    const info = DIFF_INFO[d];
+    document.getElementById('diffLabel').textContent = info.icon + ' ' + info.label;
+    document.querySelectorAll('.diff-option').forEach(opt => {
+      opt.classList.toggle('selected', opt.dataset.diff === d);
+    });
+    const popup = document.getElementById('diffPopup');
+    const toggle = document.getElementById('diffToggle');
+    popup.classList.remove('open');
+    toggle.classList.remove('open');
+    document.removeEventListener('click', closeDiffOnOutside);
+  }
+
+  // keep old setDiff for internal use
+  function setDiff(d) { selectDiff(d); }
+
+  function submitAnswer(chosenNote) {
+    if (!pendingCell) return;
+    const saved = pendingCell;
+    closePicker();
+
+    const { stringIdx, fret, noteIdx, btn } = saved;
+    const correctNote = NOTES[noteIdx];
+
+    if (chosenNote === correctNote) {
+      // CORRECT
+      correctCount++;
+      revealedCount++;
+      streakCount++;
+      cellRevealed[stringIdx][fret] = true;
+      lastNoteName = correctNote;
+
+      btn.textContent = correctNote;
+      btn.classList.remove('active-target');
+      if (currentDifficulty === 'hard') {
+        btn.classList.add('revealed-hard');
+      } else {
+        btn.classList.add('revealed');
+      }
+      btn.classList.add('correct-pop');
+      btn.disabled = true;
+      setTimeout(() => btn.classList.remove('correct-pop'), 500);
+
+      // Update last note display
+      setLastNote(correctNote, currentTuning.names[stringIdx]);
+
+      // Streak feedback
+      const streakEl = document.getElementById('hudStreak');
+      streakEl.textContent = streakCount;
+      streakEl.classList.remove('hud-streak-fire');
+      void streakEl.offsetWidth;
+      if (streakCount >= 3) streakEl.classList.add('hud-streak-fire');
+
+      // Small correct toast (with streak bonus)
+      const msgs = ['Boa!', 'Correto!', '✓ Certo!', 'Isso!', 'Muito bem!'];
+      let msg = msgs[Math.floor(Math.random()*msgs.length)];
+      if (streakCount === 5) msg = '🔥 5 seguidas!';
+      else if (streakCount === 10) msg = '🔥🔥 10 seguidas!';
+      else if (streakCount > 0 && streakCount % 10 === 0) msg = `🔥 ${streakCount} seguidas!`;
+      showToast(msg, 'ok', 1200);
+
+      // Flash target
+      document.getElementById('lastNoteCard').classList.add('correct-flash');
+      setTimeout(() => document.getElementById('lastNoteCard').classList.remove('correct-flash'), 500);
+
+      updateHUD();
+      updateProgress();
+      updateAvg();
+
+      // Check string completion
+      checkStringComplete(stringIdx);
+
+      // Check win
+      if (revealedCount >= totalCells) {
+        setTimeout(triggerWin, 600);
+      }
+    } else {
+      // WRONG
+      streakCount = 0;
+      document.getElementById('hudStreak').textContent = '0';
+      errorCount++;
+      btn.classList.add('wrong-pop');
+      setTimeout(() => btn.classList.remove('wrong-pop'), 500);
+
+      // Flash target
+      document.getElementById('lastNoteCard').classList.add('wrong-flash');
+      setTimeout(() => document.getElementById('lastNoteCard').classList.remove('wrong-flash'), 500);
+
+      const wrongMsgs = [
+        `Não é ${chosenNote} — tente de novo!`,
+        `Errado! Continue`,
+        `Ops! Tente outro`,
+      ];
+      showToast(wrongMsgs[Math.floor(Math.random()*wrongMsgs.length)], 'err', 1500);
+
+      // Shake life icon
+      const lifeEl = document.getElementById('life'+(5-errorCount));
+      if (lifeEl) {
+        lifeEl.classList.add('shake');
+        setTimeout(() => {
+          lifeEl.classList.remove('shake');
+          lifeEl.classList.add('lost');
+        }, 400);
+      }
+
+      updateHUD();
+
+      if (errorCount >= 5) {
+        setTimeout(triggerWipe, 700);
+      }
+    }
+  }
+
+  function checkStringComplete(stringIdx) {
+    // Check if all frets on this string are revealed
+    for (let f = 1; f <= currentFrets; f++) {
+      if (!cellRevealed[stringIdx][f]) return; // not done yet
+    }
+    // All done! Celebrate this string
+    const stringName = currentTuning.names[stringIdx];
+    setTimeout(() => {
+      showToast(`🎸 Corda ${stringName} completa!`, 'ok', 2500);
+      // Flash the whole string visually
+      const allBtns = document.querySelectorAll(`[data-string="${stringIdx}"]`);
+      allBtns.forEach(btn => {
+        btn.style.boxShadow = '0 0 18px rgba(76,175,128,0.9)';
+        setTimeout(() => { btn.style.boxShadow = ''; }, 1000);
+      });
+    }, 300);
+  }
+
+  function triggerWipe() {
+    gameRunning = false;
+    gamePaused = false;
+    stopTimer();
+    document.getElementById('btnStart').textContent = '▶ Iniciar';
+    document.getElementById('btnStart').classList.remove('paused');
+    const wrapper = document.getElementById('fretboardWrapper');
+    wrapper.classList.add('wiped');
+    setTimeout(() => {
+      document.getElementById('wipeOverlay').classList.add('active');
+    }, 500);
+  }
+
+  function triggerWin() {
+    gameRunning = false;
+    gamePaused = false;
+    stopTimer();
+    document.getElementById('btnStart').textContent = '▶ Iniciar';
+    document.getElementById('btnStart').classList.remove('paused');
+    launchConfetti();
+    const winScore = document.getElementById('winScore');
+    winScore.textContent = `${correctCount} notes · ${errorCount} error${errorCount!==1?'s':''} · ${formatTime(elapsedSeconds)}`;
+    document.getElementById('winOverlay').classList.add('active');
+  }
+
+  function updateHUD() {
+    document.getElementById('hudProgress').textContent =
+      (gameRunning||gamePaused) ? `${revealedCount}/${totalCells}` : '—';
+    document.getElementById('hudStreak').textContent = streakCount;
+
+    // Lives
+    for (let i=0;i<5;i++) {
+      const el = document.getElementById('life'+i);
+      if (el) {
+        el.classList.toggle('lost', i >= (5 - errorCount));
+      }
+    }
+  }
+
+  function updateProgress() {
+    const pct = totalCells > 0 ? (revealedCount / totalCells) * 100 : 0;
+    document.getElementById('progressFill').style.width = pct+'%';
+    document.getElementById('progressCount').textContent = `${revealedCount} / ${totalCells}`;
+  }
+
+  // --- TOAST ---
+  function showToast(msg, type='ok', duration=1800) {
+    const container = document.getElementById('toastContainer');
+    const t = document.createElement('div');
+    t.className = `toast ${type}`;
+    t.textContent = msg;
+    container.appendChild(t);
+    setTimeout(() => { if (t.parentNode) t.parentNode.removeChild(t); }, duration+400);
+  }
+
+  // --- CONFETTI ---
+  function launchConfetti() {
+    const colors = ['#c8972a','#e8c050','#f0e6c8','#4caf80','#80ffb0','#ff9090'];
+    for (let i=0;i<60;i++) {
+      setTimeout(() => {
+        const p = document.createElement('div');
+        p.className = 'confetti-piece';
+        p.style.left = Math.random()*100+'vw';
+        p.style.top = '-20px';
+        p.style.background = colors[Math.floor(Math.random()*colors.length)];
+        p.style.width = (6+Math.random()*8)+'px';
+        p.style.height = (6+Math.random()*8)+'px';
+        p.style.animationDuration = (1.5+Math.random()*2)+'s';
+        p.style.borderRadius = Math.random()>0.5?'50%':'2px';
+        document.body.appendChild(p);
+        setTimeout(() => p.remove(), 3500);
+      }, i*40);
+    }
+  }
+
+  // --- NOTE DICTIONARY ---
+  const NOTE_INFO = {
+    'C':  { ptName: 'Dó',  enharmonic: 'B#',  semitone: 0,  role: 'A Fundação',  desc: 'Nota natural · Dó é o início da escala' },
+    'C#': { ptName: 'Dó#', enharmonic: 'Ré♭', semitone: 1,  role: 'Semiton',     desc: 'Entre Dó e Ré · enarmônico de Ré♭' },
+    'D':  { ptName: 'Ré',  enharmonic: null,   semitone: 2,  role: 'A Abertura',  desc: 'Nota natural · corda solta D (4ª)' },
+    'D#': { ptName: 'Ré#', enharmonic: 'Mi♭',  semitone: 3,  role: 'Semiton',     desc: 'Entre Ré e Mi · enarmônico de Mi♭' },
+    'E':  { ptName: 'Mi',  enharmonic: null,   semitone: 4,  role: 'A Tensão',    desc: 'Nota natural · cordas 1ª e 6ª soltas' },
+    'F':  { ptName: 'Fá',  enharmonic: 'E#',   semitone: 5,  role: 'O Repouso',   desc: 'Nota natural · meio tom acima de Mi' },
+    'F#': { ptName: 'Fá#', enharmonic: 'Sol♭', semitone: 6,  role: 'O Trítono',   desc: 'Entre Fá e Sol · distância de trítono de Dó' },
+    'G':  { ptName: 'Sol', enharmonic: null,   semitone: 7,  role: 'A Alegria',   desc: 'Nota natural · corda solta G (3ª)' },
+    'G#': { ptName: 'Sol#',enharmonic: 'Lá♭',  semitone: 8,  role: 'Semiton',     desc: 'Entre Sol e Lá · enarmônico de Lá♭' },
+    'A':  { ptName: 'Lá',  enharmonic: null,   semitone: 9,  role: 'O Padrão',    desc: 'Nota natural · referência 440 Hz · corda 5ª solta' },
+    'A#': { ptName: 'Lá#', enharmonic: 'Si♭',  semitone: 10, role: 'Semiton',     desc: 'Entre Lá e Si · enarmônico de Si♭' },
+    'B':  { ptName: 'Si',  enharmonic: null,   semitone: 11, role: 'A Sensível',  desc: 'Nota natural · meio tom abaixo de Dó · corda 2ª solta' },
+  };
+
+  function buildNoteDict() {
+    const grid = document.getElementById('noteDictGrid');
+    if (!grid) return;
+    grid.innerHTML = '';
+    // Only natural notes in main row (like screenshot), then sharps below
+    const naturals = ['C','D','E','F','G','A','B'];
+    naturals.forEach(n => {
+      const info = NOTE_INFO[n];
+      const card = document.createElement('div');
+      card.className = 'dict-card dict-card-natural';
+      card.innerHTML = `
+        <div class="dict-card-note">${n}</div>
+        <div class="dict-card-ptname">${info.ptName}</div>
+        <div class="dict-card-role">${info.role}</div>
+        <div class="dict-card-info">${info.desc}</div>
+      `;
+      grid.appendChild(card);
+    });
+    // Sharps row
+    const sharps = ['C#','D#','F#','G#','A#'];
+    const sharpsRow = document.createElement('div');
+    sharpsRow.className = 'dict-sharps-row';
+    sharps.forEach(n => {
+      const info = NOTE_INFO[n];
+      const card = document.createElement('div');
+      card.className = 'dict-card dict-card-sharp';
+      card.innerHTML = `
+        <div class="dict-card-note">${n}</div>
+        <div class="dict-card-ptname">${info.ptName}</div>
+        <div class="dict-card-info">${info.enharmonic ? '= '+info.enharmonic : ''}</div>
+        <div class="dict-card-info">${info.desc}</div>
+      `;
+      sharpsRow.appendChild(card);
+    });
+    grid.appendChild(sharpsRow);
+  }
+
+  // --- EXPOSE GLOBALS ---
+  window.startGame = startGame;
+  window.toggleDiffPopup = toggleDiffPopup;
+  window.previewDiff = previewDiff;
+  window.clearDiffPreview = clearDiffPreview;
+  window.selectDiff = selectDiff;
+  window.toggleGame = toggleGame;
+  window.pauseGame = pauseGame;
+  window.resumeGame = resumeGame;
+  window.setDiff = setDiff;
+  window.restartGame = restartGame;
+  window.closePicker = closePicker;
+
+  // Initial build (idle)
+  currentTuning = TUNINGS.standard;
+  currentFrets = 17;
+  buildFretboard();
+  buildNoteDict();
+
+})();
+</script>
+<!-- FOOTER -->
+<footer class="site-footer">
+  <div class="footer-inner">
+    <span class="footer-credit">Desenvolvido por <strong>Everson Araujo</strong> — Studio Ema</span>
+    <span class="footer-sep">·</span>
+    <span class="footer-copy">Copyright 2026</span>
+  </div>
+</footer>
+</body>
+</html>

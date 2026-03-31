@@ -1,0 +1,737 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Caio Durazzo — Agenda de Shows</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=Special+Elite&family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&family=Bebas+Neue&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:     #0e0903;
+  --bg2:    #140c04;
+  --cream:  #f0e6c8;
+  --cream2: rgba(240,230,200,0.6);
+  --cream3: rgba(240,230,200,0.25);
+  --gold:   #c8972a;
+  --gold2:  #e8c050;
+  --gold3:  rgba(200,150,40,0.12);
+  --red:    #c0392b;
+  --border: rgba(200,150,40,0.2);
+  --panel:  rgba(20,12,4,0.7);
+}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+body {
+  background: var(--bg);
+  color: var(--cream);
+  font-family: 'Special Elite', cursive;
+  min-height: 100vh;
+  background-image:
+    radial-gradient(ellipse at 20% 10%, rgba(100,50,10,0.2) 0%, transparent 50%),
+    radial-gradient(ellipse at 80% 90%, rgba(80,30,5,0.2) 0%, transparent 50%),
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='200' height='200' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E");
+}
+::-webkit-scrollbar { width: 4px; }
+::-webkit-scrollbar-thumb { background: var(--gold); border-radius: 2px; }
+
+/* ── NAV ── */
+nav {
+  position: fixed; top: 0; left: 0; right: 0; z-index: 200;
+  padding: 16px 40px;
+  display: flex; align-items: center; justify-content: space-between;
+  background: linear-gradient(to bottom, rgba(14,9,3,0.97), rgba(14,9,3,0.0));
+  backdrop-filter: blur(6px);
+}
+.nav-logo { font-family:'Bebas Neue',sans-serif; font-size:1.3rem; letter-spacing:0.15em; color:var(--gold); text-decoration:none; }
+.nav-links { display:flex; gap:28px; list-style:none; }
+.nav-links a { font-size:0.6rem; letter-spacing:0.3em; color:var(--cream3); text-decoration:none; text-transform:uppercase; transition:color 0.2s; }
+.nav-links a:hover, .nav-links a.active { color:var(--gold); }
+.nav-admin-btn {
+  font-size:0.55rem; letter-spacing:0.2em; color:rgba(200,150,40,0.4);
+  border:1px solid rgba(200,150,40,0.15); padding:5px 14px;
+  background:none; cursor:pointer; font-family:'Special Elite',cursive;
+  transition:all 0.2s;
+}
+.nav-admin-btn:hover { color:var(--gold); border-color:var(--gold); }
+
+/* ── HERO ── */
+.hero {
+  padding: 140px 24px 70px;
+  text-align: center;
+  position: relative;
+}
+.hero-label { font-size:0.62rem; letter-spacing:0.45em; color:var(--gold); display:block; margin-bottom:14px; }
+.hero-title {
+  font-family:'Bebas Neue',sans-serif;
+  font-size: clamp(3rem, 9vw, 6.5rem);
+  line-height: 0.9;
+  color: var(--cream);
+  letter-spacing: 0.05em;
+  text-shadow: 0 0 60px rgba(200,150,40,0.15);
+}
+.hero-title span { color: var(--gold); }
+.hero-ornament { color:rgba(200,150,40,0.3); letter-spacing:0.5em; font-size:1rem; margin:18px 0 0; }
+
+/* ── MAIN LAYOUT ── */
+.main {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 20px 24px 80px;
+}
+
+/* ── FILTER BAR ── */
+.filter-bar {
+  display: flex; gap: 8px; margin-bottom: 40px;
+  flex-wrap: wrap; justify-content: center;
+}
+.filter-btn {
+  font-family:'Special Elite',cursive;
+  font-size: 0.62rem; letter-spacing:0.2em; text-transform:uppercase;
+  padding: 7px 18px; border: 1px solid var(--border);
+  background: none; color: var(--cream3); cursor: pointer;
+  transition: all 0.2s; border-radius: 1px;
+}
+.filter-btn:hover { color:var(--cream2); border-color:rgba(200,150,40,0.4); }
+.filter-btn.active { background:var(--gold3); border-color:var(--gold); color:var(--gold); }
+
+/* ── SHOW CARDS ── */
+.shows-list { display:flex; flex-direction:column; gap:16px; }
+
+.show-card {
+  display: grid;
+  grid-template-columns: 80px 1fr auto;
+  gap: 0;
+  border: 1px solid var(--border);
+  background: var(--panel);
+  transition: all 0.25s;
+  position: relative;
+  overflow: hidden;
+}
+.show-card:hover {
+  border-color: rgba(200,150,40,0.45);
+  background: rgba(25,15,5,0.8);
+  transform: translateX(3px);
+}
+.show-card.past { opacity: 0.45; }
+.show-card.past:hover { opacity: 0.65; }
+
+/* Date column */
+.show-date-col {
+  background: rgba(200,150,40,0.08);
+  border-right: 1px solid var(--border);
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  padding: 18px 10px;
+  text-align: center;
+  min-width: 80px;
+}
+.show-day {
+  font-family:'Bebas Neue',sans-serif;
+  font-size: 2.4rem; line-height: 1;
+  color: var(--gold);
+}
+.show-month {
+  font-size: 0.58rem; letter-spacing:0.2em;
+  color: var(--cream3); text-transform:uppercase;
+  margin-top: 2px;
+}
+.show-year {
+  font-size: 0.55rem; color: rgba(200,150,40,0.4); margin-top: 1px;
+}
+
+/* Info column */
+.show-info { padding: 18px 24px; display:flex; flex-direction:column; justify-content:center; gap:6px; }
+
+.show-venue {
+  font-family:'Playfair Display',serif;
+  font-size: 1.05rem; font-weight:700;
+  color: var(--cream);
+}
+.show-city {
+  font-size: 0.7rem; letter-spacing:0.15em;
+  color: var(--gold); opacity:0.8;
+}
+.show-address {
+  font-size: 0.72rem; color: var(--cream3);
+  font-family:'Libre Baskerville',serif;
+  font-style:italic;
+}
+.show-time-price {
+  display:flex; gap:16px; align-items:center; margin-top:4px;
+}
+.show-time, .show-price {
+  font-size: 0.65rem; letter-spacing:0.1em;
+  color: var(--cream3);
+}
+.show-time::before { content:'🕐 '; }
+.show-price::before { content:'🎟 '; }
+
+/* CTA column */
+.show-cta-col {
+  display:flex; align-items:center; padding:18px 20px;
+  border-left: 1px solid var(--border);
+}
+.show-ticket-btn {
+  font-family:'Special Elite',cursive;
+  font-size:0.6rem; letter-spacing:0.15em;
+  text-transform:uppercase;
+  padding: 10px 16px;
+  background: var(--gold);
+  color: #0e0903;
+  border:none; cursor:pointer;
+  text-decoration:none; display:block;
+  text-align:center;
+  transition:all 0.2s;
+  white-space:nowrap;
+}
+.show-ticket-btn:hover { background:var(--gold2); }
+.show-ticket-btn.no-link {
+  background:none; color:var(--cream3); border:1px solid var(--border); cursor:default;
+}
+
+/* Past badge */
+.past-badge {
+  position:absolute; top:8px; right:8px;
+  font-size:0.5rem; letter-spacing:0.2em;
+  color:var(--cream3); border:1px solid rgba(240,230,200,0.12);
+  padding:2px 8px;
+}
+
+/* Empty state */
+.empty-state {
+  text-align:center; padding:80px 24px;
+  color:var(--cream3);
+}
+.empty-state .ornament { font-size:2rem; opacity:0.2; margin-bottom:16px; }
+.empty-state p { font-family:'Libre Baskerville',serif; font-style:italic; font-size:0.9rem; }
+
+/* ══════════════════════════════════════════
+   ADMIN OVERLAY
+══════════════════════════════════════════ */
+.overlay {
+  display:none; position:fixed; inset:0; z-index:500;
+  background:rgba(5,2,0,0.92);
+  backdrop-filter:blur(8px);
+  align-items:flex-start; justify-content:center;
+  padding:40px 16px 40px;
+  overflow-y:auto;
+}
+.overlay.open { display:flex; }
+
+.admin-panel {
+  background: #160d04;
+  border: 1px solid var(--border);
+  width:100%; max-width:680px;
+  padding:36px;
+  position:relative;
+  margin:auto;
+}
+.admin-panel::before {
+  content:'';
+  position:absolute; top:0; left:0; right:0; height:2px;
+  background:linear-gradient(to right, transparent, var(--gold), transparent);
+}
+
+.admin-close {
+  position:absolute; top:16px; right:20px;
+  background:none; border:none; cursor:pointer;
+  color:var(--cream3); font-size:1.2rem; line-height:1;
+  transition:color 0.2s;
+}
+.admin-close:hover { color:var(--gold); }
+
+.admin-title {
+  font-family:'Playfair Display',serif; font-size:1.4rem; font-weight:900;
+  color:var(--cream); margin-bottom:6px;
+}
+.admin-sub { font-size:0.65rem; letter-spacing:0.2em; color:var(--cream3); margin-bottom:28px; }
+
+/* Login form */
+.login-form { display:flex; flex-direction:column; gap:14px; max-width:320px; }
+
+/* Field */
+.field { display:flex; flex-direction:column; gap:6px; }
+.field label { font-size:0.6rem; letter-spacing:0.3em; color:var(--gold); text-transform:uppercase; }
+.field input, .field select, .field textarea {
+  font-family:'Special Elite',cursive;
+  background:rgba(40,20,5,0.8);
+  border:1px solid rgba(200,150,40,0.3);
+  color:var(--cream); padding:10px 14px;
+  font-size:0.85rem; border-radius:2px;
+  transition:border-color 0.2s;
+  width:100%;
+}
+.field input:focus, .field select:focus, .field textarea:focus {
+  outline:none; border-color:var(--gold);
+}
+.field input::placeholder, .field textarea::placeholder { color:var(--cream3); }
+.field select option { background:#1a0d04; }
+
+.btn-gold {
+  font-family:'Special Elite',cursive;
+  font-size:0.72rem; letter-spacing:0.2em; text-transform:uppercase;
+  background:var(--gold); color:#0e0903;
+  border:none; padding:12px 24px; cursor:pointer;
+  transition:all 0.2s;
+}
+.btn-gold:hover { background:var(--gold2); }
+
+.btn-ghost {
+  font-family:'Special Elite',cursive;
+  font-size:0.68rem; letter-spacing:0.15em;
+  background:none; color:var(--cream3); border:1px solid var(--border);
+  padding:10px 20px; cursor:pointer; transition:all 0.2s;
+}
+.btn-ghost:hover { color:var(--cream2); border-color:rgba(200,150,40,0.4); }
+
+.btn-danger {
+  font-family:'Special Elite',cursive;
+  font-size:0.62rem; letter-spacing:0.15em;
+  background:none; color:rgba(192,57,43,0.6);
+  border:1px solid rgba(192,57,43,0.25);
+  padding:6px 14px; cursor:pointer; transition:all 0.2s;
+}
+.btn-danger:hover { color:#e74c3c; border-color:#e74c3c; }
+
+.error-msg {
+  font-size:0.7rem; color:#e74c3c; margin-top:-4px;
+  display:none;
+}
+.error-msg.show { display:block; }
+
+/* Shows list in admin */
+.admin-divider {
+  border:none; border-top:1px solid var(--border); margin:28px 0;
+}
+
+.admin-shows-list { display:flex; flex-direction:column; gap:10px; margin-top:16px; }
+
+.admin-show-row {
+  display:flex; align-items:center; justify-content:space-between;
+  gap:12px;
+  padding:12px 16px;
+  border:1px solid rgba(200,150,40,0.12);
+  background:rgba(200,150,40,0.04);
+}
+.admin-show-info { flex:1; }
+.admin-show-name { font-size:0.82rem; color:var(--cream); }
+.admin-show-date { font-size:0.62rem; color:var(--gold); opacity:0.7; margin-top:2px; }
+
+/* Form grid */
+.form-grid { display:grid; grid-template-columns:1fr 1fr; gap:14px; }
+.form-grid .span2 { grid-column: span 2; }
+
+/* Tabs */
+.admin-tabs { display:flex; gap:0; margin-bottom:24px; border-bottom:1px solid var(--border); }
+.tab-btn {
+  font-family:'Special Elite',cursive;
+  font-size:0.62rem; letter-spacing:0.2em; text-transform:uppercase;
+  padding:10px 20px; background:none; border:none; cursor:pointer;
+  color:var(--cream3); border-bottom:2px solid transparent; margin-bottom:-1px;
+  transition:all 0.2s;
+}
+.tab-btn.active { color:var(--gold); border-bottom-color:var(--gold); }
+
+.tab-panel { display:none; }
+.tab-panel.active { display:block; }
+
+/* Success toast */
+.toast {
+  position:fixed; bottom:30px; left:50%; transform:translateX(-50%) translateY(80px);
+  background:rgba(200,150,40,0.95); color:#0e0903;
+  font-size:0.7rem; letter-spacing:0.15em;
+  padding:12px 28px; border-radius:2px;
+  transition:transform 0.3s ease;
+  z-index:999; pointer-events:none;
+}
+.toast.show { transform:translateX(-50%) translateY(0); }
+
+/* Footer */
+footer {
+  border-top:1px solid var(--border); text-align:center;
+  padding:32px 24px;
+  font-size:0.6rem; letter-spacing:0.2em; color:var(--cream3);
+}
+footer a { color:var(--gold); text-decoration:none; opacity:0.7; }
+
+@media (max-width:640px) {
+  nav { padding:14px 20px; }
+  .nav-links { gap:14px; }
+  .show-card { grid-template-columns:64px 1fr; }
+  .show-cta-col { display:none; }
+  .form-grid { grid-template-columns:1fr; }
+  .form-grid .span2 { grid-column:span 1; }
+  .admin-panel { padding:24px 18px; }
+}
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <a class="nav-logo" href="caio-durazzo.html">Caio Durazzo</a>
+  <ul class="nav-links">
+    <li><a href="caio-durazzo.html">Início</a></li>
+    <li><a href="agenda.html" class="active">Agenda</a></li>
+  </ul>
+  <button class="nav-admin-btn" onclick="openAdmin()">⚙ Admin</button>
+</nav>
+
+<!-- HERO -->
+<div class="hero">
+  <span class="hero-label">Próximos Shows</span>
+  <h1 class="hero-title">Agenda<br><span>2025 · 2026</span></h1>
+  <div class="hero-ornament">✦ ✦ ✦</div>
+</div>
+
+<!-- MAIN -->
+<div class="main">
+  <!-- Filter -->
+  <div class="filter-bar">
+    <button class="filter-btn active" onclick="setFilter('upcoming')">Próximos</button>
+    <button class="filter-btn" onclick="setFilter('all')">Todos</button>
+    <button class="filter-btn" onclick="setFilter('past')">Realizados</button>
+  </div>
+
+  <!-- Shows -->
+  <div class="shows-list" id="showsList"></div>
+</div>
+
+<!-- FOOTER -->
+<footer>
+  <div style="font-family:'Bebas Neue',sans-serif;font-size:1.2rem;letter-spacing:0.2em;color:var(--gold);opacity:0.4;margin-bottom:10px">CAIO DURAZZO</div>
+  <p>One Man Band · Rock N' Roll · São Paulo · Brasil</p>
+  <p style="margin-top:6px">
+    <a href="caio-durazzo.html">← Página principal</a>
+    &nbsp;·&nbsp;
+    <a href="index.html">Ducarazzo Fretboard</a>
+  </p>
+</footer>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<!-- ══════════════════════════════════════
+     ADMIN OVERLAY
+══════════════════════════════════════ -->
+<div class="overlay" id="adminOverlay">
+  <div class="admin-panel">
+    <button class="admin-close" onclick="closeAdmin()">✕</button>
+
+    <!-- LOGIN -->
+    <div id="loginSection">
+      <div class="admin-title">Área Administrativa</div>
+      <div class="admin-sub">AGENDA DE SHOWS · CAIO DURAZZO</div>
+      <div class="login-form">
+        <div class="field">
+          <label>Senha</label>
+          <input type="password" id="pwInput" placeholder="Digite a senha..." onkeydown="if(event.key==='Enter')doLogin()">
+        </div>
+        <div class="error-msg" id="loginError">Senha incorreta. Tente novamente.</div>
+        <button class="btn-gold" onclick="doLogin()">Entrar</button>
+      </div>
+    </div>
+
+    <!-- ADMIN PANEL -->
+    <div id="adminSection" style="display:none">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px">
+        <div class="admin-title">Painel de Shows</div>
+        <button class="btn-ghost" onclick="doLogout()" style="font-size:0.58rem;padding:6px 14px">Sair</button>
+      </div>
+      <div class="admin-sub">CAIO DURAZZO · GESTÃO DE AGENDA</div>
+
+      <div class="admin-tabs">
+        <button class="tab-btn active" onclick="switchTab('add')">✦ Adicionar Show</button>
+        <button class="tab-btn" onclick="switchTab('manage')">Lista de Shows</button>
+      </div>
+
+      <!-- TAB: ADD -->
+      <div class="tab-panel active" id="tabAdd">
+        <div class="form-grid">
+          <div class="field">
+            <label>Data *</label>
+            <input type="date" id="fDate">
+          </div>
+          <div class="field">
+            <label>Horário</label>
+            <input type="time" id="fTime" placeholder="Ex: 21:00">
+          </div>
+          <div class="field span2">
+            <label>Local / Casa *</label>
+            <input type="text" id="fVenue" placeholder="Ex: Bar do Bixiga">
+          </div>
+          <div class="field">
+            <label>Cidade *</label>
+            <input type="text" id="fCity" placeholder="Ex: São Paulo">
+          </div>
+          <div class="field">
+            <label>Estado</label>
+            <input type="text" id="fState" placeholder="Ex: SP" maxlength="2">
+          </div>
+          <div class="field span2">
+            <label>Endereço completo</label>
+            <input type="text" id="fAddress" placeholder="Ex: Rua Augusta, 123 — Consolação">
+          </div>
+          <div class="field">
+            <label>Valor do ingresso</label>
+            <input type="text" id="fPrice" placeholder="Ex: R$ 20 · Grátis">
+          </div>
+          <div class="field">
+            <label>Link de ingresso / evento</label>
+            <input type="url" id="fLink" placeholder="https://...">
+          </div>
+          <div class="field span2">
+            <label>Observações</label>
+            <input type="text" id="fNotes" placeholder="Ex: Show acústico · Apenas maiores de 18">
+          </div>
+        </div>
+        <div style="margin-top:20px;display:flex;gap:10px;align-items:center">
+          <button class="btn-gold" onclick="addShow()">✦ Salvar Show</button>
+          <button class="btn-ghost" onclick="clearForm()">Limpar</button>
+          <span id="formError" style="font-size:0.68rem;color:#e74c3c;display:none">Preencha os campos obrigatórios *</span>
+        </div>
+      </div>
+
+      <!-- TAB: MANAGE -->
+      <div class="tab-panel" id="tabManage">
+        <div id="adminShowsList" class="admin-shows-list"></div>
+        <div id="adminEmpty" style="display:none;text-align:center;padding:40px;color:var(--cream3);font-style:italic;font-family:'Libre Baskerville',serif">
+          Nenhum show cadastrado ainda.
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+// ── CONFIG ────────────────────────────────────────────────────────
+const ADMIN_PASSWORD = '1234';
+const STORAGE_KEY    = 'caio_durazzo_shows';
+
+// ── STATE ─────────────────────────────────────────────────────────
+let shows  = [];
+let filter = 'upcoming';
+let loggedIn = false;
+
+// ── STORAGE ───────────────────────────────────────────────────────
+function saveShows() {
+  try { localStorage.setItem(STORAGE_KEY, JSON.stringify(shows)); } catch(e) {}
+}
+function loadShows() {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (raw) shows = JSON.parse(raw);
+  } catch(e) { shows = []; }
+}
+
+// ── FILTER ────────────────────────────────────────────────────────
+function setFilter(f) {
+  filter = f;
+  document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+  event.target.classList.add('active');
+  renderShows();
+}
+
+// ── RENDER PUBLIC ─────────────────────────────────────────────────
+function renderShows() {
+  const list = document.getElementById('showsList');
+  const now  = new Date(); now.setHours(0,0,0,0);
+
+  let filtered = [...shows].sort((a,b) => new Date(a.date) - new Date(b.date));
+
+  if(filter === 'upcoming') filtered = filtered.filter(s => new Date(s.date) >= now);
+  if(filter === 'past')     filtered = filtered.filter(s => new Date(s.date) < now);
+
+  if(!filtered.length) {
+    list.innerHTML = `
+      <div class="empty-state">
+        <div class="ornament">✦</div>
+        <p>${filter === 'upcoming' ? 'Nenhum show agendado no momento.<br>Fique ligado!' : 'Nenhum show encontrado.'}</p>
+      </div>`;
+    return;
+  }
+
+  list.innerHTML = filtered.map(s => {
+    const d    = new Date(s.date + 'T12:00:00');
+    const past = d < now;
+    const day  = d.getDate().toString().padStart(2,'0');
+    const mon  = d.toLocaleDateString('pt-BR', {month:'short'}).replace('.','').toUpperCase();
+    const yr   = d.getFullYear();
+
+    const cityLine = [s.city, s.state].filter(Boolean).join(' — ');
+    const timeStr  = s.time  ? `<span class="show-time">${s.time}</span>` : '';
+    const priceStr = s.price ? `<span class="show-price">${s.price}</span>` : '';
+    const timePriceRow = (timeStr || priceStr)
+      ? `<div class="show-time-price">${timeStr}${priceStr}</div>` : '';
+    const addrStr  = s.address ? `<div class="show-address">${s.address}</div>` : '';
+    const notesStr = s.notes   ? `<div class="show-address" style="color:rgba(200,150,40,0.45)">${s.notes}</div>` : '';
+
+    const ctaBtn = s.link
+      ? `<a class="show-ticket-btn" href="${s.link}" target="_blank" rel="noopener">Ingressos ↗</a>`
+      : `<span class="show-ticket-btn no-link">Em breve</span>`;
+
+    return `
+      <div class="show-card${past?' past':''}">
+        ${past ? '<div class="past-badge">REALIZADO</div>' : ''}
+        <div class="show-date-col">
+          <div class="show-day">${day}</div>
+          <div class="show-month">${mon}</div>
+          <div class="show-year">${yr}</div>
+        </div>
+        <div class="show-info">
+          <div class="show-venue">${s.venue}</div>
+          <div class="show-city">${cityLine}</div>
+          ${addrStr}
+          ${timePriceRow}
+          ${notesStr}
+        </div>
+        <div class="show-cta-col">${ctaBtn}</div>
+      </div>`;
+  }).join('');
+}
+
+// ── ADMIN: LOGIN ──────────────────────────────────────────────────
+function openAdmin() {
+  document.getElementById('adminOverlay').classList.add('open');
+  document.body.style.overflow = 'hidden';
+  if(!loggedIn) {
+    document.getElementById('loginSection').style.display = '';
+    document.getElementById('adminSection').style.display = 'none';
+    setTimeout(() => document.getElementById('pwInput').focus(), 100);
+  }
+}
+function closeAdmin() {
+  document.getElementById('adminOverlay').classList.remove('open');
+  document.body.style.overflow = '';
+}
+function doLogin() {
+  const pw = document.getElementById('pwInput').value;
+  if(pw === ADMIN_PASSWORD) {
+    loggedIn = true;
+    document.getElementById('loginSection').style.display = 'none';
+    document.getElementById('adminSection').style.display = '';
+    document.getElementById('loginError').classList.remove('show');
+    document.getElementById('pwInput').value = '';
+    renderAdminList();
+    switchTab('add');
+  } else {
+    document.getElementById('loginError').classList.add('show');
+    document.getElementById('pwInput').value = '';
+    document.getElementById('pwInput').focus();
+  }
+}
+function doLogout() {
+  loggedIn = false;
+  document.getElementById('adminSection').style.display = 'none';
+  document.getElementById('loginSection').style.display = '';
+  setTimeout(() => document.getElementById('pwInput').focus(), 100);
+}
+
+// ── ADMIN: TABS ───────────────────────────────────────────────────
+function switchTab(tab) {
+  document.querySelectorAll('.tab-btn').forEach((b,i) => {
+    b.classList.toggle('active', (i===0 && tab==='add') || (i===1 && tab==='manage'));
+  });
+  document.getElementById('tabAdd').classList.toggle('active', tab==='add');
+  document.getElementById('tabManage').classList.toggle('active', tab==='manage');
+  if(tab === 'manage') renderAdminList();
+}
+
+// ── ADMIN: ADD ────────────────────────────────────────────────────
+function addShow() {
+  const date  = document.getElementById('fDate').value;
+  const venue = document.getElementById('fVenue').value.trim();
+  const city  = document.getElementById('fCity').value.trim();
+
+  if(!date || !venue || !city) {
+    document.getElementById('formError').style.display = '';
+    return;
+  }
+  document.getElementById('formError').style.display = 'none';
+
+  const show = {
+    id:      Date.now(),
+    date,
+    time:    document.getElementById('fTime').value,
+    venue,
+    city,
+    state:   document.getElementById('fState').value.trim().toUpperCase(),
+    address: document.getElementById('fAddress').value.trim(),
+    price:   document.getElementById('fPrice').value.trim(),
+    link:    document.getElementById('fLink').value.trim(),
+    notes:   document.getElementById('fNotes').value.trim(),
+  };
+
+  shows.push(show);
+  saveShows();
+  renderShows();
+  clearForm();
+  showToast('Show adicionado com sucesso!');
+}
+
+function clearForm() {
+  ['fDate','fTime','fVenue','fCity','fState','fAddress','fPrice','fLink','fNotes']
+    .forEach(id => document.getElementById(id).value = '');
+  document.getElementById('formError').style.display = 'none';
+}
+
+// ── ADMIN: LIST ───────────────────────────────────────────────────
+function renderAdminList() {
+  const el = document.getElementById('adminShowsList');
+  const em = document.getElementById('adminEmpty');
+
+  const sorted = [...shows].sort((a,b) => new Date(a.date)-new Date(b.date));
+
+  if(!sorted.length) {
+    el.innerHTML = ''; em.style.display = '';
+    return;
+  }
+  em.style.display = 'none';
+
+  el.innerHTML = sorted.map(s => {
+    const d = new Date(s.date+'T12:00:00');
+    const dateStr = d.toLocaleDateString('pt-BR', {day:'2-digit',month:'long',year:'numeric'});
+    return `
+      <div class="admin-show-row">
+        <div class="admin-show-info">
+          <div class="admin-show-name">${s.venue} · ${s.city}${s.state?' — '+s.state:''}</div>
+          <div class="admin-show-date">${dateStr}${s.time?' · '+s.time:''}</div>
+        </div>
+        <button class="btn-danger" onclick="deleteShow(${s.id})">Remover</button>
+      </div>`;
+  }).join('');
+}
+
+function deleteShow(id) {
+  if(!confirm('Remover este show da agenda?')) return;
+  shows = shows.filter(s => s.id !== id);
+  saveShows();
+  renderShows();
+  renderAdminList();
+  showToast('Show removido.');
+}
+
+// ── TOAST ─────────────────────────────────────────────────────────
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2800);
+}
+
+// ── CLOSE ON OVERLAY CLICK ────────────────────────────────────────
+document.getElementById('adminOverlay').addEventListener('click', e => {
+  if(e.target === document.getElementById('adminOverlay')) closeAdmin();
+});
+
+// ── KEYBOARD ESC ─────────────────────────────────────────────────
+document.addEventListener('keydown', e => {
+  if(e.key === 'Escape') closeAdmin();
+});
+
+// ── INIT ──────────────────────────────────────────────────────────
+loadShows();
+renderShows();
+</script>
+</body>
+</html>
