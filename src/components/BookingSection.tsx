@@ -1,7 +1,21 @@
+import { useEffect } from "react";
 import { editorialAssets } from "../data/editorialAssets";
 import { bookingCopy, contactLinks } from "../data/siteCopy";
 
 export default function BookingSection() {
+  useEffect(() => {
+    const scrollIfBooking = () => {
+      if (window.location.hash !== "#booking") return;
+      window.setTimeout(() => {
+        document.getElementById("booking")?.scrollIntoView({ behavior: "smooth" });
+      }, 50);
+    };
+
+    scrollIfBooking();
+    window.addEventListener("hashchange", scrollIfBooking);
+    return () => window.removeEventListener("hashchange", scrollIfBooking);
+  }, []);
+
   return (
     <section
       id="booking"
