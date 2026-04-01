@@ -13,6 +13,7 @@ import MaintenancePage from "./components/MaintenancePage";
 import SiteAmbient from "./components/SiteAmbient";
 import SiteSeo from "./components/SiteSeo";
 import YoutubeChannelSection from "./components/YoutubeChannelSection";
+import { useAuth } from "./context/AuthContext";
 import { DiscographyCoversProvider, useDiscographyCovers } from "./context/DiscographyCoversContext";
 import { HeroSlidesProvider } from "./context/HeroSlidesContext";
 import { SiteSettingsProvider, useSiteSettings } from "./context/SiteSettingsContext";
@@ -25,6 +26,7 @@ function AppShell() {
   const { shows } = useShows();
   const { videos } = useYoutubeVideos();
   const { shelfItems } = useDiscographyCovers();
+  const { isAdmin, loading: authLoading } = useAuth();
   const pathname =
     typeof window !== "undefined" ? window.location.pathname.replace(/\/+$/, "") || "/" : "/";
   const isLessonsPage = pathname === "/aulas";
@@ -32,8 +34,8 @@ function AppShell() {
   const isStaffPage = pathname === "/staff";
   const { maintenanceMode, settingsReady } = useSiteSettings();
   const isStandalonePage = isLessonsPage || isCrazyLegsPage || isStaffPage;
-  const shouldHoldPublicRender = !isStaffPage && !settingsReady;
-  const shouldShowMaintenance = maintenanceMode && !isStaffPage;
+  const shouldHoldPublicRender = !isStaffPage && (!settingsReady || authLoading);
+  const shouldShowMaintenance = maintenanceMode && !isStaffPage && !isAdmin;
   const seoPage = shouldShowMaintenance
     ? "maintenance"
     : isStaffPage

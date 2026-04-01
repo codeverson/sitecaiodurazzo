@@ -11,7 +11,7 @@ import { heroSlideshowSlides, type HeroSlide } from "../data/heroSlideshow";
 import { saveHeroSlides, subscribeHero } from "../lib/firestore/siteContent";
 import type { HeroSlideRecord } from "../types/firebaseContent";
 
-const MAX_FILE_BYTES = 2.4 * 1024 * 1024;
+const MAX_FILE_BYTES = 12 * 1024 * 1024;
 
 type HeroSlideOverride = Pick<HeroSlide, "id" | "src" | "objectPosition" | "label"> & {
   defaultSrc: string;

@@ -13,7 +13,10 @@ $allowedMimeTypes = [
     'image/webp' => 'webp',
     'image/gif' => 'gif',
 ];
-$maxBytes = 5 * 1024 * 1024;
+$maxBytesByFolder = [
+    'hero' => 12 * 1024 * 1024,
+    'discography' => 5 * 1024 * 1024,
+];
 
 function fail(int $status, string $message): void
 {
@@ -36,6 +39,8 @@ $folder = $_POST['folder'] ?? '';
 if (!in_array($folder, $allowedFolders, true)) {
     fail(400, 'Pasta invalida.');
 }
+
+$maxBytes = $maxBytesByFolder[$folder] ?? (5 * 1024 * 1024);
 
 if (!isset($_FILES['image']) || !is_array($_FILES['image'])) {
     fail(400, 'Arquivo ausente.');

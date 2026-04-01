@@ -40,6 +40,9 @@ export default function AdminHeroPanel({
           Troque imagens, reordene os slides e ajuste o enquadramento para centralizar melhor cada
           foto. As alterações são publicadas no Firestore e o upload vai direto para a hospedagem.
         </p>
+        <p className="mt-3 font-display text-[9px] tracking-[0.24em] text-white/48">
+          LIMITE ATUAL DE UPLOAD: {Math.round(maxFileBytes / (1024 * 1024))} MB
+        </p>
         <div className="mt-6">
           <button
             type="button"
@@ -140,7 +143,7 @@ export default function AdminHeroPanel({
                           return;
                         }
                         if (file.size > maxFileBytes) {
-                          showToast("Arquivo grande demais para o hero.");
+                          showToast(`Arquivo grande demais para o hero. Limite: ${Math.round(maxFileBytes / (1024 * 1024))} MB.`);
                           return;
                         }
                         void uploadImageToHostinger("hero", file)

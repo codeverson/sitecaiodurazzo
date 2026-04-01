@@ -7,8 +7,10 @@ import {
   type ReactNode,
 } from "react";
 import {
+  browserLocalPersistence,
   GoogleAuthProvider,
   onAuthStateChanged,
+  setPersistence,
   signInWithPopup,
   signOut as firebaseSignOut,
   type User,
@@ -50,10 +52,17 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setLoading(false);
       return;
     }
-    return onAuthStateChanged(auth, (nextUser) => {
-      setUser(nextUser);
-      setLoading(false);
+    let active = true;
+    void setPersistence(auth, browserLocalPersistence).finally(() => {
+      if (!active) return;
+      onAuthStateChanged(auth, (nextUser) => {
+        setUser(nextUser);
+        setLoading(false);
+      });
     });
+    return () => {
+      active = false;
+    };
   }, [isConfigured]);
 
   const value = useMemo<AuthContextValue>(() => {
@@ -66,6 +75,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       isAdmin,
       signIn: async () => {
         if (!isConfigured) throw new Error("Firebase não configurado.");
+        await setPersistence(auth, browserLocalPersistence);
         await signInWithPopup(auth, googleProvider);
       },
       signOut: async () => {
