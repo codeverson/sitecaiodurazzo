@@ -4,6 +4,7 @@
 
 - Confirmar que `robots.txt`, `sitemap.xml` e `llms.txt` foram publicados na raiz de `https://caiodurazzo.com`.
 - Confirmar que `https://caiodurazzo.com/robots.txt` referencia `https://caiodurazzo.com/sitemap.xml`.
+- Confirmar que os arquivos prerenderizados existem em producao para `/`, `/aulas`, `/crazy-legs` e `/maintenance`.
 - Confirmar que `/staff` continua acessivel para administracao, mas sem indexacao publica.
 - Confirmar que `siteContent/settings.maintenanceMode` esta em `false` antes de liberar a home para visitantes.
 - Validar que admins autenticados continuam vendo o site normal mesmo quando o modo de manutencao estiver ativo.
@@ -18,16 +19,16 @@
 
 ## Validacao tecnica
 
-- Testar manualmente `view-source:` e inspecao do DOM renderizado nas rotas principais.
+- Testar manualmente `view-source:` em `/`, `/aulas`, `/crazy-legs` e `/maintenance` para confirmar `title`, `description`, `canonical`, `og:*` e `twitter:*` sem depender de JavaScript.
 - Validar `BreadcrumbList`, `FAQPage`, `MusicGroup`, `MusicEvent`, `MusicAlbum` e `VideoObject` no validador de Schema.
-- Conferir compartilhamento social das rotas principais com Open Graph e Twitter Card.
+- Conferir compartilhamento social das rotas principais com Open Graph e Twitter Card, incluindo testes reais no WhatsApp e no X/Twitter Card Validator quando aplicavel.
 - Testar upload de imagem grande no hero para confirmar o limite de 12 MB no Backstage e no endpoint `upload-image.php`.
 
 ## Limites atuais da arquitetura
 
-- O projeto continua sendo uma SPA em Vite com metadados por rota aplicados no cliente.
-- Buscadores modernos tendem a processar essas tags apos renderizacao, mas `view-source` ainda entrega o HTML base da SPA.
-- Se quiser metadados HTML unicos ja na resposta inicial de cada rota, o proximo passo estrutural e adicionar prerender/SSR ou gerar entradas HTML por rota publica.
+- O projeto continua sendo uma SPA em Vite para navegacao no cliente, mas agora as rotas publicas principais recebem HTML inicial prerenderizado com metadados sociais.
+- O prerender cobre `/`, `/aulas`, `/crazy-legs` e `/maintenance`; rotas fora dessa lista continuam usando o shell base da SPA.
+- Se no futuro outras paginas publicas precisarem de preview social dedicado, elas devem entrar na camada compartilhada de SEO e no script de prerender.
 
 ## Melhorias recomendadas depois do deploy
 

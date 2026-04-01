@@ -3,15 +3,10 @@ import { crazyLegsContact, crazyLegsIntro, crazyLegsVideos, youtubeThumb } from 
 import type { DiscographyFlatItem } from "../data/discographyData";
 import { editorialAssets } from "../data/editorialAssets";
 import { heroData } from "../data/mock";
-import { bioCopy, contactLinks, discographyCopy, lessonsCopy, youtubeSectionCopy } from "../data/siteCopy";
+import { discographyCopy, lessonsCopy, youtubeSectionCopy } from "../data/siteCopy";
+import { absoluteUrl, DEFAULT_OG_LOCALE, getStaticSeoRoute, SITE_NAME, SITE_URL, type SeoPageKey } from "../lib/seo";
 import type { Show } from "../types/show";
 import type { YoutubeVideoItem } from "../types/youtubeVideo";
-
-const SITE_NAME = "Caio Durazzo";
-const SITE_URL = "https://caiodurazzo.com";
-const DEFAULT_OG_LOCALE = "pt_BR";
-
-type SeoPageKey = "home" | "aulas" | "crazy-legs" | "staff" | "maintenance";
 
 type SeoPayload = {
   title: string;
@@ -22,11 +17,6 @@ type SeoPayload = {
   ogType?: string;
   jsonLd?: Record<string, unknown> | Array<Record<string, unknown>>;
 };
-
-function absoluteUrl(pathOrUrl: string): string {
-  if (/^https?:\/\//i.test(pathOrUrl)) return pathOrUrl;
-  return new URL(pathOrUrl, SITE_URL).toString();
-}
 
 function ensureMeta(selector: string, attrs: Record<string, string>) {
   let node = document.head.querySelector<HTMLMetaElement>(selector);
@@ -144,9 +134,8 @@ function buildHomeSchema(shows: Show[], videos: YoutubeVideoItem[], discographyI
       "@type": "CollectionPage",
       "@id": `${SITE_URL}/#home`,
       url: SITE_URL,
-      name: "Caio Durazzo | Agenda, discografia, vídeos e contratação",
-      description:
-        "Site oficial de Caio Durazzo com agenda de shows, discografia, vídeos, aulas de guitarra e violão, contratação de shows e informações sobre o projeto Crazy Legs.",
+      name: getStaticSeoRoute("home").title,
+      description: getStaticSeoRoute("home").description,
       about: {
         "@id": `${SITE_URL}/#caio-durazzo`,
       },
@@ -320,8 +309,8 @@ function buildCrazyLegsSchema() {
     },
     ...crazyLegsVideos.map((video) => ({
       "@type": "VideoObject",
-      name: `Crazy Legs — ${video.label}`,
-      description: `Vídeo do projeto Crazy Legs no site oficial de Caio Durazzo.`,
+      name: `Crazy Legs - ${video.label}`,
+      description: "Video do projeto Crazy Legs no site oficial de Caio Durazzo.",
       thumbnailUrl: [youtubeThumb(video.id)],
       embedUrl: `https://www.youtube-nocookie.com/embed/${video.id}`,
       url: `https://www.youtube.com/watch?v=${video.id}`,
@@ -338,57 +327,35 @@ function getSeoPayload(
   videos: YoutubeVideoItem[],
   discographyItems: DiscographyFlatItem[],
 ): SeoPayload {
-  const homeDescription =
-    "Site oficial de Caio Durazzo com agenda de shows, discografia, vídeos, aulas de guitarra e violão, contratação de shows e informações sobre o projeto Crazy Legs.";
-
-  const common = {
-    ogType: "website",
-  } as const;
+  const route = getStaticSeoRoute(page);
 
   switch (page) {
     case "aulas":
       return {
-        ...common,
-        title: lessonsCopy.seoTitle,
-        description: lessonsCopy.seoDescription,
-        canonicalPath: "/aulas",
+        ...route,
         ogImage: absoluteUrl(editorialAssets.lessons),
         jsonLd: buildLessonsSchema(),
       };
     case "crazy-legs":
       return {
-        ...common,
-        title: `${crazyLegsIntro.title} | Caio Durazzo`,
-        description: crazyLegsIntro.seoDescription,
-        canonicalPath: "/crazy-legs",
+        ...route,
         ogImage: absoluteUrl(editorialAssets.crazyLegs),
         jsonLd: buildCrazyLegsSchema(),
       };
     case "staff":
       return {
-        ...common,
-        title: "Backstage | Caio Durazzo",
-        description: "Área administrativa Backstage de Caio Durazzo.",
-        canonicalPath: "/staff",
-        robots: "noindex, nofollow, noarchive",
+        ...route,
         ogImage: absoluteUrl(editorialAssets.hero),
       };
     case "maintenance":
       return {
-        ...common,
-        title: "Em manutencao | Caio Durazzo",
-        description: "Site oficial de Caio Durazzo temporariamente em manutencao.",
-        canonicalPath: "/",
-        robots: "noindex, nofollow, noarchive",
+        ...route,
         ogImage: absoluteUrl(editorialAssets.maintenance),
       };
     case "home":
     default:
       return {
-        ...common,
-        title: "Caio Durazzo | Agenda, discografia, aulas e Crazy Legs",
-        description: homeDescription,
-        canonicalPath: "/",
+        ...route,
         ogImage: absoluteUrl(editorialAssets.hero),
         jsonLd: buildHomeSchema(shows, videos, discographyItems),
       };

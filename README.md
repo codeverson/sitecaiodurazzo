@@ -52,6 +52,11 @@ Build de produção:
 npm run build
 ```
 
+O comando de build agora faz duas etapas em sequência:
+
+- gera a SPA com `vite build`
+- prerenderiza `dist/index.html`, `dist/aulas/index.html`, `dist/crazy-legs/index.html` e `dist/maintenance/index.html` com `title`, `description`, `canonical`, `og:*` e `twitter:*` já presentes no HTML inicial
+
 Preview local da build:
 
 ```bash
@@ -81,6 +86,7 @@ Arquivos auxiliares incluídos no projeto:
 
 - `firestore.rules`
 - `public/.htaccess` para fallback da SPA na Hostinger
+- `scripts/prerender-routes.mjs` para gerar HTML estático com previews sociais por rota
 - `public/upload-image.php` para upload autenticado de imagens na Hostinger
 - `public/spotify-oembed.php` para resolver automaticamente capas do Spotify em produção
 - `public/robots.txt`, `public/sitemap.xml` e `public/llms.txt` para discoverability
@@ -90,7 +96,7 @@ Arquivos auxiliares incluídos no projeto:
 1. Preencha o `.env` com as credenciais do Firebase.
 2. Gere a build com `npm run build`.
 3. Envie o conteúdo de `dist/` para a hospedagem estática da Hostinger.
-4. Garanta que o arquivo `.htaccess` gerado na build esteja publicado para o fallback das rotas `/staff`, `/aulas` e `/crazy-legs`.
+4. Garanta que o arquivo `.htaccess` gerado na build esteja publicado para servir primeiro os HTMLs prerenderizados de `/`, `/aulas`, `/crazy-legs` e `/maintenance`, mantendo `/staff` no fallback normal da SPA.
 5. Garanta que os arquivos `upload-image.php` e `spotify-oembed.php` também estejam publicados na raiz do site junto com a pasta `uploads/`.
 6. No Firebase Authentication, habilite `Google` como provedor e confirme que o domínio publicado está em `Authorized domains`.
 7. No primeiro acesso ao `/staff`, entre com Google usando um e-mail admin liberado para o Backstage, use o botão de carga inicial para semear Firestore se o banco estiver vazio e envie imagens direto pelo seletor de arquivos.
@@ -114,6 +120,6 @@ Arquivos auxiliares incluídos no projeto:
 - Hero, agenda, vídeos e discografia são lidos do Firestore; imagens de hero e discografia podem ser enviadas direto para a Hostinger via `upload-image.php`.
 - Uploads do hero aceitam arquivos maiores que os demais blocos, com limite atual de 12 MB.
 - As capas da discografia com link válido do Spotify são resolvidas automaticamente e ficam em cache no navegador após a primeira busca.
-- SEO técnico e discoverability agora incluem `robots.txt`, `sitemap.xml`, `llms.txt` e uma camada central de metadados por rota.
+- SEO técnico e discoverability agora incluem `robots.txt`, `sitemap.xml`, `llms.txt`, uma camada central de metadados por rota e prerender estático para previews sociais das rotas públicas principais.
 - Checklist pós-publicação para Search Console e Bing: `docs/seo-post-launch-checklist.md`.
 - O projeto inclui materiais legados em `v1` e `v2`, além da implementação React atual em `src/`.

@@ -31,12 +31,13 @@ function AppShell() {
     typeof window !== "undefined" ? window.location.pathname.replace(/\/+$/, "") || "/" : "/";
   const isLessonsPage = pathname === "/aulas";
   const isCrazyLegsPage = pathname === "/crazy-legs";
+  const isMaintenancePreviewPage = pathname === "/maintenance";
   const isStaffPage = pathname === "/staff";
   const { maintenanceMode, settingsReady } = useSiteSettings();
-  const isStandalonePage = isLessonsPage || isCrazyLegsPage || isStaffPage;
+  const isStandalonePage = isLessonsPage || isCrazyLegsPage || isMaintenancePreviewPage || isStaffPage;
   const shouldHoldPublicRender = !isStaffPage && (!settingsReady || authLoading);
-  const shouldShowMaintenance = maintenanceMode && !isStaffPage && !isAdmin;
-  const seoPage = shouldShowMaintenance
+  const shouldShowMaintenance = isMaintenancePreviewPage || (maintenanceMode && !isStaffPage && !isAdmin);
+  const seoPage = isMaintenancePreviewPage
     ? "maintenance"
     : isStaffPage
       ? "staff"
@@ -94,6 +95,8 @@ function AppShell() {
 
           {isStaffPage ? null : isLessonsPage ? (
             <LessonsPage />
+          ) : isMaintenancePreviewPage ? (
+            <MaintenancePage />
           ) : isCrazyLegsPage ? (
             <CrazyLegsPage />
           ) : (

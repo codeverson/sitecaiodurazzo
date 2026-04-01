@@ -5,5 +5,8 @@ RewriteCond %{REQUEST_FILENAME} -f [OR]
 RewriteCond %{REQUEST_FILENAME} -d
 RewriteRule ^ - [L]
 
-# SPA fallback for Vite routes like /staff and /crazy-legs.
+# Serve prerendered public routes before falling back to the SPA shell.
+RewriteRule ^(aulas|crazy-legs|maintenance)/?$ $1/index.html [L]
+
+# SPA fallback for client-only routes like /staff.
 RewriteRule ^ index.html [L]

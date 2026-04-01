@@ -1,0 +1,39 @@
+{
+  "home": {
+    "title": "Caio Durazzo | Agenda, discografia, aulas e Crazy Legs",
+    "description": "Site oficial de Caio Durazzo com agenda de shows, discografia, vídeos, aulas de guitarra e violão, contratação de shows e informações sobre o projeto Crazy Legs.",
+    "canonicalPath": "/",
+    "ogType": "website",
+    "ogImageSource": "assets/hero-d69e744c-6bdd-45ff-9dde-9a92b03441b5.png"
+  },
+  "aulas": {
+    "title": "Aulas de Guitarra e Violão com Caio Durazzo em São Paulo",
+    "description": "Aulas de guitarra e violão com Caio Durazzo em São Paulo. Aprenda com acompanhamento individual, foco prático, repertório e experiência real de palco para iniciantes e intermediários.",
+    "canonicalPath": "/aulas",
+    "ogType": "website",
+    "ogImageSource": "assets/_MG_8529.jpg"
+  },
+  "crazy-legs": {
+    "title": "Crazy Legs | Caio Durazzo",
+    "description": "Crazy Legs em página dedicada no site de Caio Durazzo: trajetória da banda, circulação internacional, vídeos, press release e contatos.",
+    "canonicalPath": "/crazy-legs",
+    "ogType": "website",
+    "ogImageSource": "assets/crazylegs.png"
+  },
+  "maintenance": {
+    "title": "Em manutenção | Caio Durazzo",
+    "description": "Site oficial de Caio Durazzo temporariamente em manutenção.",
+    "canonicalPath": "/maintenance",
+    "robots": "noindex, nofollow, noarchive",
+    "ogType": "website",
+    "ogImageSource": "assets/maintance.png"
+  },
+  "staff": {
+    "title": "Backstage | Caio Durazzo",
+    "description": "Área administrativa Backstage de Caio Durazzo.",
+    "canonicalPath": "/staff",
+    "robots": "noindex, nofollow, noarchive",
+    "ogType": "website",
+    "ogImageSource": "assets/hero-d69e744c-6bdd-45ff-9dde-9a92b03441b5.png"
+  }
+}
