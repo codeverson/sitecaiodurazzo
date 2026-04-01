@@ -99,7 +99,7 @@ function oembedRequestUrl(spotifyAlbumUrl: string): string {
   if (import.meta.env.DEV) {
     return `/spotify-oembed?${params.toString()}`;
   }
-  return `https://open.spotify.com/oembed?${params.toString()}`;
+  return `/spotify-oembed.php?${params.toString()}`;
 }
 
 type OEmbedResponse = {

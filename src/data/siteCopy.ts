@@ -47,7 +47,7 @@ export const marqueeRibbonCopy =
 /** Seção vitrine YouTube (#youtube) — textos estáticos; vídeos vêm do admin (contexto). */
 export const youtubeSectionCopy = {
   kicker: "NO CANAL",
-  title: "PALCO, ESTRADA E ROCKABILLY",
+  title: "Vídeos oficiais, palco e estrada",
   ctaChannel: "Ver canal completo no YouTube",
 };
 

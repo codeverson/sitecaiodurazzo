@@ -32,10 +32,10 @@ export default function BookingSection() {
                 {bookingCopy.title}
               </h2>
               <div className="mt-6 h-px w-20 bg-gradient-to-r from-cd-neon/75 via-cd-neon/35 to-transparent" aria-hidden />
-              <p className="mt-8 max-w-[36rem] font-body text-[1.04rem] leading-[1.8] text-cd-wash/[0.92] sm:text-[1.08rem]">
+              <p className="mt-8 max-w-[36rem] font-body text-[0.98rem] leading-[1.82] text-cd-wash/[0.92] lg:text-[0.9rem] lg:leading-[1.78]">
                 {bookingCopy.lead}
               </p>
-              <p className="mt-5 max-w-[35rem] font-body text-[0.97rem] leading-[1.74] text-cd-muted/95">
+              <p className="mt-5 max-w-[35rem] font-body text-[0.95rem] leading-[1.8] text-cd-muted/95 lg:text-[0.875rem] lg:leading-[1.76]">
                 {bookingCopy.note}
               </p>
 
@@ -92,14 +92,6 @@ export default function BookingSection() {
                 />
                 <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(180deg,rgba(3,2,1,0.04)_0%,rgba(3,2,1,0.18)_100%)]" aria-hidden />
                 <div className="pointer-events-none absolute inset-x-0 bottom-0 h-32 bg-gradient-to-t from-[#080405]/88 via-[#080405]/26 to-transparent" aria-hidden />
-              </div>
-              <div className="mt-4 flex items-center justify-between gap-4 border-t border-cd-mist/[0.08] pt-4">
-                <p className="font-display text-[8px] uppercase tracking-[0.3em] text-cd-faint/78">
-                  Performance ao vivo
-                </p>
-                <p className="text-right font-body text-[0.78rem] leading-[1.55] text-cd-muted/88">
-                  Presença de palco, repertório autoral e formatos adaptados ao evento.
-                </p>
               </div>
             </div>
           </div>

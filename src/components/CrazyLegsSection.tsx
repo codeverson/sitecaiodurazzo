@@ -1,4 +1,5 @@
 import { useEffect, useId, useRef, useState } from "react";
+import crazyHero from "../../assets/crazylegs/crazyhero.png";
 import { editorialAssets } from "../data/editorialAssets";
 import {
   crazyLegsContact,
@@ -96,30 +97,47 @@ export default function CrazyLegsSection() {
         aria-hidden
       />
 
+      <div className="relative block h-[56vh] min-h-[24rem] w-full md:hidden">
+        <img
+          src={crazyHero}
+          alt="Crazy Legs em foto promocional da banda"
+          className="absolute inset-0 h-full w-full object-cover object-[center_18%]"
+          loading="lazy"
+        />
+        <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(8,6,6,0.2)_0%,rgba(8,6,6,0.34)_42%,rgba(8,6,6,0.82)_100%)]" />
+        <div className="pointer-events-none absolute inset-0 bg-film-grain-section opacity-[0.05] mix-blend-overlay" aria-hidden />
+      </div>
+
       <div className="relative min-h-[100vh] w-full">
         {/* —— Camada 1 · fundo —— */}
         <img
           src={editorialAssets.crazyLegs}
           alt=""
-          className="absolute inset-0 h-full min-h-full w-full object-cover object-[center_36%] contrast-[1.04] brightness-[0.56]"
+          className="absolute inset-0 hidden h-full min-h-full w-full object-cover object-[center_36%] contrast-[1.04] brightness-[0.56] md:block"
         />
         <TextureBg
           src={textureAssets.concreteWall}
-          className="z-[1]"
+          className="hidden z-[1] md:block"
           opacity={0.022}
           blendMode="soft-light"
         />
         <TextureBg
           src={textureAssets.paperFiber}
-          className="z-[1]"
+          className="hidden z-[1] md:block"
           opacity={0.022}
           blendMode="soft-light"
         />
-        <div className="absolute inset-0 z-[1] bg-[radial-gradient(ellipse_78%_55%_at_50%_0%,rgba(255,255,255,0.018),transparent_64%)]" aria-hidden />
-        <div className="pointer-events-none absolute inset-0 z-[1] bg-film-grain-section opacity-[0.05] mix-blend-overlay" aria-hidden />
+        <div
+          className="absolute inset-0 z-[1] hidden bg-[radial-gradient(ellipse_78%_55%_at_50%_0%,rgba(255,255,255,0.018),transparent_64%)] md:block"
+          aria-hidden
+        />
+        <div
+          className="pointer-events-none absolute inset-0 z-[1] hidden bg-film-grain-section opacity-[0.05] mix-blend-overlay md:block"
+          aria-hidden
+        />
         {/* Colagem · traços (afastados do eixo central — rosto) */}
         <div
-          className="pointer-events-none absolute left-[4%] top-[58%] z-[5] h-px w-32 rotate-[22deg] bg-white/22"
+          className="pointer-events-none absolute left-[4%] top-[58%] z-[5] hidden h-px w-32 rotate-[22deg] bg-white/22 md:block"
           aria-hidden
         />
         <div
@@ -129,12 +147,12 @@ export default function CrazyLegsSection() {
 
         {/* Sticker logo — canto superior direito, fora da faixa dos três recortes grandes */}
         <div
-          className="absolute right-[2%] top-[6%] z-[34] w-[min(40vw,140px)] drop-shadow-[0_20px_45px_rgba(0,0,0,0.78)] sm:right-[3%] sm:top-[7%] sm:w-[min(32vw,188px)] lg:right-[max(1.5%,-0.5rem)] lg:top-[6.5%] lg:w-[min(22vw,220px)]"
+          className="absolute right-[2%] top-[6%] z-[34] hidden w-[min(40vw,140px)] drop-shadow-[0_20px_45px_rgba(0,0,0,0.78)] md:block sm:right-[3%] sm:top-[7%] sm:w-[min(32vw,188px)] lg:right-[max(1.5%,-0.5rem)] lg:top-[6.5%] lg:w-[min(22vw,220px)]"
           style={{ transform: "rotate(3.2deg)" }}
         >
           <img
             src={editorialAssets.crazyLegsLogo}
-            alt="Crazy Legs"
+            alt="Logotipo do Crazy Legs"
             className="w-full object-contain [filter:drop-shadow(0_0_1px_rgba(255,255,255,0.12))]"
           />
         </div>
@@ -201,50 +219,22 @@ export default function CrazyLegsSection() {
           </div>
         ))}
 
-        {/* Mobile · três thumbs — mesma escala relativa (sem miniaturas) */}
-        <div className="absolute left-[3%] right-[3%] top-[28%] z-[23] flex flex-col items-stretch gap-4 sm:top-[26%] md:hidden">
-          {crazyLegsVideos.map((v, i) => (
-            <button
-              key={v.id}
-              type="button"
-              onClick={() => setActiveVideoId(v.id)}
-              className="relative mx-auto w-full max-w-[min(92vw,380px)] overflow-hidden border-2 border-cd-cherry/35 bg-black/90 p-1 text-left shadow-[0_24px_60px_rgba(0,0,0,0.65),0_0_32px_rgba(244,224,77,0.05)]"
-              style={{
-                transform: `rotate(${i === 0 ? -2.2 : i === 1 ? 3.2 : -1.4}deg) translateX(${i % 2 === 0 ? -5 : 5}px)`,
-              }}
-              aria-haspopup="dialog"
-              aria-expanded={activeVideoId === v.id}
-            >
-              <span className="relative block aspect-video overflow-hidden">
-                <img src={youtubeThumb(v.id)} alt="" className="h-full w-full object-cover" />
-                <span className="absolute inset-0 bg-black/38" />
-                <span className="absolute inset-0 flex items-center justify-center">
-                  <span className="rounded-sm border border-white/32 bg-black/5 px-2 py-1.5 font-display text-[8px] tracking-[0.3em] text-white/92">
-                    ▶
-                  </span>
-                </span>
-              </span>
-              <span className="block px-1 py-1.5 font-display text-[7px] tracking-[0.26em] text-white/48">{v.tag}</span>
-            </button>
-          ))}
-        </div>
-
         {/* Bloco editorial + release */}
         <div className="pointer-events-none absolute inset-x-0 bottom-0 top-0 z-[28]">
           <div className="pointer-events-auto absolute bottom-[3%] left-[3%] right-[3%] sm:left-[4.5%] sm:right-[4.5%] lg:bottom-[6%] lg:left-[3.5%] lg:right-[3.5%]">
             <div className="ml-auto max-w-[32rem] lg:w-[min(100%,30rem)]">
                 <div className="border border-cd-mist/[0.1] bg-[linear-gradient(145deg,rgba(11,10,9,0.92)_0%,rgba(5,4,3,0.96)_100%)] px-5 py-6 shadow-[0_0_0_1px_rgba(122,19,33,0.12),0_26px_70px_rgba(0,0,0,0.62)] backdrop-blur-md sm:px-7 sm:py-7">
                   <p className="font-display text-[8px] font-medium tracking-[0.4em] text-cd-teal">ARQUIVO · PROJETO</p>
-                  <h2 className="mt-4 font-rock text-[clamp(1.8rem,4.8vw,2.85rem)] uppercase leading-[0.94] tracking-[0.08em] text-[#ebe3d4]">
+                  <h1 className="mt-4 font-rock text-[clamp(1.8rem,4.8vw,2.85rem)] uppercase leading-[0.94] tracking-[0.08em] text-[#ebe3d4]">
                     {crazyLegsIntro.title}
-                  </h2>
+                  </h1>
                   <p className="mt-3 font-display text-[9px] tracking-[0.24em] text-cd-neon/80">
                     {crazyLegsIntro.subtitle}
                   </p>
                   <div className="mt-6 h-px w-14 bg-gradient-to-r from-cd-neon/70 via-cd-neon/30 to-transparent" aria-hidden />
                   <div className="mt-6 space-y-4">
                     {crazyLegsIntro.paragraphs.map((p, i) => (
-                      <p key={i} className="font-body text-[0.92rem] leading-[1.78] text-cd-wash/[0.88]">
+                      <p key={i} className="font-body text-[0.95rem] leading-[1.8] text-cd-wash/[0.88] lg:text-[0.875rem] lg:leading-[1.76]">
                         {p}
                       </p>
                     ))}
@@ -288,15 +278,57 @@ export default function CrazyLegsSection() {
                       <SocialIcon kind="spotify" />
                     </a>
                   </div>
+                  <nav aria-label="Explorar conteudo relacionado" className="mt-5 flex flex-wrap gap-x-4 gap-y-3">
+                    {[
+                      { href: "/#discos", label: "Discografia de Caio Durazzo" },
+                      { href: "/#agenda", label: "Agenda de shows" },
+                      { href: "/#booking", label: "Contratação" },
+                      { href: "/aulas", label: "Aulas" },
+                    ].map((link) => (
+                      <a
+                        key={link.href}
+                        href={link.href}
+                        className="font-display text-[8px] font-semibold uppercase tracking-[0.26em] text-cd-wash/65 transition-colors hover:text-cd-mist"
+                      >
+                        {link.label}
+                      </a>
+                    ))}
+                  </nav>
                 </div>
             </div>
           </div>
         </div>
       </div>
 
+      <div className="space-y-8 px-[3%] pb-10 pt-8 md:hidden">
+        <div className="mx-auto max-w-[32rem]">
+          <p className="mb-4 font-display text-[8px] tracking-[0.3em] text-cd-teal/75">VIDEOS</p>
+          <div className="space-y-5">
+            {crazyLegsVideos.map((video) => (
+              <div
+                key={video.id}
+                className="overflow-hidden border-2 border-cd-cherry/35 bg-black/90 p-1 shadow-[0_24px_60px_rgba(0,0,0,0.65),0_0_32px_rgba(244,224,77,0.05)]"
+              >
+                <div className="relative aspect-video overflow-hidden bg-black ring-1 ring-cd-mist/10">
+                  <iframe
+                    title={`Crazy Legs — ${video.label}`}
+                    src={youtubeEmbed(video.id)}
+                    className="absolute inset-0 h-full w-full"
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                    allowFullScreen
+                    loading="lazy"
+                  />
+                </div>
+                <p className="px-1 pb-1 pt-2 font-display text-[7px] tracking-[0.26em] text-cd-teal/70">{video.tag}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+
       {releaseOpen ? (
         <div
-          className="fixed inset-0 z-[120] flex items-center justify-center overflow-y-auto px-4 py-8 sm:px-6 lg:px-10"
+          className="fixed inset-0 z-[999] flex items-center justify-center overflow-y-auto px-4 py-8 sm:z-[120] sm:px-6 lg:px-10"
           role="presentation"
           onClick={() => setReleaseOpen(false)}
         >

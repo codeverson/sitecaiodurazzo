@@ -1,4 +1,3 @@
-import { useEffect } from "react";
 import { editorialAssets } from "../data/editorialAssets";
 import { contactLinks, lessonsCopy } from "../data/siteCopy";
 import { textureAssets } from "../data/textureAssets";
@@ -8,27 +7,6 @@ import TextureBg from "./TextureBg";
 export default function LessonsPage() {
   const videoId = parseYoutubeVideoId(lessonsCopy.videoUrl);
   const videoSrc = videoId ? youtubeEmbedUrl(videoId) : null;
-
-  useEffect(() => {
-    const prevTitle = document.title;
-    document.title = lessonsCopy.seoTitle;
-
-    let meta = document.querySelector('meta[name="description"]');
-    const prevDescription = meta?.getAttribute("content") ?? null;
-    if (!meta) {
-      meta = document.createElement("meta");
-      meta.setAttribute("name", "description");
-      document.head.appendChild(meta);
-    }
-    meta.setAttribute("content", lessonsCopy.seoDescription);
-
-    return () => {
-      document.title = prevTitle;
-      if (prevDescription != null) {
-        meta?.setAttribute("content", prevDescription);
-      }
-    };
-  }, []);
 
   return (
     <main className="bg-transparent text-cd-mist">
@@ -56,7 +34,7 @@ export default function LessonsPage() {
             <h1 className="mt-6 font-rock text-[clamp(2.25rem,6vw,4.5rem)] uppercase leading-[0.95] tracking-[0.08em] text-[#f2ead8]">
               {lessonsCopy.title}
             </h1>
-            <p className="mt-6 max-w-[44rem] font-body text-[1rem] leading-[1.82] text-cd-wash/[0.9] sm:text-[1.06rem]">
+            <p className="mt-6 max-w-[44rem] font-body text-[0.98rem] leading-[1.82] text-cd-wash/[0.9] lg:text-[0.9rem] lg:leading-[1.78]">
               {lessonsCopy.intro}
             </p>
             <div className="mt-10 flex flex-wrap gap-4">
@@ -129,7 +107,7 @@ export default function LessonsPage() {
             </h2>
             <div className="mt-6 space-y-5">
               {lessonsCopy.presentation.map((paragraph) => (
-                <p key={paragraph} className="font-body text-[1rem] leading-[1.82] text-cd-wash/[0.9]">
+                <p key={paragraph} className="font-body text-[0.98rem] leading-[1.82] text-cd-wash/[0.9] lg:text-[0.9rem] lg:leading-[1.78]">
                   {paragraph}
                 </p>
               ))}
@@ -143,7 +121,7 @@ export default function LessonsPage() {
               </h2>
               <ul className="mt-6 space-y-3">
                 {lessonsCopy.audience.map((item) => (
-                  <li key={item} className="flex gap-3 font-body text-[0.97rem] leading-[1.72] text-cd-wash/[0.88]">
+                  <li key={item} className="flex gap-3 font-body text-[0.95rem] leading-[1.8] text-cd-wash/[0.88] lg:text-[0.875rem] lg:leading-[1.76]">
                     <span className="mt-[0.62rem] h-[5px] w-[5px] shrink-0 bg-cd-neon" aria-hidden />
                     <span>{item}</span>
                   </li>
@@ -157,7 +135,7 @@ export default function LessonsPage() {
               </h2>
               <ul className="mt-6 grid gap-3 sm:grid-cols-2">
                 {lessonsCopy.topics.map((item) => (
-                  <li key={item} className="border-b border-cd-mist/[0.08] pb-3 font-body text-[0.95rem] leading-[1.62] text-cd-wash/[0.84]">
+                  <li key={item} className="border-b border-cd-mist/[0.08] pb-3 font-body text-[0.95rem] leading-[1.8] text-cd-wash/[0.84] lg:text-[0.875rem] lg:leading-[1.76]">
                     {item}
                   </li>
                 ))}
@@ -170,7 +148,7 @@ export default function LessonsPage() {
               <h2 className="font-rock text-[clamp(1.35rem,2.6vw,1.9rem)] uppercase leading-[1.06] tracking-[0.07em] text-[#ebe3d4]">
                 Como funcionam as aulas
               </h2>
-              <p className="mt-6 max-w-[44rem] font-body text-[0.98rem] leading-[1.8] text-cd-wash/[0.88]">
+              <p className="mt-6 max-w-[44rem] font-body text-[0.95rem] leading-[1.8] text-cd-wash/[0.88] lg:text-[0.875rem] lg:leading-[1.76]">
                 {lessonsCopy.howItWorks}
               </p>
               <p className="mt-4 font-display text-[9px] font-semibold uppercase tracking-[0.28em] text-cd-neon/82">
@@ -182,7 +160,7 @@ export default function LessonsPage() {
               <h2 className="font-rock text-[clamp(1.3rem,2.4vw,1.7rem)] uppercase leading-[1.08] tracking-[0.07em] text-[#ebe3d4]">
                 Por que aprender com Caio Durazzo
               </h2>
-              <p className="mt-5 font-body text-[0.96rem] leading-[1.76] text-cd-wash/[0.86]">
+              <p className="mt-5 font-body text-[0.95rem] leading-[1.8] text-cd-wash/[0.86] lg:text-[0.875rem] lg:leading-[1.76]">
                 {lessonsCopy.differential}
               </p>
             </section>
@@ -192,7 +170,7 @@ export default function LessonsPage() {
             <h2 className="font-rock text-[clamp(1.35rem,2.6vw,1.9rem)] uppercase leading-[1.06] tracking-[0.07em] text-[#ebe3d4]">
               Formato
             </h2>
-            <p className="mt-6 max-w-[48rem] font-body text-[0.98rem] leading-[1.8] text-cd-wash/[0.88]">
+            <p className="mt-6 max-w-[48rem] font-body text-[0.95rem] leading-[1.8] text-cd-wash/[0.88] lg:text-[0.875rem] lg:leading-[1.76]">
               {lessonsCopy.format}
             </p>
           </section>
@@ -214,7 +192,7 @@ export default function LessonsPage() {
                     {item.question}
                   </h3>
                   <div className="mt-4 h-px w-10 bg-gradient-to-r from-cd-neon/75 to-transparent" aria-hidden />
-                  <p className="mt-4 max-w-[52rem] font-body text-[0.97rem] leading-[1.8] text-cd-wash/[0.86] sm:text-[0.99rem]">
+                  <p className="mt-4 max-w-[52rem] font-body text-[0.95rem] leading-[1.8] text-cd-wash/[0.86] lg:text-[0.875rem] lg:leading-[1.76]">
                     {item.answer}
                   </p>
                 </div>
@@ -227,12 +205,31 @@ export default function LessonsPage() {
               <h2 className="font-rock text-[clamp(1.45rem,2.7vw,2rem)] uppercase leading-[1.04] tracking-[0.07em] text-[#ebe3d4]">
                 Aulas de guitarra e violão com acompanhamento individual
               </h2>
-              <p className="mt-5 font-body text-[1rem] leading-[1.8] text-cd-wash/[0.9]">
+              <p className="mt-5 font-body text-[0.98rem] leading-[1.82] text-cd-wash/[0.9] lg:text-[0.9rem] lg:leading-[1.78]">
                 {lessonsCopy.finalLead}
               </p>
-              <p className="mt-4 font-body text-[0.96rem] leading-[1.76] text-cd-muted">
+              <p className="mt-4 font-body text-[0.95rem] leading-[1.8] text-cd-muted lg:text-[0.875rem] lg:leading-[1.76]">
                 {lessonsCopy.finalText}
               </p>
+              <nav
+                aria-label="Explorar conteudo relacionado"
+                className="mt-6 flex flex-wrap gap-x-5 gap-y-3 border-t border-cd-mist/[0.08] pt-6"
+              >
+                {[
+                  { href: "/", label: "Voltar ao site oficial" },
+                  { href: "/#agenda", label: "Agenda de shows" },
+                  { href: "/#booking", label: "Contratar show" },
+                  { href: "/crazy-legs", label: "Conhecer Crazy Legs" },
+                ].map((link) => (
+                  <a
+                    key={link.href}
+                    href={link.href}
+                    className="font-display text-[8px] font-semibold uppercase tracking-[0.28em] text-cd-neon/82 transition-colors hover:text-cd-mist"
+                  >
+                    {link.label}
+                  </a>
+                ))}
+              </nav>
               <div className="mt-8 flex flex-wrap gap-4">
                 <a
                   href={contactLinks.trialLesson}

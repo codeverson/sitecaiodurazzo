@@ -10,8 +10,8 @@ module.exports = {
         heading: ["Oswald", "ui-sans-serif", "system-ui", "sans-serif"],
         /** Micro-legendas (tracking largo) */
         display: ["Oswald", "ui-sans-serif", "system-ui", "sans-serif"],
-        /** Corpo — sans contemporânea */
-        body: ["DM Sans", "ui-sans-serif", "system-ui", "sans-serif"],
+        /** Corpo — texto editorial */
+        body: ["Libre Baskerville", "ui-serif", "Georgia", "serif"],
         /** Citações / notas editoriais */
         serif: ["Libre Baskerville", "ui-serif", "Georgia", "serif"],
         title: ["Libre Baskerville", "serif"],

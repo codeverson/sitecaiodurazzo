@@ -94,7 +94,7 @@ export default function AgendaSection() {
             {filteredSorted.length === 0 ? (
               <div className="rounded-sm border border-cd-mist/[0.06] bg-cd-mist/[0.02] px-6 py-20 text-center sm:py-24">
                 <p className="font-display text-[9px] font-semibold tracking-[0.42em] text-cd-teal/80">AGENDA</p>
-                <p className="mx-auto mt-6 max-w-md font-body text-[1.02rem] leading-[1.75] text-cd-wash/75">
+                <p className="mx-auto mt-6 max-w-md font-body text-[0.98rem] leading-[1.82] text-cd-wash/75 lg:text-[0.9rem] lg:leading-[1.78]">
                   {filter === "upcoming" ? agendaCopy.empty : "Nenhum show neste recorte."}
                 </p>
               </div>
@@ -159,7 +159,7 @@ export default function AgendaSection() {
                               {s.venue}
                             </h3>
                             {(s.address || s.time || s.price || s.notes) && (
-                              <div className="mt-4 space-y-2 font-body text-[0.9rem] leading-[1.65] text-cd-muted sm:text-[0.93rem]">
+                              <div className="mt-4 space-y-2 font-body text-[0.95rem] leading-[1.8] text-cd-muted lg:text-[0.875rem] lg:leading-[1.76]">
                                 {s.address ? <p className="text-cd-wash/78">{s.address}</p> : null}
                                 {(s.time || s.price) && (
                                   <p className="font-display text-[9px] tracking-[0.22em] text-cd-wash/55">
@@ -175,7 +175,7 @@ export default function AgendaSection() {
                             <p className="font-display text-[7px] font-medium tracking-[0.36em] text-cd-faint lg:hidden">
                               LOCAL
                             </p>
-                            <p className="mt-1 font-body text-[0.9rem] font-medium leading-snug tracking-[0.04em] text-cd-wash/82 lg:mt-0">
+                            <p className="mt-1 font-body text-[0.95rem] font-medium leading-[1.8] tracking-[0.04em] text-cd-wash/82 lg:mt-0 lg:text-[0.875rem] lg:leading-[1.76]">
                               {cityState || "—"}
                             </p>
                           </div>
@@ -214,7 +214,7 @@ export default function AgendaSection() {
                 <p className="font-display text-[8px] font-semibold tracking-[0.38em] text-cd-teal/90">
                   {agendaCopy.bookingKicker.toUpperCase()}
                 </p>
-                <p className="mt-3 font-body text-[0.98rem] leading-[1.72] text-cd-wash/[0.88]">
+                <p className="mt-3 font-body text-[0.95rem] leading-[1.8] text-cd-wash/[0.88] lg:text-[0.875rem] lg:leading-[1.76]">
                   {agendaCopy.bookingLead}
                 </p>
               </div>

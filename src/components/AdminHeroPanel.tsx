@@ -1,5 +1,6 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useHeroSlides } from "../context/HeroSlidesContext";
+import { uploadImageToHostinger } from "../lib/hostingerUploads";
 
 const adminDivider = "border-white/[0.15]";
 
@@ -9,8 +10,7 @@ const field =
 const label =
   "mb-2 block font-display text-[10px] tracking-[0.28em] text-white/85";
 
-const sectionTitle =
-  "mt-3 font-heading text-2xl font-black uppercase tracking-[0.08em] text-white sm:text-3xl";
+const sectionTitle = "font-heading text-2xl font-black uppercase tracking-[0.08em] text-white sm:text-3xl";
 
 function parseObjectPosition(pos: string): { x: number; y: number } {
   const match = pos.match(/(-?\d+(?:\.\d+)?)%\s+(-?\d+(?:\.\d+)?)%/);
@@ -31,20 +31,14 @@ export default function AdminHeroPanel({
 }) {
   const { slides, setSlide, moveSlide, addSlide, removeSlide, resetSlideImage, maxFileBytes } =
     useHeroSlides();
-  const [urlDrafts, setUrlDrafts] = useState<Record<string, string>>({});
-
-  useEffect(() => {
-    setUrlDrafts(Object.fromEntries(slides.map((slide) => [slide.id, slide.src.startsWith("http") ? slide.src : ""])));
-  }, [slides]);
 
   return (
     <div className="mx-auto max-w-[100rem] px-5 py-12 sm:px-9 lg:px-12 lg:py-16">
       <div className={`mb-10 border-b ${adminDivider} pb-8`}>
-        <p className="font-display text-[9px] tracking-[0.35em] text-white/55">HERO</p>
         <h3 className={sectionTitle}>Fotos do hero</h3>
         <p className="mt-4 max-w-2xl font-serif text-sm italic leading-relaxed text-white/78">
           Troque imagens, reordene os slides e ajuste o enquadramento para centralizar melhor cada
-          foto. As alterações ficam salvas neste navegador.
+          foto. As alterações são publicadas no Firestore e o upload vai direto para a hospedagem.
         </p>
         <div className="mt-6">
           <button
@@ -60,7 +54,7 @@ export default function AdminHeroPanel({
         </div>
       </div>
 
-      <ul className={`divide-y divide-white/[0.12] border-t ${adminDivider}`}>
+      <ul className="divide-y divide-white/[0.12]">
         {slides.map((slide, index) => {
           const { x, y } = parseObjectPosition(slide.objectPosition);
 
@@ -130,37 +124,6 @@ export default function AdminHeroPanel({
                   </div>
 
                   <div>
-                    <label className={label} htmlFor={`hero-url-${slide.id}`}>
-                      URL da imagem (HTTPS)
-                    </label>
-                    <div className="flex flex-col gap-3 sm:flex-row">
-                      <input
-                        id={`hero-url-${slide.id}`}
-                        type="url"
-                        value={urlDrafts[slide.id] ?? ""}
-                        onChange={(e) => setUrlDrafts((prev) => ({ ...prev, [slide.id]: e.target.value }))}
-                        className={`${field} sm:flex-1`}
-                        placeholder="https://…"
-                      />
-                      <button
-                        type="button"
-                        onClick={() => {
-                          const value = (urlDrafts[slide.id] ?? "").trim();
-                          if (!/^https?:\/\//i.test(value)) {
-                            showToast("Use uma URL válida começando com http:// ou https://");
-                            return;
-                          }
-                          setSlide(slide.id, { src: value });
-                          showToast("Imagem do hero atualizada.");
-                        }}
-                        className="border border-white/35 px-4 py-3.5 font-display text-[9px] tracking-[0.22em] text-white transition-[border-color,background-color] hover:border-[#c6a15b] hover:bg-[#c6a15b]/15"
-                      >
-                        APLICAR URL
-                      </button>
-                    </div>
-                  </div>
-
-                  <div>
                     <label className={label} htmlFor={`hero-file-${slide.id}`}>
                       Enviar arquivo
                     </label>
@@ -180,15 +143,15 @@ export default function AdminHeroPanel({
                           showToast("Arquivo grande demais para o hero.");
                           return;
                         }
-                        const reader = new FileReader();
-                        reader.onload = () => {
-                          const result = reader.result;
-                          if (typeof result === "string") {
-                            setSlide(slide.id, { src: result });
-                            showToast("Imagem do hero salva.");
-                          }
-                        };
-                        reader.readAsDataURL(file);
+                        void uploadImageToHostinger("hero", file)
+                          .then((fileUrl) => {
+                            setSlide(slide.id, { src: fileUrl });
+                            showToast("Imagem enviada para a hospedagem.");
+                          })
+                          .catch((error: unknown) => {
+                            const message = error instanceof Error ? error.message : "Nao foi possivel enviar a imagem.";
+                            showToast(message);
+                          });
                         e.target.value = "";
                       }}
                     />

@@ -158,7 +158,7 @@ function DiscSlide({
         </div>
 
         <div className="flex flex-1 flex-col border-t border-cd-mist/[0.08] px-4 py-5 sm:px-5 sm:py-6">
-          <p className="font-display text-[8px] font-semibold tracking-[0.38em] text-cd-teal/90">{item.year}</p>
+          <p className="font-display text-[8px] font-semibold tracking-[0.38em] text-[#F5DF4E]">{item.year}</p>
           <h3 className="mt-2 font-rock text-[clamp(1.05rem,2.8vw,1.35rem)] uppercase leading-[1.12] tracking-[0.06em] text-[#ebe3d4]">
             {item.title}
           </h3>
@@ -405,6 +405,14 @@ export default function DiscographySection() {
     });
   }, [stopAutoScroll]);
 
+  useEffect(() => {
+    if (!orderedShelfItems.length) return;
+    const startIndex = Math.min(2, orderedShelfItems.length - 1);
+    setActiveIndex(startIndex);
+    const timer = window.setTimeout(() => focusSlide(startIndex), 80);
+    return () => window.clearTimeout(timer);
+  }, [focusSlide, orderedShelfItems.length]);
+
   const onPointerDown = useCallback((e: PointerEvent<HTMLUListElement>) => {
     if (e.pointerType === "mouse" && e.button !== 0) return;
     const root = scrollerRef.current;
@@ -489,14 +497,14 @@ export default function DiscographySection() {
                 aria-hidden
               />
             </div>
-            <p className="max-w-[34rem] border-l-[3px] border-cd-teal/40 pl-5 font-body text-[0.97rem] leading-[1.74] text-cd-wash/[0.84] sm:pl-6 lg:col-span-7 lg:justify-self-start lg:max-w-[31rem] lg:pl-7 lg:pr-4 lg:text-[1rem] xl:max-w-[33rem] xl:pr-8">
+            <p className="max-w-[34rem] border-l-[3px] border-cd-teal/40 pl-5 font-body text-[0.95rem] leading-[1.8] text-cd-wash/[0.84] sm:pl-6 lg:col-span-7 lg:justify-self-start lg:max-w-[31rem] lg:pl-7 lg:pr-4 lg:text-[0.875rem] lg:leading-[1.76] xl:max-w-[33rem] xl:pr-8">
               {discographyCopy.text}
             </p>
           </div>
         </header>
 
         <div
-          className="relative z-[1] mt-8 sm:mt-10 lg:mt-12"
+          className="relative z-[1] mt-8 pb-6 sm:mt-10 sm:pb-8 lg:mt-12 lg:pb-10"
           role="region"
           aria-roledescription="carrossel"
           aria-label="Discografia — deslize horizontalmente ou use as setas"
@@ -517,7 +525,7 @@ export default function DiscographySection() {
           <ul
             ref={scrollerRef}
             className={[
-              "flex snap-x snap-mandatory gap-4 overflow-x-auto pb-3 sm:gap-7 lg:gap-8",
+              "flex snap-x snap-mandatory gap-4 overflow-x-auto pb-6 sm:gap-7 sm:pb-8 lg:gap-8 lg:pb-10",
               "[scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden",
               "scroll-smooth motion-reduce:scroll-auto select-none touch-pan-y",
               "[&_*]:select-none [&_a]:cursor-pointer [&_img]:pointer-events-none",

@@ -2,80 +2,21 @@ import {
   createContext,
   useCallback,
   useContext,
+  useEffect,
   useMemo,
   useState,
   type ReactNode,
 } from "react";
 import { discographyData, flattenDiscography, type DiscographyFlatItem } from "../data/discographyData";
 import { clearSpotifyResolveCache } from "../lib/resolveSpotifyAlbumData";
-
-export const DISCOGRAPHY_COVERS_STORAGE_KEY = "caio_durazzo_discography_covers";
-export const DISCOGRAPHY_META_STORAGE_KEY = "caio_durazzo_discography_meta";
+import { saveDiscographyRecord, subscribeDiscography } from "../lib/firestore/siteContent";
+import type { DiscographyRecord } from "../types/firebaseContent";
 
 const MAX_FILE_BYTES = 1.8 * 1024 * 1024;
-
-function readCovers(): Record<string, string> {
-  try {
-    const raw = localStorage.getItem(DISCOGRAPHY_COVERS_STORAGE_KEY);
-    if (!raw) return {};
-    const p = JSON.parse(raw) as unknown;
-    if (!p || typeof p !== "object" || Array.isArray(p)) return {};
-    const out: Record<string, string> = {};
-    for (const [k, v] of Object.entries(p)) {
-      if (typeof k === "string" && typeof v === "string" && v.trim().length > 0) {
-        out[k] = v.trim();
-      }
-    }
-    return out;
-  } catch {
-    return {};
-  }
-}
-
-function writeCovers(map: Record<string, string>) {
-  try {
-    localStorage.setItem(DISCOGRAPHY_COVERS_STORAGE_KEY, JSON.stringify(map));
-  } catch {
-    /* quota / private mode */
-  }
-}
 
 type DiscographyMetaOverride = Partial<
   Pick<DiscographyFlatItem, "year" | "title" | "format" | "project" | "role">
 >;
-
-function readMeta(): Record<string, DiscographyMetaOverride> {
-  try {
-    const raw = localStorage.getItem(DISCOGRAPHY_META_STORAGE_KEY);
-    if (!raw) return {};
-    const parsed = JSON.parse(raw) as unknown;
-    if (!parsed || typeof parsed !== "object" || Array.isArray(parsed)) return {};
-
-    const out: Record<string, DiscographyMetaOverride> = {};
-    for (const [flatId, value] of Object.entries(parsed)) {
-      if (typeof flatId !== "string" || !value || typeof value !== "object" || Array.isArray(value)) continue;
-      const entry = value as Record<string, unknown>;
-      const next: DiscographyMetaOverride = {};
-      if (typeof entry.year === "string") next.year = entry.year;
-      if (typeof entry.title === "string") next.title = entry.title;
-      if (typeof entry.format === "string") next.format = entry.format;
-      if (typeof entry.project === "string") next.project = entry.project;
-      if (typeof entry.role === "string") next.role = entry.role;
-      out[flatId] = next;
-    }
-    return out;
-  } catch {
-    return {};
-  }
-}
-
-function writeMeta(map: Record<string, DiscographyMetaOverride>) {
-  try {
-    localStorage.setItem(DISCOGRAPHY_META_STORAGE_KEY, JSON.stringify(map));
-  } catch {
-    /* quota / private mode */
-  }
-}
 
 type DiscographyCoversContextValue = {
   /** Mapa flatId → URL (https ou data URL) salvo no admin. */
@@ -91,11 +32,28 @@ type DiscographyCoversContextValue = {
 const DiscographyCoversContext = createContext<DiscographyCoversContextValue | null>(null);
 
 export function DiscographyCoversProvider({ children }: { children: ReactNode }) {
-  const [coverOverrides, setCoverOverrides] = useState<Record<string, string>>(() =>
-    typeof window !== "undefined" ? readCovers() : {},
-  );
-  const [metaOverrides, setMetaOverrides] = useState<Record<string, DiscographyMetaOverride>>(() =>
-    typeof window !== "undefined" ? readMeta() : {},
+  const [coverOverrides, setCoverOverrides] = useState<Record<string, string>>({});
+  const [metaOverrides, setMetaOverrides] = useState<Record<string, DiscographyMetaOverride>>({});
+
+  useEffect(
+    () =>
+      subscribeDiscography((rows) => {
+        const nextCovers: Record<string, string> = {};
+        const nextMeta: Record<string, DiscographyMetaOverride> = {};
+        rows.forEach((row) => {
+          if (row.coverUrl?.trim()) nextCovers[row.flatId] = row.coverUrl.trim();
+          nextMeta[row.flatId] = {
+            year: row.year,
+            title: row.title,
+            format: row.format,
+            project: row.project,
+            role: row.role,
+          };
+        });
+        setCoverOverrides(nextCovers);
+        setMetaOverrides(nextMeta);
+      }),
+    [],
   );
 
   const setCoverOverride = useCallback((flatId: string, url: string | null) => {
@@ -107,7 +65,8 @@ export function DiscographyCoversProvider({ children }: { children: ReactNode })
       } else {
         next[flatId] = trimmed;
       }
-      writeCovers(next);
+      const record: DiscographyRecord = { flatId, coverUrl: trimmed || undefined };
+      void saveDiscographyRecord(record);
       clearSpotifyResolveCache();
       return next;
     });
@@ -121,7 +80,7 @@ export function DiscographyCoversProvider({ children }: { children: ReactNode })
         ...patch,
       };
       const next = { ...prev, [flatId]: merged };
-      writeMeta(next);
+      void saveDiscographyRecord({ flatId, ...merged });
       return next;
     });
   }, []);

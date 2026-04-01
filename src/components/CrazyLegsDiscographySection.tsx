@@ -121,7 +121,7 @@ function DiscSlide({
         </div>
 
         <div className="flex flex-1 flex-col border-t border-cd-mist/[0.08] px-4 py-5 sm:px-5 sm:py-6">
-          <p className="font-display text-[8px] font-semibold tracking-[0.38em] text-cd-teal/90">{item.year}</p>
+          <p className="font-display text-[8px] font-semibold tracking-[0.38em] text-[#F5DF4E]">{item.year}</p>
           <h3 className="mt-2 font-rock text-[clamp(1.05rem,2.8vw,1.35rem)] uppercase leading-[1.12] tracking-[0.06em] text-[#ebe3d4]">
             {item.title}
           </h3>
@@ -249,6 +249,14 @@ export default function CrazyLegsDiscographySection() {
     });
   }, []);
 
+  useEffect(() => {
+    if (!orderedShelfItems.length) return;
+    const startIndex = Math.min(2, orderedShelfItems.length - 1);
+    setActiveIndex(startIndex);
+    const timer = window.setTimeout(() => focusSlide(startIndex), 80);
+    return () => window.clearTimeout(timer);
+  }, [focusSlide, orderedShelfItems.length]);
+
   const go = useCallback(
     (delta: number) => {
       const next = Math.max(0, Math.min(orderedShelfItems.length - 1, activeIndex + delta));
@@ -346,7 +354,7 @@ export default function CrazyLegsDiscographySection() {
           </div>
         </header>
 
-        <div className="relative z-[1] mt-8 sm:mt-10 lg:mt-12" role="region" aria-roledescription="carrossel" aria-label="Discografia Crazy Legs">
+        <div className="relative z-[1] mt-8 pb-6 sm:mt-10 sm:pb-8 lg:mt-12 lg:pb-10" role="region" aria-roledescription="carrossel" aria-label="Discografia Crazy Legs">
           <div className="mx-auto flex max-w-[90rem] flex-col items-center justify-center gap-3 px-6 pb-5 text-center sm:px-10 lg:gap-4 lg:px-14 xl:px-16">
             <div className="flex items-center justify-center gap-3 sm:gap-4">
               <ShelfArrow dir="prev" disabled={!canPrev} onClick={() => go(-1)} />
@@ -363,7 +371,7 @@ export default function CrazyLegsDiscographySection() {
           <ul
             ref={scrollerRef}
             className={[
-              "flex snap-x snap-mandatory gap-4 overflow-x-auto pb-3 sm:gap-7 lg:gap-8",
+              "flex snap-x snap-mandatory gap-4 overflow-x-auto pb-6 sm:gap-7 sm:pb-8 lg:gap-8 lg:pb-10",
               "[scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden",
               "scroll-smooth motion-reduce:scroll-auto select-none touch-pan-y",
               "[&_*]:select-none [&_a]:cursor-pointer [&_img]:pointer-events-none",

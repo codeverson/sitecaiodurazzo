@@ -1,15 +1,16 @@
 import { useCallback, useEffect, useId, useState } from "react";
 import { createPortal } from "react-dom";
 import AdminHeroPanel from "./AdminHeroPanel";
+import { useAuth } from "../context/AuthContext";
 import { editorialAssets } from "../data/editorialAssets";
 import { useShows } from "../context/ShowsContext";
+import { useSiteSettings } from "../context/SiteSettingsContext";
+import { seedFirestoreIfEmpty } from "../lib/firestore/siteContent";
 import { compareShowDates, parseShowDate } from "../lib/showDates";
 import AdminDiscographyPanel from "./AdminDiscographyPanel";
 import AdminYoutubePanel from "./AdminYoutubePanel";
 
 type AdminTab = "agenda" | "youtube" | "discos" | "hero";
-
-const ADMIN_PASSWORD = "1234";
 
 const field =
   "w-full border border-white/40 bg-black/80 px-4 py-3.5 font-serif text-sm text-white placeholder:text-white/55 transition-[border-color,box-shadow] focus:border-[#c6a15b] focus:outline-none focus:ring-2 focus:ring-[#c6a15b]/35 focus:shadow-[0_0_0_1px_rgba(198,161,91,0.25)]";
@@ -36,16 +37,17 @@ export default function AdminAgenda({
 }) {
   const uid = useId();
   const { shows, addShow, deleteShow } = useShows();
+  const { maintenanceMode, setMaintenanceMode } = useSiteSettings();
+  const { isAdmin, isConfigured, loading, signIn, signOut, user } = useAuth();
 
   const [mounted, setMounted] = useState(false);
-  const [loggedIn, setLoggedIn] = useState(false);
-  const [pw, setPw] = useState("");
-  const [loginError, setLoginError] = useState(false);
+  const [loginError, setLoginError] = useState<string | null>(null);
   const [toast, setToast] = useState<string | null>(null);
   const [formError, setFormError] = useState(false);
   const [flashId, setFlashId] = useState<number | null>(null);
   const [pendingDeleteId, setPendingDeleteId] = useState<number | null>(null);
   const [adminTab, setAdminTab] = useState<AdminTab>("agenda");
+  const [isSeeding, setIsSeeding] = useState(false);
 
   const [fDate, setFDate] = useState("");
   const [fTime, setFTime] = useState("");
@@ -78,9 +80,7 @@ export default function AdminAgenda({
   useEffect(() => {
     if (!open) {
       setMounted(false);
-      setLoggedIn(false);
-      setPw("");
-      setLoginError(false);
+      setLoginError(null);
       setPendingDeleteId(null);
       setFlashId(null);
       setAdminTab("agenda");
@@ -108,12 +108,12 @@ export default function AdminAgenda({
   }, [open, onClose]);
 
   useEffect(() => {
-    if (!open || loggedIn) return;
+    if (!open || isAdmin) return;
     const t = window.setTimeout(() => {
-      document.getElementById(`${uid}-pw`)?.focus();
+      document.getElementById(`${uid}-google-login`)?.focus();
     }, 120);
     return () => window.clearTimeout(t);
-  }, [open, loggedIn, uid]);
+  }, [open, isAdmin, uid]);
 
   useEffect(() => {
     if (flashId == null) return;
@@ -121,21 +121,37 @@ export default function AdminAgenda({
     return () => window.clearTimeout(t);
   }, [flashId]);
 
-  const doLogin = useCallback(() => {
-    if (pw === ADMIN_PASSWORD) {
-      setLoggedIn(true);
-      setLoginError(false);
-      setPw("");
-    } else {
-      setLoginError(true);
-      setPw("");
+  const doLogin = useCallback(async () => {
+    try {
+      setLoginError(null);
+      await signIn();
+    } catch {
+      setLoginError("Não foi possível entrar com Google. Verifique o popup, o provedor Google no Firebase, o domínio em Authorized domains e as permissões.");
     }
-  }, [pw]);
+  }, [signIn]);
 
-  const doLogout = useCallback(() => {
-    setLoggedIn(false);
+  const doLogout = useCallback(async () => {
+    await signOut();
     setPendingDeleteId(null);
-  }, []);
+  }, [signOut]);
+
+  const handleSeed = useCallback(async () => {
+    try {
+      setIsSeeding(true);
+      const created = await seedFirestoreIfEmpty();
+      showToast(created ? "Conteúdo inicial enviado ao Firebase." : "O Firebase já tinha conteúdo.");
+    } catch {
+      showToast("Não foi possível enviar a carga inicial.");
+    } finally {
+      setIsSeeding(false);
+    }
+  }, [showToast]);
+
+  const handleMaintenanceToggle = useCallback(() => {
+    const next = !maintenanceMode;
+    setMaintenanceMode(next);
+    showToast(next ? "Modo de manutenção ativado." : "Modo de manutenção desativado.");
+  }, [maintenanceMode, setMaintenanceMode, showToast]);
 
   const handleAdd = useCallback(() => {
     const venue = fVenue.trim();
@@ -226,7 +242,7 @@ export default function AdminAgenda({
             className={`sticky top-0 z-[3] flex shrink-0 items-center justify-between border-b ${adminDivider} bg-[linear-gradient(180deg,rgba(6,4,5,0.96),rgba(6,4,5,0.92))] px-5 py-4 backdrop-blur-md sm:px-9 lg:px-12`}
           >
             <div className="min-w-0">
-              <p className="font-rock text-[clamp(0.95rem,2.2vw,1.2rem)] uppercase leading-none tracking-[0.14em] text-[#ebe3d4]">
+              <p className="font-rock text-[clamp(0.88rem,2vw,1.08rem)] uppercase leading-none tracking-[0.14em] text-[#ebe3d4]">
                 Caio Durazzo
               </p>
               <p
@@ -237,7 +253,7 @@ export default function AdminAgenda({
               </p>
             </div>
             <div className="ml-4 flex flex-wrap items-center justify-end gap-3 sm:gap-4 lg:gap-6">
-              {loggedIn ? (
+              {isAdmin ? (
                 <>
                   <div className="max-w-full overflow-x-auto border border-white/[0.18] [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">
                     <div className="flex min-w-max">
@@ -300,7 +316,7 @@ export default function AdminAgenda({
                   </button>
                 </>
               ) : null}
-              {standalone && !loggedIn ? (
+              {standalone && !isAdmin ? (
                 <a
                   href="/"
                   className="inline-flex min-h-10 items-center font-display text-[9px] tracking-[0.26em] text-white/65 transition-colors hover:text-white"
@@ -323,7 +339,7 @@ export default function AdminAgenda({
           </header>
 
           <div className="min-h-0 flex-1 overflow-y-auto">
-            {!loggedIn ? (
+            {!isAdmin ? (
               <div className="relative flex min-h-[min(72vh,640px)] items-center justify-center overflow-hidden px-6 py-16">
                 <img
                   src={editorialAssets.hero}
@@ -334,57 +350,101 @@ export default function AdminAgenda({
                 <div className="absolute inset-0 bg-film-grain-section opacity-[0.08] mix-blend-overlay" aria-hidden />
                 <div className="relative z-[1] w-full max-w-[26rem] border border-white/[0.12] bg-[linear-gradient(180deg,rgba(12,6,8,0.9)_0%,rgba(5,3,4,0.96)_100%)] px-7 py-10 text-center shadow-[0_30px_80px_rgba(0,0,0,0.45)] sm:px-10 sm:py-12">
                   <div>
-                    <p className="font-rock text-[clamp(1.4rem,3vw,1.95rem)] uppercase tracking-[0.14em] text-[#ebe3d4]">
+                    <p className="font-rock text-[clamp(1.2rem,2.6vw,1.7rem)] uppercase tracking-[0.12em] text-[#ebe3d4]">
                       Caio Durazzo
                     </p>
                     <p className="mt-4 font-display text-[10px] tracking-[0.42em] text-[#c6a15b]">
-                      STAFF
+                      BACKSTAGE
                     </p>
-                    <div className="mx-auto mt-5 h-px w-14 bg-gradient-to-r from-transparent via-[#c6a15b]/55 to-transparent" />
-                    <p className="mx-auto mt-6 max-w-[18rem] font-serif text-sm italic leading-relaxed text-white/68">
+                    <p className="mx-auto mt-5 max-w-[18rem] font-serif text-sm italic leading-relaxed text-white/68">
                       Acesso restrito.
                     </p>
                   </div>
                   <div className="mt-10 text-left space-y-3">
-                    <label htmlFor={`${uid}-pw`} className={label}>
-                      SENHA
-                    </label>
-                    <input
-                      id={`${uid}-pw`}
-                      type="password"
-                      autoComplete="current-password"
-                      value={pw}
-                      onChange={(e) => {
-                        setPw(e.target.value);
-                        setLoginError(false);
-                      }}
-                      onKeyDown={(e) => {
-                        if (e.key === "Enter") doLogin();
-                      }}
-                      className={field}
-                    />
+                    <p className="font-serif text-sm leading-relaxed text-white/72">
+                      Entre com Google usando uma conta autorizada para o backstage.
+                    </p>
                     {loginError ? (
                       <p className="pt-1 font-display text-[10px] tracking-wide text-cd-warn">
-                        Senha incorreta.
+                        {loginError}
+                      </p>
+                    ) : null}
+                    {!isConfigured ? (
+                      <p className="pt-1 font-display text-[10px] tracking-wide text-cd-warn">
+                        Firebase ainda não configurado nas variáveis `VITE_*`.
+                      </p>
+                    ) : null}
+                    {user && !isAdmin ? (
+                      <p className="pt-1 font-display text-[10px] tracking-wide text-cd-warn">
+                        Sua conta entrou, mas não está autorizada para o backstage.
                       </p>
                     ) : null}
                   </div>
                   <button
+                    id={`${uid}-google-login`}
                     type="button"
-                    onClick={doLogin}
-                    className="mt-8 w-full border border-white/35 py-4 font-display text-[10px] tracking-[0.28em] text-white transition-[border-color,background-color,color] hover:border-[#c6a15b] hover:bg-[#c6a15b] hover:text-black"
+                    onClick={() => void doLogin()}
+                    disabled={!isConfigured || loading}
+                    className="mt-8 w-full border border-white/35 py-4 font-display text-[10px] tracking-[0.28em] text-white transition-[border-color,background-color,color] hover:border-[#c6a15b] hover:bg-[#c6a15b] hover:text-black disabled:cursor-not-allowed disabled:opacity-45"
                   >
-                    ENTRAR
+                    {loading ? "CARREGANDO" : "ENTRAR COM GOOGLE"}
                   </button>
                 </div>
               </div>
-            ) : adminTab === "youtube" ? (
-              <AdminYoutubePanel />
-            ) : adminTab === "hero" ? (
-              <AdminHeroPanel showToast={showToast} />
-            ) : adminTab === "discos" ? (
-              <AdminDiscographyPanel showToast={showToast} />
             ) : (
+              <>
+                <section className="mx-auto max-w-[100rem] px-5 pt-8 sm:px-9 sm:pt-10 lg:px-12 lg:pt-12">
+                  <div className="border border-white/[0.14] bg-[linear-gradient(180deg,rgba(12,7,8,0.82)_0%,rgba(5,3,4,0.94)_100%)] px-5 py-6 shadow-[0_20px_60px_rgba(0,0,0,0.28)] sm:px-7 sm:py-7">
+                    <div className="flex flex-col gap-6 lg:flex-row lg:items-center lg:justify-between">
+                      <div className="max-w-[40rem]">
+                        <p className="font-display text-[9px] tracking-[0.35em] text-white/55">
+                          CONTROLE DO SITE
+                        </p>
+                        <h3 className="mt-3 font-heading text-[1.55rem] font-black uppercase tracking-[0.08em] text-white sm:text-[1.8rem]">
+                          Modo de manutencao
+                        </h3>
+                        <p className="mt-3 max-w-[34rem] font-serif text-sm italic leading-relaxed text-white/74">
+                          Quando ativo, o site publico deixa de exibir as paginas normais e mostra
+                          apenas a tela de manutencao. O Backstage continua acessivel em `/staff`.
+                        </p>
+                      </div>
+
+                      <div className="flex flex-col items-start gap-3 lg:items-end">
+                        <button
+                          type="button"
+                          role="switch"
+                          aria-checked={maintenanceMode}
+                          onClick={handleMaintenanceToggle}
+                          className={[
+                            "inline-flex min-h-12 items-center gap-3 border px-5 py-3 font-display text-[9px] tracking-[0.28em] transition-[border-color,background-color,color]",
+                            maintenanceMode
+                              ? "border-[#c6a15b] bg-[#c6a15b] text-black"
+                              : "border-white/28 text-white/78 hover:border-white/45 hover:text-white",
+                          ].join(" ")}
+                        >
+                          <span
+                            className={[
+                              "h-2.5 w-2.5 rounded-full",
+                              maintenanceMode ? "bg-black" : "bg-cd-teal",
+                            ].join(" ")}
+                            aria-hidden
+                          />
+                          {maintenanceMode ? "DESATIVAR MANUTENCAO" : "ATIVAR MANUTENCAO"}
+                        </button>
+                        <p className="font-display text-[9px] tracking-[0.22em] text-white/58">
+                          Status atual: {maintenanceMode ? "SITE EM MANUTENCAO" : "SITE PUBLICO ATIVO"}
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                </section>
+                {adminTab === "youtube" ? (
+              <AdminYoutubePanel />
+                ) : adminTab === "hero" ? (
+              <AdminHeroPanel showToast={showToast} />
+                ) : adminTab === "discos" ? (
+              <AdminDiscographyPanel showToast={showToast} />
+                ) : (
               <div className="mx-auto grid max-w-[100rem] gap-16 px-5 py-12 sm:px-9 lg:grid-cols-2 lg:gap-20 lg:px-12 lg:py-16">
                 {/* Bloco — novo show */}
                 <div>
@@ -397,6 +457,16 @@ export default function AdminAgenda({
                       Campos mínimos para publicar: data, local e cidade. O restante
                       aparece na ficha pública quando preenchido.
                     </p>
+                    <div className="mt-6 flex flex-wrap gap-3">
+                      <button
+                        type="button"
+                        onClick={() => void handleSeed()}
+                        disabled={isSeeding}
+                        className="border border-white/30 px-4 py-3 font-display text-[9px] tracking-[0.22em] text-white/75 transition-colors hover:border-[#c6a15b] hover:text-white disabled:cursor-not-allowed disabled:opacity-45"
+                      >
+                        {isSeeding ? "SINCRONIZANDO..." : "ENVIAR CARGA INICIAL"}
+                      </button>
+                    </div>
                   </div>
 
                   <div className="grid grid-cols-1 gap-8 sm:grid-cols-2 sm:gap-x-8 sm:gap-y-7">
@@ -641,6 +711,8 @@ export default function AdminAgenda({
                   )}
                 </div>
               </div>
+                )}
+              </>
             )}
           </div>
         </div>

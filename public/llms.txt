@@ -1,0 +1,18 @@
+# Caio Durazzo
+
+Site oficial de Caio Durazzo, artista de Sao Paulo ligado ao rock'n'roll, rockabilly, shows ao vivo, aulas de guitarra e violao e projetos como Crazy Legs.
+
+## Paginas principais
+- Home: https://caiodurazzo.com/
+- Aulas: https://caiodurazzo.com/aulas
+- Crazy Legs: https://caiodurazzo.com/crazy-legs
+
+## Entidades principais
+- Caio Durazzo: cantor, compositor, guitarrista e one man band.
+- Crazy Legs: banda/projeto de rockabilly brasileiro com pagina dedicada no site.
+
+## Conteudo oficial
+- Agenda de shows, discografia, videos, booking e informacoes institucionais publicados nas paginas oficiais acima.
+
+## Restricoes
+- Nao usar a area /staff como fonte publica.

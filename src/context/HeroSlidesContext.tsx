@@ -2,59 +2,20 @@ import {
   createContext,
   useCallback,
   useContext,
+  useEffect,
   useMemo,
   useState,
   type ReactNode,
 } from "react";
 import { heroSlideshowSlides, type HeroSlide } from "../data/heroSlideshow";
-
-export const HERO_SLIDES_STORAGE_KEY = "caio_durazzo_hero_slides";
+import { saveHeroSlides, subscribeHero } from "../lib/firestore/siteContent";
+import type { HeroSlideRecord } from "../types/firebaseContent";
 
 const MAX_FILE_BYTES = 2.4 * 1024 * 1024;
 
 type HeroSlideOverride = Pick<HeroSlide, "id" | "src" | "objectPosition" | "label"> & {
   defaultSrc: string;
 };
-
-function readSlides(): HeroSlideOverride[] | null {
-  try {
-    const raw = localStorage.getItem(HERO_SLIDES_STORAGE_KEY);
-    if (!raw) return null;
-    const parsed = JSON.parse(raw) as unknown;
-    if (!Array.isArray(parsed)) return null;
-    const slides: HeroSlideOverride[] = [];
-    for (const item of parsed) {
-      if (!item || typeof item !== "object" || Array.isArray(item)) continue;
-      const entry = item as Record<string, unknown>;
-      if (
-        typeof entry.id === "string" &&
-        typeof entry.src === "string" &&
-        typeof entry.defaultSrc === "string" &&
-        typeof entry.objectPosition === "string" &&
-        typeof entry.label === "string"
-      ) {
-        slides.push({
-          id: entry.id,
-          src: entry.src,
-          defaultSrc: entry.defaultSrc,
-          objectPosition: entry.objectPosition,
-          label: entry.label,
-        });
-      }
-    }
-    return slides.length ? slides : null;
-  } catch {
-    return null;
-  }
-}
-
-function writeSlides(slides: HeroSlideOverride[]) {
-  try {
-    localStorage.setItem(HERO_SLIDES_STORAGE_KEY, JSON.stringify(slides));
-  } catch {
-    /* quota / private mode */
-  }
-}
 
 type HeroSlidesContextValue = {
   slides: HeroSlide[];
@@ -79,11 +40,31 @@ function buildDefaultOverrides(): HeroSlideOverride[] {
 }
 
 export function HeroSlidesProvider({ children }: { children: ReactNode }) {
-  const [slideOverrides, setSlideOverrides] = useState<HeroSlideOverride[]>(() => {
-    if (typeof window === "undefined") return buildDefaultOverrides();
-    const stored = readSlides();
-    return stored ?? buildDefaultOverrides();
-  });
+  const [slideOverrides, setSlideOverrides] = useState<HeroSlideOverride[]>(buildDefaultOverrides);
+
+  useEffect(() => subscribeHero((slides) => {
+    const defaults = buildDefaultOverrides();
+    const defaultById = new Map(defaults.map((slide) => [slide.id, slide.defaultSrc]));
+    const normalized = slides.map((slide) => ({
+      id: slide.id,
+      src: slide.src,
+      objectPosition: slide.objectPosition,
+      label: slide.label,
+      defaultSrc: defaultById.get(slide.id) ?? slide.src,
+    }));
+    setSlideOverrides(normalized.length ? normalized : defaults);
+  }), []);
+
+  const persist = useCallback(async (next: HeroSlideOverride[]) => {
+    const payload: HeroSlideRecord[] = next.map((slide, index) => ({
+      id: slide.id,
+      src: slide.src,
+      objectPosition: slide.objectPosition,
+      label: slide.label,
+      sortOrder: index,
+    }));
+    await saveHeroSlides(payload);
+  }, []);
 
   const setSlide = useCallback((id: string, patch: Partial<Pick<HeroSlide, "src" | "objectPosition" | "label">>) => {
     setSlideOverrides((prev) => {
@@ -95,10 +76,10 @@ export function HeroSlidesProvider({ children }: { children: ReactNode }) {
             }
           : slide,
       );
-      writeSlides(next);
+      void persist(next);
       return next;
     });
-  }, []);
+  }, [persist]);
 
   const moveSlide = useCallback((id: string, delta: -1 | 1) => {
     setSlideOverrides((prev) => {
@@ -109,10 +90,10 @@ export function HeroSlidesProvider({ children }: { children: ReactNode }) {
       const next = [...prev];
       const [moved] = next.splice(index, 1);
       next.splice(nextIndex, 0, moved);
-      writeSlides(next);
+      void persist(next);
       return next;
     });
-  }, []);
+  }, [persist]);
 
   const addSlide = useCallback(() => {
     setSlideOverrides((prev) => {
@@ -126,19 +107,19 @@ export function HeroSlidesProvider({ children }: { children: ReactNode }) {
           label: "Novo slide",
         },
       ];
-      writeSlides(next);
+      void persist(next);
       return next;
     });
-  }, []);
+  }, [persist]);
 
   const removeSlide = useCallback((id: string) => {
     setSlideOverrides((prev) => {
       if (prev.length <= 1) return prev;
       const next = prev.filter((slide) => slide.id !== id);
-      writeSlides(next);
+      void persist(next);
       return next;
     });
-  }, []);
+  }, [persist]);
 
   const resetSlideImage = useCallback((id: string) => {
     setSlideOverrides((prev) => {
@@ -150,10 +131,10 @@ export function HeroSlidesProvider({ children }: { children: ReactNode }) {
             }
           : slide,
       );
-      writeSlides(next);
+      void persist(next);
       return next;
     });
-  }, []);
+  }, [persist]);
 
   const slides = useMemo(
     () =>

@@ -2,55 +2,14 @@ import {
   createContext,
   useCallback,
   useContext,
+  useEffect,
   useMemo,
   useState,
   type ReactNode,
 } from "react";
 import { DEFAULT_YOUTUBE_VIDEOS } from "../data/defaultYoutubeVideos";
+import { removeYoutubeVideo, saveYoutubeVideo, subscribeYoutubeVideos } from "../lib/firestore/siteContent";
 import type { YoutubeVideoItem } from "../types/youtubeVideo";
-
-export const YOUTUBE_VIDEOS_STORAGE_KEY = "caio_durazzo_youtube_videos";
-
-function normalizeVideo(row: Record<string, unknown>, fallbackId: number): YoutubeVideoItem | null {
-  const id = typeof row.id === "number" ? row.id : Number(row.id);
-  const nid = Number.isFinite(id) ? id : fallbackId;
-  return {
-    id: nid,
-    title: String(row.title ?? ""),
-    url: String(row.url ?? ""),
-    label: String(row.label ?? ""),
-    thumbnailUrl: String(row.thumbnailUrl ?? ""),
-    isFeatured: Boolean(row.isFeatured),
-    order: typeof row.order === "number" ? row.order : Number(row.order) || 0,
-    isActive: row.isActive !== false,
-  };
-}
-
-function readVideos(): YoutubeVideoItem[] {
-  try {
-    const raw = localStorage.getItem(YOUTUBE_VIDEOS_STORAGE_KEY);
-    if (!raw) return [];
-    const parsed = JSON.parse(raw) as unknown;
-    if (!Array.isArray(parsed)) return [];
-    return parsed
-      .map((row, i) =>
-        row && typeof row === "object"
-          ? normalizeVideo(row as Record<string, unknown>, Date.now() + i)
-          : null,
-      )
-      .filter((x): x is YoutubeVideoItem => x !== null);
-  } catch {
-    return [];
-  }
-}
-
-function writeVideos(videos: YoutubeVideoItem[]) {
-  try {
-    localStorage.setItem(YOUTUBE_VIDEOS_STORAGE_KEY, JSON.stringify(videos));
-  } catch {
-    /* ignore */
-  }
-}
 
 function ensureOneFeatured(list: YoutubeVideoItem[]): YoutubeVideoItem[] {
   const cleared = list.map((v) => ({ ...v, isFeatured: v.isActive && v.isFeatured }));
@@ -71,17 +30,6 @@ function ensureOneFeatured(list: YoutubeVideoItem[]): YoutubeVideoItem[] {
   return cleared.map((v) => ({ ...v, isFeatured: v.id === firstId }));
 }
 
-function loadInitial(): YoutubeVideoItem[] {
-  const existing = readVideos();
-  if (existing.length > 0) {
-    const sorted = [...existing].sort((a, b) => a.order - b.order);
-    return ensureOneFeatured(sorted);
-  }
-  const seed = DEFAULT_YOUTUBE_VIDEOS.map((v) => ({ ...v }));
-  writeVideos(seed);
-  return seed;
-}
-
 type YoutubeVideosContextValue = {
   videos: YoutubeVideoItem[];
   setVideosRaw: (next: YoutubeVideoItem[]) => void;
@@ -97,13 +45,23 @@ const YoutubeVideosContext = createContext<YoutubeVideosContextValue | null>(nul
 
 export function YoutubeVideosProvider({ children }: { children: ReactNode }) {
   const [videos, setVideos] = useState<YoutubeVideoItem[]>(() =>
-    typeof window !== "undefined" ? loadInitial() : [],
+    ensureOneFeatured(DEFAULT_YOUTUBE_VIDEOS.map((video) => ({ ...video }))),
+  );
+
+  useEffect(
+    () =>
+      subscribeYoutubeVideos((next) => {
+        setVideos(ensureOneFeatured(next));
+      }),
+    [],
   );
 
   const commit = useCallback((updater: (prev: YoutubeVideoItem[]) => YoutubeVideoItem[]) => {
     setVideos((prev) => {
       const next = ensureOneFeatured(updater(prev).sort((a, b) => a.order - b.order));
-      writeVideos(next);
+      next.forEach((video) => {
+        void saveYoutubeVideo(video);
+      });
       return next;
     });
   }, []);
@@ -112,7 +70,9 @@ export function YoutubeVideosProvider({ children }: { children: ReactNode }) {
     setVideos(() => {
       const sorted = [...next].sort((a, b) => a.order - b.order);
       const norm = ensureOneFeatured(sorted);
-      writeVideos(norm);
+      norm.forEach((video) => {
+        void saveYoutubeVideo(video);
+      });
       return norm;
     });
   }, []);
@@ -147,7 +107,10 @@ export function YoutubeVideosProvider({ children }: { children: ReactNode }) {
 
   const removeVideo = useCallback(
     (id: number) => {
-      commit((prev) => prev.filter((v) => v.id !== id));
+      commit((prev) => {
+        void removeYoutubeVideo(id);
+        return prev.filter((v) => v.id !== id);
+      });
     },
     [commit],
   );

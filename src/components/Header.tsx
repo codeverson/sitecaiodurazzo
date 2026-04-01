@@ -1,5 +1,6 @@
 import { useEffect, useId, useState } from "react";
 import type { SocialLink } from "../data/mock";
+import { editorialAssets } from "../data/editorialAssets";
 
 function SocialIcon({ platform }: { platform: SocialLink["platform"] }) {
   const common = "h-3.5 w-3.5";
@@ -75,6 +76,35 @@ function NavLink({
   );
 }
 
+function MenuGlyph({ open, light }: { open: boolean; light: boolean }) {
+  const stroke = light ? "currentColor" : "currentColor";
+  return (
+    <span className="relative inline-flex h-4 w-5 items-center justify-center" aria-hidden>
+      <span
+        className={[
+          "absolute h-px w-5 transition-transform duration-200",
+          open ? "translate-y-0 rotate-45" : "-translate-y-[5px] rotate-0",
+        ].join(" ")}
+        style={{ backgroundColor: stroke }}
+      />
+      <span
+        className={[
+          "absolute h-px w-5 transition-opacity duration-200",
+          open ? "opacity-0" : "opacity-100",
+        ].join(" ")}
+        style={{ backgroundColor: stroke }}
+      />
+      <span
+        className={[
+          "absolute h-px w-5 transition-transform duration-200",
+          open ? "translate-y-0 -rotate-45" : "translate-y-[5px] rotate-0",
+        ].join(" ")}
+        style={{ backgroundColor: stroke }}
+      />
+    </span>
+  );
+}
+
 function SocialButton({
   s,
   onNavigate,
@@ -128,6 +158,7 @@ export default function Header({
   const highlightedLabels = new Set(["Contratar", "Aulas"]);
   const desktopNavItems = navItems.filter((item) => !highlightedLabels.has(item.label));
   const highlightedNavItems = navItems.filter((item) => highlightedLabels.has(item.label));
+  const mobileOverlayItems = navItems;
 
   useEffect(() => {
     const TOP_EPS = 2;
@@ -267,9 +298,9 @@ export default function Header({
                       "font-display text-[10px] font-medium uppercase tracking-[0.26em] transition-colors duration-200",
                       useLightHeaderText ? "text-white/80 hover:text-white" : "text-cd-faint hover:text-cd-wash",
                     ].join(" ")}
-                    aria-label="Abrir painel staff"
+                    aria-label="Abrir painel backstage"
                   >
-                    STAFF
+                    BACKSTAGE
                   </a>
                 ) : (
                   <button
@@ -284,7 +315,7 @@ export default function Header({
                     ].join(" ")}
                     aria-label="Abrir painel da agenda"
                   >
-                    STAFF
+                    BACKSTAGE
                   </button>
                 )}
                 {studentHref ? (
@@ -311,56 +342,25 @@ export default function Header({
 
           {/* Mobile — alternar menu */}
           <div className="flex items-center gap-2 lg:hidden">
-            <ul className="flex items-center gap-0.5" aria-label="Redes sociais">
-              {socials.map((s) => (
-                <li key={s.platform}>
-                  <SocialButton s={s} forceLight={useLightHeaderText} />
-                </li>
-              ))}
-            </ul>
-            {onOpenAdmin || staffHref ? (
-              staffHref ? (
-                <a
-                  href={staffHref}
-                  onClick={closeMenu}
-                  className={[
-                    "ml-1 flex h-9 items-center px-3 font-display text-[9px] font-medium uppercase tracking-[0.28em] transition-colors duration-200",
-                    useLightHeaderText ? "text-white/88 hover:text-white" : "text-cd-faint hover:text-cd-wash",
-                  ].join(" ")}
-                  aria-label="Abrir painel staff"
-                >
-                  Staff
-                </a>
-              ) : (
-                <button
-                  type="button"
-                  onClick={() => {
-                    onOpenAdmin?.();
-                    closeMenu();
-                  }}
-                  className={[
-                    "ml-1 flex h-9 items-center px-3 font-display text-[9px] font-medium uppercase tracking-[0.28em] transition-colors duration-200",
-                    useLightHeaderText ? "text-white/88 hover:text-white" : "text-cd-faint hover:text-cd-wash",
-                  ].join(" ")}
-                  aria-label="Abrir painel staff"
-                >
-                  Staff
-                </button>
-              )
-            ) : null}
             <button
               type="button"
-              className="ml-1 flex h-9 items-center border border-cd-mist/[0.12] px-3 font-display text-[9px] font-medium uppercase tracking-[0.28em] text-cd-wash/90 transition-[border-color,background-color,color] duration-200 hover:border-cd-mist/25 hover:bg-cd-mist/[0.04]"
+              className={[
+                "ml-1 flex h-10 items-center gap-3 border px-3.5 font-display text-[9px] font-medium uppercase tracking-[0.28em] transition-[border-color,background-color,color] duration-200",
+                useLightHeaderText
+                  ? "border-white/18 text-white/90 hover:border-white/30 hover:bg-white/[0.04]"
+                  : "border-cd-mist/[0.12] text-cd-wash/90 hover:border-cd-mist/25 hover:bg-cd-mist/[0.04]",
+              ].join(" ")}
               aria-expanded={menuOpen}
               aria-controls={menuId}
               onClick={() => setMenuOpen((o) => !o)}
             >
-              {menuOpen ? "Fechar" : "Menu"}
+              <span>{menuOpen ? "Fechar" : "Menu"}</span>
+              <MenuGlyph open={menuOpen} light={useLightHeaderText} />
             </button>
           </div>
       </div>
 
-      {/* Mobile — painel editorial (não drawer genérico) */}
+      {/* Mobile — painel abaixo do header */}
       <div
         id={menuId}
         role="dialog"
@@ -368,61 +368,63 @@ export default function Header({
         aria-hidden={!menuOpen}
         aria-label="Navegação do site"
         className={[
-          "fixed inset-x-0 top-full z-[95] lg:hidden",
+          "absolute left-0 right-0 top-full z-[105] lg:hidden",
           menuOpen
-            ? "pointer-events-auto max-h-[calc(100svh-4.5rem)] opacity-100"
-            : "pointer-events-none max-h-0 opacity-0",
-          "overflow-y-auto bg-[#030201] transition-[max-height,opacity] duration-300 ease-out",
+            ? "pointer-events-auto opacity-100"
+            : "pointer-events-none opacity-0",
+          "overflow-y-auto bg-[linear-gradient(180deg,rgba(3,2,1,0.985)_0%,rgba(10,4,6,0.985)_100%)] transition-opacity duration-300 ease-out",
         ].join(" ")}
       >
-        <nav aria-label="Principal — mobile" className="px-5 pb-[max(1.5rem,env(safe-area-inset-bottom))] pt-2 sm:px-8">
-          <div className="mb-6 flex flex-wrap gap-3 border-b border-cd-mist/[0.06] pb-6">
-            {highlightedNavItems.map((item) => {
-              const isPrimary = item.label === "Contratar";
-
-              return (
-                <a
-                  key={item.href + item.label}
-                  href={item.href}
-                  onClick={closeMenu}
-                  className={
-                    isPrimary
-                      ? "inline-flex min-h-10 items-center px-4 font-display text-[10px] font-semibold uppercase tracking-[0.24em] text-cd-neon transition-colors duration-200 hover:text-[#fff7bf]"
-                      : "inline-flex min-h-10 items-center px-4 font-display text-[10px] font-medium uppercase tracking-[0.24em] text-cd-teal/90 transition-colors duration-200 hover:text-cd-mist"
-                  }
-                >
-                  {item.label}
-                </a>
-              );
-            })}
-          </div>
+        <nav
+          aria-label="Principal — mobile"
+          className="flex min-h-[calc(100svh-100%)] flex-col px-4 pb-[max(2rem,env(safe-area-inset-bottom))] pt-0 sm:px-8"
+        >
+          <div className="border-t border-cd-mist/[0.06]" />
           <ul className="divide-y divide-cd-mist/[0.06]">
-            {desktopNavItems.map((item) => (
+            {mobileOverlayItems.map((item) => (
               <li key={item.href + item.label}>
                 <a
                   href={item.href}
                   onClick={closeMenu}
-                  className="flex min-h-11 items-center justify-between py-3.5 font-display text-[11px] font-medium uppercase tracking-[0.24em] text-cd-mist transition-colors hover:text-cd-wash"
+                  className={[
+                    "flex min-h-[3.75rem] items-center justify-between py-3 font-rock text-[clamp(1rem,5vw,1.55rem)] uppercase tracking-[0.1em] transition-colors sm:min-h-[4.25rem] sm:py-3.5 sm:text-[clamp(1.2rem,5vw,1.9rem)]",
+                    item.label === "Contratar"
+                      ? "text-cd-neon hover:text-[#fff7bf]"
+                      : item.label === "Aulas"
+                        ? "text-cd-teal/90 hover:text-cd-mist"
+                        : "text-[#f2ead8] hover:text-white",
+                  ].join(" ")}
                 >
                   {item.label}
-                  <span className="text-cd-golddim/50" aria-hidden>
-                    —
-                  </span>
                 </a>
               </li>
             ))}
           </ul>
-          {onOpenAdmin || staffHref ? (
-            <div className="mt-6 border-t border-cd-mist/[0.08] pt-6">
-              <div className="flex items-center gap-3">
+          <div className="mt-6 overflow-hidden border border-cd-mist/[0.08] bg-black/30">
+            <img
+              src={editorialAssets.lessons}
+              alt="Caio Durazzo"
+              className="h-48 w-full object-cover object-center"
+            />
+          </div>
+          <div className="pt-6">
+            <div className="border-t border-cd-mist/[0.08] pt-6">
+              <div className="flex flex-wrap items-center gap-4">
+                <ul className="flex items-center gap-2" aria-label="Redes sociais">
+                  {socials.map((s) => (
+                    <li key={s.platform}>
+                      <SocialButton s={s} onNavigate={closeMenu} forceLight />
+                    </li>
+                  ))}
+                </ul>
                 {staffHref ? (
                   <a
                     href={staffHref}
                     onClick={closeMenu}
                     className="font-display text-[10px] font-medium uppercase tracking-[0.26em] text-cd-faint hover:text-cd-wash"
-                    aria-label="Abrir painel staff"
+                    aria-label="Abrir painel backstage"
                   >
-                    Staff
+                    Backstage
                   </a>
                 ) : (
                   <button
@@ -454,7 +456,7 @@ export default function Header({
                 ) : null}
               </div>
             </div>
-          ) : null}
+          </div>
         </nav>
       </div>
 

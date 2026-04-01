@@ -1,0 +1,9 @@
+RewriteEngine On
+
+# Keep direct requests for existing files and directories working.
+RewriteCond %{REQUEST_FILENAME} -f [OR]
+RewriteCond %{REQUEST_FILENAME} -d
+RewriteRule ^ - [L]
+
+# SPA fallback for Vite routes like /staff and /crazy-legs.
+RewriteRule ^ index.html [L]

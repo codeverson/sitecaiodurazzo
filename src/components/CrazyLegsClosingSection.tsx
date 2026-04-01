@@ -15,11 +15,30 @@ export default function CrazyLegsClosingSection() {
 
           <div className="mx-auto mt-7 max-w-[44rem] space-y-5 text-center">
             {crazyLegsClosing.paragraphs.map((paragraph) => (
-              <p key={paragraph} className="font-body text-[0.98rem] leading-[1.78] text-cd-wash/[0.88] sm:text-[1.02rem]">
+              <p key={paragraph} className="font-body text-[0.95rem] leading-[1.8] text-cd-wash/[0.88] lg:text-[0.875rem] lg:leading-[1.76]">
                 {paragraph}
               </p>
             ))}
           </div>
+          <nav
+            aria-label="Links relacionados ao projeto Crazy Legs"
+            className="mt-8 flex flex-wrap items-center justify-center gap-x-5 gap-y-3 border-t border-cd-mist/[0.08] pt-6"
+          >
+            {[
+              { href: "/#discos", label: "Discografia" },
+              { href: "/#agenda", label: "Agenda" },
+              { href: "/#booking", label: "Contratação" },
+              { href: "/aulas", label: "Aulas" },
+            ].map((link) => (
+              <a
+                key={link.href}
+                href={link.href}
+                className="font-display text-[8px] font-semibold uppercase tracking-[0.28em] text-cd-neon/82 transition-colors hover:text-cd-mist"
+              >
+                {link.label}
+              </a>
+            ))}
+          </nav>
         </div>
       </div>
     </section>

@@ -49,8 +49,8 @@ export default function BioSection() {
               {paragraphs.map((para, i) => {
                 const base =
                   i === 0
-                    ? "text-[1.05rem] leading-[1.82] text-cd-mist/95 sm:text-[1.08rem] sm:leading-[1.8]"
-                    : "text-[0.98rem] leading-[1.82] text-cd-wash/[0.88] sm:text-[1.01rem] sm:leading-[1.84]";
+                    ? "text-[0.98rem] leading-[1.82] text-cd-mist/95 lg:text-[0.9rem] lg:leading-[1.78]"
+                    : "text-[0.95rem] leading-[1.8] text-cd-wash/[0.88] lg:text-[0.875rem] lg:leading-[1.76]";
                 return (
                   <p
                     key={i}
@@ -67,6 +67,27 @@ export default function BioSection() {
                 );
               })}
             </div>
+            <nav
+              aria-label="Acessos principais do site"
+              className="mt-8 flex flex-wrap gap-x-5 gap-y-3 border-t border-cd-mist/[0.08] pt-6"
+            >
+              {[
+                { href: "#agenda", label: "Agenda de shows" },
+                { href: "#discos", label: "Discografia" },
+                { href: "#youtube", label: "Vídeos oficiais" },
+                { href: "/crazy-legs", label: "Projeto Crazy Legs" },
+                { href: "/aulas", label: "Aulas de guitarra e violão" },
+                { href: "#booking", label: "Contratação de shows" },
+              ].map((link) => (
+                <a
+                  key={link.href}
+                  href={link.href}
+                  className="font-display text-[8px] font-semibold uppercase tracking-[0.28em] text-cd-neon/82 transition-colors hover:text-cd-mist"
+                >
+                  {link.label}
+                </a>
+              ))}
+            </nav>
           </div>
         </div>
       </div>
