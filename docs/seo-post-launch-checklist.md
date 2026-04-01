@@ -5,6 +5,8 @@
 - Confirmar que `robots.txt`, `sitemap.xml` e `llms.txt` foram publicados na raiz de `https://caiodurazzo.com`.
 - Confirmar que `https://caiodurazzo.com/robots.txt` referencia `https://caiodurazzo.com/sitemap.xml`.
 - Confirmar que `/staff` continua acessivel para administracao, mas sem indexacao publica.
+- Confirmar que `siteContent/settings.maintenanceMode` esta em `false` antes de liberar a home para visitantes.
+- Validar que admins autenticados continuam vendo o site normal mesmo quando o modo de manutencao estiver ativo.
 
 ## Search Console e Bing
 
@@ -19,6 +21,7 @@
 - Testar manualmente `view-source:` e inspecao do DOM renderizado nas rotas principais.
 - Validar `BreadcrumbList`, `FAQPage`, `MusicGroup`, `MusicEvent`, `MusicAlbum` e `VideoObject` no validador de Schema.
 - Conferir compartilhamento social das rotas principais com Open Graph e Twitter Card.
+- Testar upload de imagem grande no hero para confirmar o limite de 12 MB no Backstage e no endpoint `upload-image.php`.
 
 ## Limites atuais da arquitetura
 
