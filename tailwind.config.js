@@ -3,6 +3,12 @@ module.exports = {
   content: ["./index.html", "./src/**/*.{ts,tsx}"],
   theme: {
     extend: {
+      /** 1024–1366px (ex.: 1366×768): ajustes finos sem trocar o menu desktop. */
+      screens: {
+        "hd-laptop": { raw: "(min-width: 1024px) and (max-width: 1366px)" },
+        /** Acima de 1366px — selo / layouts que voltam após hd-laptop */
+        "min-wide": "1367px",
+      },
       fontFamily: {
         /** Letreiro / pôster — presença máxima no hero */
         rock: ["Rye", "ui-serif", "Georgia", "serif"],

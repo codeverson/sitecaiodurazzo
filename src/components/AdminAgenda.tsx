@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useId, useState } from "react";
+import { useCallback, useEffect, useId, useMemo, useState } from "react";
 import { createPortal } from "react-dom";
 import AdminHeroPanel from "./AdminHeroPanel";
 import { useAuth } from "../context/AuthContext";
@@ -6,7 +6,7 @@ import { editorialAssets } from "../data/editorialAssets";
 import { useShows } from "../context/ShowsContext";
 import { useSiteSettings } from "../context/SiteSettingsContext";
 import { seedFirestoreIfEmpty } from "../lib/firestore/siteContent";
-import { compareShowDates, parseShowDate } from "../lib/showDates";
+import { compareShowDates, isShowPast, parseShowDate } from "../lib/showDates";
 import AdminDiscographyPanel from "./AdminDiscographyPanel";
 import AdminYoutubePanel from "./AdminYoutubePanel";
 
@@ -25,6 +25,13 @@ const sectionTitle =
   "mt-3 font-heading text-2xl font-black uppercase tracking-[0.08em] text-white sm:text-3xl";
 
 const adminDivider = "border-white/[0.15]";
+
+type ShowsListFilter = "all" | "upcoming" | "past";
+
+const showsFilterBtnBase =
+  "border px-3 py-2 font-display text-[8px] tracking-[0.2em] transition-colors sm:px-4 sm:text-[9px] sm:tracking-[0.22em]";
+const showsFilterBtnActive = "border-[#c6a15b] bg-black/70 text-[#f2e6c8]";
+const showsFilterBtnIdle = "border-white/25 text-white/65 hover:border-white/45 hover:text-white/90";
 
 export default function AdminAgenda({
   open,
@@ -47,6 +54,7 @@ export default function AdminAgenda({
   const [flashId, setFlashId] = useState<number | null>(null);
   const [pendingDeleteId, setPendingDeleteId] = useState<number | null>(null);
   const [adminTab, setAdminTab] = useState<AdminTab>("agenda");
+  const [showsListFilter, setShowsListFilter] = useState<ShowsListFilter>("all");
   const [isSeeding, setIsSeeding] = useState(false);
 
   const [fDate, setFDate] = useState("");
@@ -84,6 +92,7 @@ export default function AdminAgenda({
       setPendingDeleteId(null);
       setFlashId(null);
       setAdminTab("agenda");
+      setShowsListFilter("all");
       return;
     }
     setMounted(true);
@@ -201,9 +210,32 @@ export default function AdminAgenda({
     [deleteShow, showToast],
   );
 
-  if (!open) return null;
+  const sortedShows = useMemo(
+    () => [...shows].sort((a, b) => compareShowDates(a.date, b.date)),
+    [shows],
+  );
 
-  const sorted = [...shows].sort((a, b) => compareShowDates(a.date, b.date));
+  const showsFilterCounts = useMemo(() => {
+    const all = sortedShows.length;
+    const upcoming = sortedShows.filter((s) => !isShowPast(s.date)).length;
+    const past = sortedShows.filter((s) => isShowPast(s.date)).length;
+    return { all, upcoming, past };
+  }, [sortedShows]);
+
+  const filteredShowsList = useMemo(() => {
+    switch (showsListFilter) {
+      case "upcoming":
+        return sortedShows.filter((s) => !isShowPast(s.date));
+      case "past":
+        return [...sortedShows.filter((s) => isShowPast(s.date))].sort((a, b) =>
+          compareShowDates(b.date, a.date),
+        );
+      default:
+        return sortedShows;
+    }
+  }, [sortedShows, showsListFilter]);
+
+  if (!open) return null;
 
   const modalContent = (
     <>
@@ -588,12 +620,44 @@ export default function AdminAgenda({
                       02
                     </p>
                     <h3 className={sectionTitle}>Shows cadastrados</h3>
+                    <div className="mt-6 flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center sm:gap-2">
+                      <span className="font-display text-[9px] tracking-[0.28em] text-white/55">FILTRAR POR DATA</span>
+                      <div className="flex flex-wrap gap-2">
+                        {(
+                          [
+                            ["all", "Todos", showsFilterCounts.all] as const,
+                            ["upcoming", "Próximos", showsFilterCounts.upcoming] as const,
+                            ["past", "Anteriores", showsFilterCounts.past] as const,
+                          ] satisfies readonly (readonly [ShowsListFilter, string, number])[]
+                        ).map(([id, label, count]) => (
+                          <button
+                            key={id}
+                            type="button"
+                            className={[
+                              showsFilterBtnBase,
+                              showsListFilter === id ? showsFilterBtnActive : showsFilterBtnIdle,
+                            ].join(" ")}
+                            onClick={() => setShowsListFilter(id)}
+                          >
+                            {label} ({count})
+                          </button>
+                        ))}
+                      </div>
+                    </div>
                   </div>
 
-                  {sorted.length === 0 ? (
+                  {sortedShows.length === 0 ? (
                     <div className="border border-dashed border-white/22 px-8 py-20 text-center">
                       <p className="font-serif text-base italic text-white/75">
                         Nenhum show cadastrado
+                      </p>
+                    </div>
+                  ) : filteredShowsList.length === 0 ? (
+                    <div className="border border-dashed border-white/22 px-8 py-20 text-center">
+                      <p className="font-serif text-base italic text-white/75">
+                        {showsListFilter === "upcoming"
+                          ? "Nenhum show próximo."
+                          : "Nenhum show anterior."}
                       </p>
                     </div>
                   ) : (
@@ -605,7 +669,7 @@ export default function AdminAgenda({
                         <span className="text-right">AÇÕES</span>
                       </div>
                       <ul className={`divide-y divide-white/[0.15] border-t ${adminDivider}`}>
-                        {sorted.map((s) => {
+                        {filteredShowsList.map((s) => {
                           const d = parseShowDate(s.date);
                           const day = String(d.getDate()).padStart(2, "0");
                           const mon = d

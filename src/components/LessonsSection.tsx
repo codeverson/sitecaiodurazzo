@@ -19,7 +19,7 @@ export default function LessonsSection() {
       <SectionBridgeTop />
       <SectionBridgeBottom />
 
-      <div className="relative z-10 mx-auto max-w-[88rem] px-5 sm:px-9 lg:px-12">
+      <div className="relative z-10 mx-auto max-w-[88rem] px-5 sm:px-9 lg:px-9 hd-laptop:px-7 xl:px-12">
         <div className="relative lg:flex lg:min-h-[560px] lg:items-stretch">
           <div className="relative min-h-[44vh] w-full lg:absolute lg:inset-y-0 lg:left-0 lg:w-[52%] lg:min-h-0">
             <div
@@ -37,7 +37,7 @@ export default function LessonsSection() {
             </div>
           </div>
 
-          <div className="relative z-[3] -mt-12 border-2 border-cd-teal/30 bg-[#050302]/95 px-8 py-12 shadow-[0_30px_80px_rgba(0,0,0,0.65)] sm:px-10 sm:py-14 lg:ml-auto lg:mt-0 lg:w-[58%] lg:border-l-4 lg:border-cd-neon/40 lg:px-14 lg:py-16">
+          <div className="relative z-[3] -mt-12 min-w-0 border-2 border-cd-teal/30 bg-[#050302]/95 px-8 py-12 shadow-[0_30px_80px_rgba(0,0,0,0.65)] sm:px-10 sm:py-14 lg:ml-auto lg:mt-0 lg:w-[58%] lg:border-l-4 lg:border-cd-neon/40 lg:px-12 xl:px-14 lg:py-14 xl:py-16">
             <TextureBg src={textureAssets.paperFiber} opacity={0.08} blendMode="soft-light" />
             <div className="relative z-[1]">
               <p className="font-display text-[10px] font-semibold tracking-[0.38em] text-cd-teal">ENSINO</p>

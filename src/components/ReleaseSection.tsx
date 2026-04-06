@@ -19,7 +19,7 @@ export default function ReleaseSection() {
       <SectionBridgeTop />
       <SectionBridgeBottom />
 
-      <div className="relative z-10 mx-auto max-w-[88rem] px-5 sm:px-9 lg:px-12">
+      <div className="relative z-10 mx-auto max-w-[88rem] px-5 sm:px-9 lg:px-9 hd-laptop:px-7 xl:px-12">
         <div className="relative overflow-visible">
           <div className="absolute -left-2 -top-3 z-[2] border border-cd-neon/50 bg-cd-deep px-4 py-2 font-display text-[9px] font-semibold tracking-[0.42em] text-cd-neon shadow-glow-sm">
             PRESS KIT
@@ -42,7 +42,7 @@ export default function ReleaseSection() {
               </div>
             </div>
 
-            <div className="relative flex flex-col justify-center border-t border-cd-mist/10 bg-[#050302]/95 px-7 py-12 sm:px-10 sm:py-14 lg:border-l lg:border-t-0 lg:px-14 lg:py-16">
+            <div className="relative flex flex-col justify-center border-t border-cd-mist/10 bg-[#050302]/95 px-7 py-12 sm:px-10 sm:py-14 lg:border-l lg:border-t-0 lg:px-12 xl:px-14 lg:py-14 xl:py-16">
               <div
                 className="pointer-events-none absolute right-6 top-6 h-24 w-24 rounded-full border border-dashed border-cd-cherry/25"
                 aria-hidden

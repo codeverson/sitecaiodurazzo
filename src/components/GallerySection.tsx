@@ -37,8 +37,8 @@ export default function GallerySection() {
       <SectionBridgeTop />
       <SectionBridgeBottom />
 
-      <div className="relative z-10 mx-auto max-w-[90rem] px-5 sm:px-9 lg:px-12">
-        <div className="flex flex-col gap-10 lg:flex-row lg:items-end lg:justify-between lg:gap-16">
+      <div className="relative z-10 mx-auto max-w-[90rem] px-5 sm:px-9 lg:px-9 hd-laptop:px-7 xl:px-12">
+        <div className="flex flex-col gap-10 lg:flex-row lg:items-end lg:justify-between lg:gap-12 2xl:gap-16">
           <header
             className={[
               "max-w-xl transition-all duration-1000 ease-out",

@@ -201,9 +201,9 @@ export default function YoutubeChannelSection({ channelUrl }: { channelUrl: stri
       id="youtube"
       className="relative isolate flex scroll-mt-24 flex-col overflow-x-clip bg-transparent py-12 text-cd-mist sm:py-14 lg:min-h-[100vh] lg:py-16"
     >
-      <div className="relative z-10 mx-auto flex w-full max-w-[90rem] flex-1 items-center px-6 sm:px-10 lg:px-14 xl:px-16">
-        <div className="w-full">
-          <div className="flex flex-col gap-8 lg:flex-row lg:items-end lg:justify-between lg:gap-10">
+      <div className="relative z-10 mx-auto flex w-full max-w-[90rem] flex-1 items-center px-6 sm:px-10 lg:px-10 hd-laptop:px-7 xl:px-12 2xl:px-16">
+        <div className="w-full min-w-0">
+          <div className="flex flex-col gap-8 lg:flex-row lg:items-end lg:justify-between lg:gap-8 2xl:gap-10">
             <header className="max-w-3xl">
               <p className="font-display text-[9px] font-semibold tracking-[0.48em] text-cd-teal">{kicker}</p>
               <h2 className="cd-display-title mt-5 font-rock text-[clamp(1.65rem,3.6vw,2.65rem)] uppercase leading-[1.05] tracking-[0.08em] text-[#ebe3d4]">
@@ -235,14 +235,16 @@ export default function YoutubeChannelSection({ channelUrl }: { channelUrl: stri
               <div
                 className={[
                   "flex flex-col gap-6",
-                  showSidebar ? "lg:grid lg:grid-cols-12 lg:items-stretch lg:gap-8 xl:gap-10" : "",
+                  showSidebar
+                    ? "lg:grid lg:grid-cols-12 lg:items-stretch lg:gap-6 xl:gap-8 2xl:gap-10"
+                    : "",
                 ].join(" ")}
               >
-                <div className={showSidebar ? "lg:col-span-7 xl:col-span-8" : ""}>
+                <div className={showSidebar ? "min-w-0 lg:col-span-7 xl:col-span-8" : "min-w-0"}>
                   <MainPlayer video={activeVideo} channelUrl={channelUrl} />
                 </div>
                 {showSidebar ? (
-                  <div className="relative lg:col-span-5 lg:flex lg:h-full lg:flex-col xl:col-span-4">
+                  <div className="relative min-w-0 lg:col-span-5 lg:flex lg:h-full lg:flex-col xl:col-span-4">
                     <p className="mb-3 font-display text-[8px] font-medium tracking-[0.36em] text-cd-faint">
                       MAIS VÍDEOS
                     </p>

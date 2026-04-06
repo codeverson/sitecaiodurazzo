@@ -17,7 +17,7 @@ export default function MaintenancePage() {
       </div>
 
       <div className="pointer-events-none absolute inset-x-0 top-0 z-[2]">
-        <div className="mx-auto max-w-[92rem] px-6 py-7 sm:px-10 sm:py-8 lg:px-14 lg:py-9">
+        <div className="mx-auto max-w-[92rem] px-6 py-7 sm:px-10 sm:py-8 lg:px-9 hd-laptop:px-7 xl:px-12 lg:py-9">
           <div className="inline-flex min-w-0 items-center gap-3">
             <span
               className="h-7 w-px shrink-0 bg-gradient-to-b from-transparent via-cd-gold/40 to-transparent sm:h-8"
@@ -30,7 +30,7 @@ export default function MaintenancePage() {
         </div>
       </div>
 
-      <div className="relative z-[1] flex min-h-screen items-end px-6 py-10 sm:px-10 sm:py-12 lg:px-14 lg:py-14">
+      <div className="relative z-[1] flex min-h-screen items-end px-6 py-10 sm:px-10 sm:py-12 lg:px-9 hd-laptop:px-7 xl:px-12 lg:py-14">
         <section className="w-full">
           <div className="mx-auto max-w-[92rem]">
             <div className="relative max-w-[28rem] overflow-visible border border-cd-mist/[0.1] bg-[linear-gradient(180deg,rgba(11,8,8,0.32)_0%,rgba(9,7,7,0.5)_100%)] px-7 py-8 shadow-[0_28px_80px_rgba(0,0,0,0.34)] backdrop-blur-[2px] sm:px-8 sm:py-9 lg:px-9 lg:py-10">

@@ -18,7 +18,7 @@ export default function Footer({
     >
       <SectionBridgeTop />
 
-      <div className="relative z-10 mx-auto max-w-[88rem] px-6 py-14 sm:px-10 sm:py-16 lg:py-20">
+      <div className="relative z-10 mx-auto max-w-[88rem] px-6 py-14 sm:px-10 sm:py-16 lg:px-9 hd-laptop:px-7 xl:px-12 lg:py-20">
         <div className="max-w-[42rem]">
           <p className="font-rock text-[clamp(1.5rem,3.5vw,2.25rem)] uppercase tracking-[0.14em] text-[#f2ead8]">
             {brandTitle}

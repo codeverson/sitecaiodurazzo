@@ -60,7 +60,7 @@ function NavLink({
       href={href}
       onClick={onNavigate}
       className={[
-        "font-display text-[10px] font-medium uppercase tracking-[0.22em] transition-[color] duration-200",
+        "font-display text-[10px] font-medium uppercase tracking-[0.22em] transition-[color] duration-200 hd-laptop:text-[9px] hd-laptop:tracking-[0.16em]",
         forceLight ? "text-white/92 hover:text-white" : "text-cd-wash/[0.78] hover:text-cd-mist",
       ].join(" ")}
     >
@@ -122,7 +122,7 @@ function SocialButton({
       aria-label={s.label}
       onClick={onNavigate}
       className={[
-        "flex h-8 w-8 items-center justify-center transition-[color,border-color,background-color] duration-200",
+        "flex h-8 w-8 items-center justify-center transition-[color,border-color,background-color] duration-200 hd-laptop:h-7 hd-laptop:w-7",
         forceLight
           ? "border border-white/14 text-white/88 hover:border-white/28 hover:bg-white/[0.05] hover:text-white"
           : "border border-cd-mist/[0.12] text-cd-muted hover:border-cd-golddim/45 hover:bg-cd-mist/[0.04] hover:text-cd-mist",
@@ -204,8 +204,10 @@ export default function Header({
     >
       <div
         className={[
-          "mx-auto flex max-w-[100rem] items-center justify-between transition-[padding] duration-300 lg:grid lg:grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] lg:items-center lg:gap-8",
-          scrolled ? "px-4 py-2.5 sm:px-6 lg:px-10" : "px-4 py-3 sm:px-6 lg:px-10",
+          "mx-auto flex max-w-[100rem] items-center justify-between transition-[padding] duration-300 lg:grid lg:grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] lg:items-center lg:gap-x-3 lg:gap-y-2 xl:gap-x-5 2xl:gap-x-8",
+          scrolled
+            ? "px-4 py-2.5 sm:px-6 lg:px-5 lg:py-2 xl:px-8 2xl:px-10"
+            : "px-4 py-3 sm:px-6 lg:px-5 xl:px-8 2xl:px-10",
         ].join(" ")}
       >
           {/* Esquerda — wordmark */}
@@ -222,8 +224,8 @@ export default function Header({
                 className={[
                   "font-rock uppercase not-italic leading-none tracking-[0.14em] text-[#ebe3d4] transition-[font-size,color] duration-300 group-hover:text-cd-mist",
                   scrolled
-                    ? "text-[clamp(0.88rem,2.1vw,1.05rem)]"
-                    : "text-[clamp(0.95rem,2.4vw,1.2rem)]",
+                    ? "text-[clamp(0.82rem,2vw,1.05rem)] hd-laptop:text-[clamp(0.78rem,1.85vw,0.98rem)]"
+                    : "text-[clamp(0.88rem,2.2vw,1.15rem)] hd-laptop:text-[clamp(0.84rem,2vw,1.05rem)]",
                 ].join(" ")}
               >
                 Caio Durazzo
@@ -236,7 +238,7 @@ export default function Header({
             aria-label="Principal"
             className="hidden min-w-0 justify-center lg:flex lg:justify-self-center"
           >
-            <ul className="flex flex-wrap items-center justify-center gap-x-7 gap-y-2 xl:gap-x-8">
+            <ul className="flex flex-wrap items-center justify-center gap-x-3 gap-y-1.5 hd-laptop:gap-x-2.5 xl:gap-x-5 2xl:gap-x-7">
               {desktopNavItems.map((item) => (
                 <li key={item.href + item.label}>
                   <NavLink href={item.href} forceLight={useLightHeaderText}>
@@ -249,7 +251,7 @@ export default function Header({
 
           {/* Direita — redes + ações (desktop) */}
           <div className="hidden items-center justify-end gap-0 lg:flex lg:justify-self-end">
-            <ul className="mr-4 flex items-center gap-2.5" aria-label="Ações em destaque">
+            <ul className="mr-2 flex items-center gap-1.5 hd-laptop:mr-2 hd-laptop:gap-1 xl:mr-4 xl:gap-2.5" aria-label="Ações em destaque">
               {highlightedNavItems.map((item) => {
                 const isPrimary = item.label === "Contratar";
 
@@ -261,13 +263,13 @@ export default function Header({
                       className={
                         isPrimary
                           ? [
-                              "inline-flex min-h-9 items-center px-4 font-display text-[10px] font-semibold uppercase tracking-[0.24em] transition-colors duration-200",
+                              "inline-flex min-h-8 items-center px-3 font-display text-[10px] font-semibold uppercase tracking-[0.24em] transition-colors duration-200 hd-laptop:min-h-8 hd-laptop:px-2.5 hd-laptop:text-[9px] xl:min-h-9 xl:px-4",
                               useLightHeaderText
                                 ? "text-white/92 hover:text-white"
                                 : "text-cd-neon hover:text-[#fff7bf]",
                             ].join(" ")
                           : [
-                              "inline-flex min-h-9 items-center px-4 font-display text-[10px] font-medium uppercase tracking-[0.24em] transition-colors duration-200",
+                              "inline-flex min-h-8 items-center px-3 font-display text-[10px] font-medium uppercase tracking-[0.24em] transition-colors duration-200 hd-laptop:min-h-8 hd-laptop:px-2.5 hd-laptop:text-[9px] xl:min-h-9 xl:px-4",
                               useLightHeaderText
                                 ? "text-white/92 hover:text-white"
                                 : "text-cd-teal/90 hover:text-cd-mist",
@@ -289,13 +291,13 @@ export default function Header({
             </ul>
             {onOpenAdmin || staffHref ? (
               <>
-                <span className="mx-4 h-4 w-px shrink-0 bg-cd-mist/[0.1]" aria-hidden />
+                <span className="mx-3 h-4 w-px shrink-0 bg-cd-mist/[0.1] hd-laptop:mx-2" aria-hidden />
                 {staffHref ? (
                   <a
                     href={staffHref}
                     onClick={closeMenu}
                     className={[
-                      "font-display text-[10px] font-medium uppercase tracking-[0.26em] transition-colors duration-200",
+                      "font-display text-[10px] font-medium uppercase tracking-[0.26em] transition-colors duration-200 hd-laptop:text-[9px] hd-laptop:tracking-[0.2em]",
                       useLightHeaderText ? "text-white/80 hover:text-white" : "text-cd-faint hover:text-cd-wash",
                     ].join(" ")}
                     aria-label="Abrir painel backstage"
@@ -310,7 +312,7 @@ export default function Header({
                       closeMenu();
                     }}
                     className={[
-                      "font-display text-[10px] font-medium uppercase tracking-[0.26em] transition-colors duration-200",
+                      "font-display text-[10px] font-medium uppercase tracking-[0.26em] transition-colors duration-200 hd-laptop:text-[9px] hd-laptop:tracking-[0.2em]",
                       useLightHeaderText ? "text-white/80 hover:text-white" : "text-cd-faint hover:text-cd-wash",
                     ].join(" ")}
                     aria-label="Abrir painel da agenda"
@@ -320,14 +322,14 @@ export default function Header({
                 )}
                 {studentHref ? (
                   <>
-                    <span className="mx-3 font-display text-[10px] font-medium uppercase tracking-[0.22em] text-cd-faint/65">
+                    <span className="mx-2 font-display text-[10px] font-medium uppercase tracking-[0.22em] text-cd-faint/65 hd-laptop:mx-1.5 hd-laptop:text-[9px]">
                       |
                     </span>
                     <a
                       href={studentHref}
                       onClick={closeMenu}
                       className={[
-                        "font-display text-[10px] font-medium uppercase tracking-[0.26em] transition-colors duration-200",
+                        "font-display text-[10px] font-medium uppercase tracking-[0.26em] transition-colors duration-200 hd-laptop:text-[9px] hd-laptop:tracking-[0.2em]",
                         useLightHeaderText ? "text-white/80 hover:text-white" : "text-cd-faint hover:text-cd-wash",
                       ].join(" ")}
                       aria-label="Abrir área do aluno"

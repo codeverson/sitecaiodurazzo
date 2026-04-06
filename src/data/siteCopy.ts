@@ -4,8 +4,15 @@ export const heroCopy = {
   /** Micro linha acima do nome — vazio omite a linha no hero. */
   micro: "",
   title: "CAIO DURAZZO",
-  /** Posicionamento em uma linha. */
-  tagline: "One Man Band · Rock’n Roll",
+  /** Frases que alternam abaixo do nome no hero (cada uma ~3s com fade). */
+  heroTaglines: [
+    "One Man Band",
+    "Rock n Roll Trio",
+    "Aulas de Guitarra e Violão",
+    "Cantor Compositor e Guitarrista",
+  ] as const,
+  /** Legado / referência — primeira linha do carrossel. */
+  tagline: "One Man Band",
   ctaAgenda: "Ver agenda",
   ctaListen: "Ouça agora",
 };

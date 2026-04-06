@@ -77,7 +77,7 @@ export default function StudentAreaPage() {
 
   return (
     <main className="relative min-h-[100svh] bg-transparent pt-28 text-cd-mist sm:pt-32 lg:pt-36">
-      <section className="mx-auto max-w-[90rem] px-6 pb-16 sm:px-10 sm:pb-20 lg:px-14 xl:px-16">
+      <section className="mx-auto max-w-[90rem] px-6 pb-16 sm:px-10 sm:pb-20 lg:px-10 hd-laptop:px-7 xl:px-12 2xl:px-16">
         {!unlocked ? (
           <div className="mx-auto max-w-[34rem] border border-cd-mist/[0.12] bg-[linear-gradient(160deg,rgba(30,12,16,0.9)_0%,rgba(11,5,7,0.98)_100%)] px-6 py-8 shadow-[0_24px_60px_rgba(0,0,0,0.32)] sm:px-8 sm:py-10">
             <p className="font-display text-[9px] font-semibold tracking-[0.4em] text-cd-teal">ALUNO</p>

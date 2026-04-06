@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useHeroSlides } from "../context/HeroSlidesContext";
 import { uploadImageToHostinger } from "../lib/hostingerUploads";
 
@@ -29,11 +29,142 @@ export default function AdminHeroPanel({
 }: {
   showToast: (msg: string) => void;
 }) {
-  const { slides, setSlide, moveSlide, addSlide, removeSlide, resetSlideImage, maxFileBytes } =
-    useHeroSlides();
+  const {
+    slides,
+    heroTaglines,
+    replaceHeroTaglines,
+    addHeroTagline,
+    removeHeroTagline,
+    moveHeroTagline,
+    setSlide,
+    moveSlide,
+    addSlide,
+    removeSlide,
+    resetSlideImage,
+    maxFileBytes,
+  } = useHeroSlides();
+
+  const [tagDraft, setTagDraft] = useState<string[]>(() => [...heroTaglines]);
+  useEffect(() => {
+    setTagDraft([...heroTaglines]);
+  }, [heroTaglines]);
+
+  const persistTagDraft = (withToast: boolean) => {
+    const cleaned = tagDraft.map((t) => t.trim()).filter(Boolean);
+    if (cleaned.length === 0) {
+      setTagDraft([...heroTaglines]);
+      if (withToast) showToast("Mantenha ao menos uma frase com texto.");
+      return;
+    }
+    if (cleaned.join("\0") === heroTaglines.join("\0")) {
+      if (withToast) showToast("Nenhuma alteração para salvar.");
+      return;
+    }
+    replaceHeroTaglines(cleaned);
+    if (withToast) showToast("Frases do hero salvas.");
+  };
+
+  /** Aplica o rascunho ao contexto antes de reordenar/remover (evita perder texto sem blur). */
+  const flushDraftSilently = (): boolean => {
+    const cleaned = tagDraft.map((t) => t.trim()).filter(Boolean);
+    if (cleaned.length === 0) return false;
+    if (cleaned.join("\0") !== heroTaglines.join("\0")) {
+      replaceHeroTaglines(cleaned);
+    }
+    return true;
+  };
 
   return (
     <div className="mx-auto max-w-[100rem] px-5 py-12 sm:px-9 lg:px-12 lg:py-16">
+      <div className={`mb-12 border-b ${adminDivider} pb-10`}>
+        <h3 className={sectionTitle}>Frases rotativas</h3>
+        <p className="mt-4 max-w-2xl font-serif text-sm italic leading-relaxed text-white/78">
+          Textos que aparecem em sequência abaixo do nome &quot;CAIO DURAZZO&quot; na home (cerca de 3 segundos
+          cada, com fade). A ordem aqui é a ordem da rotação. Com Firebase, os textos ficam no mesmo documento
+          do hero no Firestore; sem Firebase, neste navegador (localStorage).
+        </p>
+        <ul className="mt-8 space-y-5">
+          {tagDraft.map((line, index) => (
+            <li key={`tag-${index}`} className="flex flex-col gap-3 sm:flex-row sm:items-end sm:gap-4">
+              <div className="min-w-0 flex-1">
+                <label className={label} htmlFor={`hero-tag-${index}`}>
+                  Frase {String(index + 1).padStart(2, "0")}
+                </label>
+                <input
+                  id={`hero-tag-${index}`}
+                  type="text"
+                  value={line}
+                  onChange={(e) => {
+                    const v = e.target.value;
+                    setTagDraft((prev) => prev.map((t, i) => (i === index ? v : t)));
+                  }}
+                  onBlur={() => persistTagDraft(false)}
+                  className={field}
+                />
+              </div>
+              <div className="flex flex-wrap gap-2">
+                <button
+                  type="button"
+                  onClick={() => {
+                    if (!flushDraftSilently()) return;
+                    moveHeroTagline(index, -1);
+                  }}
+                  disabled={index === 0}
+                  className="border border-white/30 px-3 py-2 font-display text-[8px] tracking-[0.22em] text-white/75 transition-colors hover:border-[#c6a15b] hover:text-white disabled:pointer-events-none disabled:opacity-25"
+                >
+                  SUBIR
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    if (!flushDraftSilently()) return;
+                    moveHeroTagline(index, 1);
+                  }}
+                  disabled={index === tagDraft.length - 1}
+                  className="border border-white/30 px-3 py-2 font-display text-[8px] tracking-[0.22em] text-white/75 transition-colors hover:border-[#c6a15b] hover:text-white disabled:pointer-events-none disabled:opacity-25"
+                >
+                  DESCER
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    if (!flushDraftSilently()) return;
+                    const ok = removeHeroTagline(index);
+                    if (!ok) {
+                      showToast("É necessário ao menos uma frase.");
+                      return;
+                    }
+                    showToast("Frase removida.");
+                  }}
+                  className="border border-white/30 px-3 py-2 font-display text-[8px] tracking-[0.22em] text-white/75 transition-colors hover:border-red-300/70 hover:text-red-200"
+                >
+                  REMOVER
+                </button>
+              </div>
+            </li>
+          ))}
+        </ul>
+        <div className="mt-6 flex flex-wrap gap-3">
+          <button
+            type="button"
+            onClick={() => {
+              addHeroTagline();
+              showToast("Nova frase adicionada. Edite o texto e salve ao sair do campo.");
+            }}
+            className="border border-[#c6a15b]/55 bg-black/60 px-5 py-3 font-display text-[9px] tracking-[0.26em] text-[#f2e6c8] transition-colors hover:border-[#c6a15b] hover:bg-black/80"
+          >
+            Adicionar frase
+          </button>
+          <button
+            type="button"
+            onClick={() => persistTagDraft(true)}
+            className="border border-white/35 px-5 py-3 font-display text-[9px] tracking-[0.26em] text-white/80 transition-colors hover:border-[#c6a15b] hover:text-white"
+          >
+            Salvar frases agora
+          </button>
+        </div>
+      </div>
+
       <div className={`mb-10 border-b ${adminDivider} pb-8`}>
         <h3 className={sectionTitle}>Fotos do hero</h3>
         <p className="mt-4 max-w-2xl font-serif text-sm italic leading-relaxed text-white/78">

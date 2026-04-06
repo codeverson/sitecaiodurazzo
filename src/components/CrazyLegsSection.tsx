@@ -9,10 +9,50 @@ import {
   crazyLegsYoutubeUrl,
   pressReleaseParagraphs,
   youtubeEmbed,
-  youtubeThumb,
 } from "../data/crazyLegsEditorial";
 import { textureAssets } from "../data/textureAssets";
 import TextureBg from "./TextureBg";
+
+type CrazyLegsVideoItem = (typeof crazyLegsVideos)[number];
+
+function CrazyLegsVideoFrame({ v }: { v: CrazyLegsVideoItem }) {
+  return (
+    <div className="w-full shrink-0">
+      <div
+        className="relative border-2 border-cd-cherry/40 bg-black/95 p-1 shadow-[0_0_0_1px_rgba(0,0,0,0.8),0_28px_70px_rgba(0,0,0,0.75),0_0_48px_rgba(244,224,77,0.06)]"
+        role="presentation"
+      >
+        <div
+          className="pointer-events-none absolute -inset-[6px] border border-cd-neon/15 opacity-60"
+          aria-hidden
+        />
+        <div className="relative aspect-video overflow-hidden bg-black ring-1 ring-cd-mist/10">
+          <div
+            className="pointer-events-none absolute inset-x-0 top-0 z-[2] h-1/3 bg-gradient-to-b from-black/55 to-transparent"
+            aria-hidden
+          />
+          <iframe
+            title={`Crazy Legs — ${v.label}`}
+            src={youtubeEmbed(v.id)}
+            className="absolute inset-0 h-full w-full"
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+            allowFullScreen
+            loading="lazy"
+          />
+          <div
+            className="pointer-events-none absolute inset-0 bg-film-grain-section opacity-[0.17] mix-blend-overlay"
+            aria-hidden
+          />
+          <div
+            className="pointer-events-none absolute inset-x-0 bottom-0 z-[2] h-1/4 bg-gradient-to-t from-black/70 to-transparent"
+            aria-hidden
+          />
+        </div>
+      </div>
+      <p className="mt-2 font-display text-[7px] tracking-[0.32em] text-cd-teal/70">{v.tag}</p>
+    </div>
+  );
+}
 
 function SocialIcon({ kind }: { kind: "youtube" | "instagram" | "spotify" }) {
   if (kind === "youtube") {
@@ -90,25 +130,24 @@ export default function CrazyLegsSection() {
   return (
     <section
       id="palco"
-      className="relative isolate scroll-mt-24 overflow-x-clip bg-transparent text-cd-mist"
+      className="relative isolate scroll-mt-28 overflow-x-clip bg-transparent text-cd-mist md:scroll-mt-32"
     >
       <div
-        className="pointer-events-none absolute inset-x-0 top-0 z-[2] h-px bg-gradient-to-r from-transparent via-cd-neon/35 to-transparent"
+        className="pointer-events-none absolute inset-x-0 top-0 z-[2] hidden h-px bg-gradient-to-r from-transparent via-cd-neon/35 to-transparent min-wide:block"
         aria-hidden
       />
 
-      <div className="relative block h-[56vh] min-h-[24rem] w-full md:hidden">
+      {/* Até 1366px: só imagem de fundo; palco completo só a partir de min-wide */}
+      <div className="relative block h-[85vh] w-full min-wide:hidden">
         <img
           src={crazyHero}
-          alt="Crazy Legs em foto promocional da banda"
-          className="absolute inset-0 h-full w-full object-cover object-[center_18%]"
+          alt=""
+          className="absolute inset-0 h-full w-full object-cover object-[center_22%]"
           loading="lazy"
         />
-        <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(8,6,6,0.2)_0%,rgba(8,6,6,0.34)_42%,rgba(8,6,6,0.82)_100%)]" />
-        <div className="pointer-events-none absolute inset-0 bg-film-grain-section opacity-[0.05] mix-blend-overlay" aria-hidden />
       </div>
 
-      <div className="relative min-h-[100vh] w-full">
+      <div className="relative hidden min-h-[100svh] w-full min-wide:block">
         {/* —— Camada 1 · fundo —— */}
         <img
           src={editorialAssets.crazyLegs}
@@ -145,9 +184,9 @@ export default function CrazyLegsSection() {
           aria-hidden
         />
 
-        {/* Sticker logo — canto superior direito, fora da faixa dos três recortes grandes */}
+        {/* Sticker logo — canto superior direito; abaixo dos vídeos e do painel */}
         <div
-          className="absolute right-[2%] top-[6%] z-[34] hidden w-[min(40vw,140px)] drop-shadow-[0_20px_45px_rgba(0,0,0,0.78)] md:block sm:right-[3%] sm:top-[7%] sm:w-[min(32vw,188px)] lg:right-[max(1.5%,-0.5rem)] lg:top-[6.5%] lg:w-[min(22vw,220px)]"
+          className="absolute right-[2%] top-[6%] z-[33] hidden w-[min(40vw,140px)] drop-shadow-[0_20px_45px_rgba(0,0,0,0.78)] md:block hd-laptop:hidden min-wide:block sm:right-[3%] sm:top-[7%] sm:w-[min(32vw,188px)] lg:right-[max(1.5%,-0.5rem)] lg:top-[6.5%] lg:w-[min(22vw,220px)]"
           style={{ transform: "rotate(3.2deg)" }}
         >
           <img
@@ -157,75 +196,49 @@ export default function CrazyLegsSection() {
           />
         </div>
 
-        {/* Três recortes — mesma escala visual (~400px cap); laterais/inferiores para liberar rosto (fundo object-[center_36%]) */}
+        {/* md–1366px: coluna esquerda reta, um vídeo sobre o outro */}
+        <div className="pointer-events-auto absolute bottom-24 left-[2%] z-[34] hidden max-h-[calc(100svh-10rem)] max-w-[min(88vw,280px)] flex-col gap-4 overflow-y-auto overflow-x-hidden overscroll-contain pr-1 md:flex hd-laptop:bottom-20 hd-laptop:left-[1.25%] hd-laptop:max-w-[min(90vw,252px)] min-wide:hidden">
+          <CrazyLegsVideoFrame v={main} />
+          <CrazyLegsVideoFrame v={eu} />
+          <CrazyLegsVideoFrame v={vlv} />
+        </div>
+
+        {/* ≥1367px: colagem com rotação */}
         {(
           [
             {
               key: "main",
               v: main,
-              className:
-                "bottom-[9%] left-[2%] z-[40] hidden w-[min(94vw,360px)] md:block lg:bottom-[11%] lg:left-[3%] lg:w-[min(94vw,400px)]",
-              style: { transform: "rotate(-2.5deg)" },
+              className: "bottom-[11%] left-[3%] z-[30] hidden w-[min(94vw,400px)] min-wide:block",
+              style: { transform: "rotate(-2.5deg)" } as const,
             },
             {
               key: "eu",
               v: eu,
-              className:
-                "bottom-[min(40%,360px)] left-[2%] z-[39] hidden w-[min(94vw,360px)] md:block lg:bottom-[38%] lg:left-[2.5%] lg:w-[min(94vw,400px)]",
-              style: { transform: "rotate(3.6deg)" },
+              className: "bottom-[38%] left-[2.5%] z-[31] hidden w-[min(94vw,400px)] min-wide:block",
+              style: { transform: "rotate(3.6deg)" } as const,
             },
             {
               key: "vlv",
               v: vlv,
               className:
-                "bottom-[min(30%,280px)] left-[4%] z-[41] hidden w-[min(92vw,320px)] md:block lg:bottom-[6%] lg:left-auto lg:right-[calc(3.5%+31rem)] lg:w-[min(34vw,360px)] xl:right-[calc(3.5%+33rem)] xl:w-[min(32vw,380px)]",
-              style: { transform: "rotate(-2deg)" },
+                "bottom-[6%] left-auto right-[calc(3.5%+33rem)] z-[32] hidden w-[min(32vw,380px)] min-wide:block",
+              style: { transform: "rotate(-2deg)" } as const,
             },
           ] as const
         ).map(({ key, v, className, style }) => (
           <div key={key} className={`absolute ${className}`} style={style}>
-            <div
-              className="relative border-2 border-cd-cherry/40 bg-black/95 p-1 shadow-[0_0_0_1px_rgba(0,0,0,0.8),0_28px_70px_rgba(0,0,0,0.75),0_0_48px_rgba(244,224,77,0.06)]"
-              role="presentation"
-            >
-              <div
-                className="pointer-events-none absolute -inset-[6px] border border-cd-neon/15 opacity-60"
-                aria-hidden
-              />
-              <div className="relative aspect-video overflow-hidden bg-black ring-1 ring-cd-mist/10">
-                <div
-                  className="pointer-events-none absolute inset-x-0 top-0 z-[2] h-1/3 bg-gradient-to-b from-black/55 to-transparent"
-                  aria-hidden
-                />
-                <iframe
-                  title={`Crazy Legs — ${v.label}`}
-                  src={youtubeEmbed(v.id)}
-                  className="absolute inset-0 h-full w-full"
-                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-                  allowFullScreen
-                  loading="lazy"
-                />
-                <div
-                  className="pointer-events-none absolute inset-0 bg-film-grain-section opacity-[0.17] mix-blend-overlay"
-                  aria-hidden
-                />
-                <div
-                  className="pointer-events-none absolute inset-x-0 bottom-0 z-[2] h-1/4 bg-gradient-to-t from-black/70 to-transparent"
-                  aria-hidden
-                />
-              </div>
-            </div>
-            <p className="mt-2 font-display text-[7px] tracking-[0.32em] text-cd-teal/70">{v.tag}</p>
+            <CrazyLegsVideoFrame v={v} />
           </div>
         ))}
 
-        {/* Bloco editorial + release */}
-        <div className="pointer-events-none absolute inset-x-0 bottom-0 top-0 z-[28]">
-          <div className="pointer-events-auto absolute bottom-[3%] left-[3%] right-[3%] sm:left-[4.5%] sm:right-[4.5%] lg:bottom-[6%] lg:left-[3.5%] lg:right-[3.5%]">
-            <div className="ml-auto max-w-[32rem] lg:w-[min(100%,30rem)]">
-                <div className="border border-cd-mist/[0.1] bg-[linear-gradient(145deg,rgba(11,10,9,0.92)_0%,rgba(5,4,3,0.96)_100%)] px-5 py-6 shadow-[0_0_0_1px_rgba(122,19,33,0.12),0_26px_70px_rgba(0,0,0,0.62)] backdrop-blur-md sm:px-7 sm:py-7">
+        {/* Bloco editorial — base alinhada à coluna de vídeos à esquerda (md–1366: bottom-24/20); min-wide: alinhado ao recorte inferior esquerdo (main) */}
+        <div className="pointer-events-none absolute inset-x-0 bottom-0 top-0 z-[45]">
+          <div className="pointer-events-auto absolute inset-x-0 bottom-24 top-24 flex flex-col justify-end pl-[3%] pr-[3%] sm:pl-[4.5%] sm:pr-[4.5%] md:top-28 lg:pl-[3.5%] lg:pr-[3.5%] hd-laptop:bottom-20 hd-laptop:top-[8.75rem] hd-laptop:pl-[2.5%] hd-laptop:pr-[2.5%] min-wide:bottom-[11%] min-wide:top-28 min-wide:pl-[3.5%] min-wide:pr-[3.5%]">
+            <div className="mx-auto w-full max-w-[32rem] sm:px-0 lg:ml-auto lg:mr-0 lg:w-[min(100%,30rem)] hd-laptop:max-w-[min(100%,25rem)] min-wide:max-w-[32rem]">
+                <div className="max-h-[min(72vh,100%)] overflow-y-auto overscroll-contain border border-cd-mist/[0.1] bg-[linear-gradient(145deg,rgba(11,10,9,0.92)_0%,rgba(5,4,3,0.96)_100%)] px-5 py-6 shadow-[0_0_0_1px_rgba(122,19,33,0.12),0_26px_70px_rgba(0,0,0,0.62)] backdrop-blur-md sm:px-7 sm:py-7 md:max-h-[min(70svh,100%)] hd-laptop:max-h-[min(62svh,100%)] min-wide:max-h-[min(78svh,100%)]">
                   <p className="font-display text-[8px] font-medium tracking-[0.4em] text-cd-teal">ARQUIVO · PROJETO</p>
-                  <h1 className="mt-4 font-rock text-[clamp(1.8rem,4.8vw,2.85rem)] uppercase leading-[0.94] tracking-[0.08em] text-[#ebe3d4]">
+                  <h1 className="mt-4 font-rock text-[clamp(1.8rem,4.8vw,2.85rem)] uppercase leading-[0.94] tracking-[0.08em] text-[#ebe3d4] hd-laptop:text-[clamp(1.65rem,3.8vw,2.35rem)]">
                     {crazyLegsIntro.title}
                   </h1>
                   <p className="mt-3 font-display text-[9px] tracking-[0.24em] text-cd-neon/80">
@@ -300,45 +313,19 @@ export default function CrazyLegsSection() {
         </div>
       </div>
 
-      <div className="space-y-8 px-[3%] pb-10 pt-8 md:hidden">
-        <div className="mx-auto max-w-[32rem]">
-          <p className="mb-4 font-display text-[8px] tracking-[0.3em] text-cd-teal/75">VIDEOS</p>
-          <div className="space-y-5">
-            {crazyLegsVideos.map((video) => (
-              <div
-                key={video.id}
-                className="overflow-hidden border-2 border-cd-cherry/35 bg-black/90 p-1 shadow-[0_24px_60px_rgba(0,0,0,0.65),0_0_32px_rgba(244,224,77,0.05)]"
-              >
-                <div className="relative aspect-video overflow-hidden bg-black ring-1 ring-cd-mist/10">
-                  <iframe
-                    title={`Crazy Legs — ${video.label}`}
-                    src={youtubeEmbed(video.id)}
-                    className="absolute inset-0 h-full w-full"
-                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-                    allowFullScreen
-                    loading="lazy"
-                  />
-                </div>
-                <p className="px-1 pb-1 pt-2 font-display text-[7px] tracking-[0.26em] text-cd-teal/70">{video.tag}</p>
-              </div>
-            ))}
-          </div>
-        </div>
-      </div>
-
       {releaseOpen ? (
         <div
-          className="fixed inset-0 z-[999] flex items-center justify-center overflow-y-auto px-4 py-8 sm:z-[120] sm:px-6 lg:px-10"
+          className="fixed inset-0 z-[10000] flex items-center justify-center overflow-y-auto px-4 py-8 sm:px-6 lg:px-10"
           role="presentation"
           onClick={() => setReleaseOpen(false)}
         >
-          <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(20,8,11,0.78)_0%,rgba(12,5,7,0.9)_100%)] backdrop-blur-[2px]" />
+          <div className="absolute inset-0 z-0 bg-[linear-gradient(180deg,rgba(20,8,11,0.78)_0%,rgba(12,5,7,0.9)_100%)] backdrop-blur-[2px]" />
           <article
             ref={sheetRef}
             id={`${uid}-press-sheet`}
             role="region"
             aria-labelledby={`${uid}-press-title`}
-            className="clip-torn-top clip-torn-bottom relative z-[1] max-h-[min(82vh,52rem)] w-full max-w-[min(92vw,58rem)] overflow-y-auto border border-[#2a261d]/25 shadow-[18px_30px_60px_rgba(0,0,0,0.58),0_0_0_1px_rgba(255,255,255,0.04)_inset]"
+            className="clip-torn-top clip-torn-bottom relative z-[2] max-h-[min(82vh,52rem)] w-full max-w-[min(92vw,58rem)] overflow-y-auto border border-[#2a261d]/25 shadow-[18px_30px_60px_rgba(0,0,0,0.58),0_0_0_1px_rgba(255,255,255,0.04)_inset]"
             style={{
               backgroundColor: "#ede8d6",
               backgroundImage: [
@@ -359,13 +346,13 @@ export default function CrazyLegsSection() {
               type="button"
               data-close-sheet
               onClick={() => setReleaseOpen(false)}
-              className="absolute right-5 top-[4.9rem] z-[3] flex h-10 w-10 items-center justify-center border border-[#2a261d]/18 bg-[#f0ebd8]/92 font-display text-xl leading-none text-[#3a3428]/75 transition-colors hover:border-[#2a261d]/35 hover:text-[#141210] sm:right-7 sm:top-[5.6rem] lg:right-9 lg:top-[5.9rem]"
+              className="absolute right-5 top-[4.9rem] z-[10] flex h-10 w-10 items-center justify-center border border-[#2a261d]/18 bg-[#f0ebd8]/92 font-display text-xl leading-none text-[#3a3428]/75 transition-colors hover:border-[#2a261d]/35 hover:text-[#141210] sm:right-7 sm:top-[5.6rem] lg:right-9 lg:top-[5.9rem]"
               aria-label="Fechar press release"
             >
               ×
             </button>
 
-            <div className="relative z-[1] px-5 pb-7 pt-14 sm:px-7 sm:pb-8 sm:pt-16 lg:px-9 lg:pb-10 lg:pt-[4.5rem]">
+            <div className="relative z-[5] px-5 pb-7 pt-14 sm:px-7 sm:pb-8 sm:pt-16 lg:px-9 lg:pb-10 lg:pt-[4.5rem]">
               <header className="border-b border-[#1a1814]/12 pb-5 pr-12 sm:pr-16">
                 <p className="font-display text-[9px] tracking-[0.36em] text-[#3a3428]/55">DOCUMENTO</p>
                 <h3

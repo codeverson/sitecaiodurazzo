@@ -2,6 +2,12 @@
 @tailwind components;
 @tailwind utilities;
 
+@layer base {
+  html {
+    overflow-x: clip;
+  }
+}
+
 @layer utilities {
   /**
    * Costura entre seções — base #220C10 → transparente, discretamente cinematográfico.

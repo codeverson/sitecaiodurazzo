@@ -46,15 +46,18 @@ export default function CrazyLegsIntroSection() {
     },
   ] as const;
   return (
-    <section className="relative isolate flex min-h-[100vh] overflow-x-clip bg-transparent py-10 text-cd-mist sm:py-12 lg:py-14">
-      <div className="relative z-10 mx-auto flex w-full max-w-[90rem] flex-1 flex-col px-6 sm:px-10 lg:px-14 xl:px-16">
-        <div className="grid gap-8 lg:grid-cols-12 lg:items-center lg:gap-x-8 xl:gap-x-12">
-          <div className="order-2 lg:order-1 lg:col-span-5 lg:pr-6 xl:pr-10">
+    <section
+      id="crazy-legs-intro"
+      className="relative isolate flex min-h-[100vh] overflow-x-clip scroll-mt-24 bg-transparent py-10 text-cd-mist sm:scroll-mt-28 sm:py-12 min-wide:scroll-mt-0 lg:py-14"
+    >
+      <div className="relative z-10 mx-auto flex w-full max-w-[90rem] flex-1 flex-col px-6 sm:px-10 lg:px-10 hd-laptop:px-7 xl:px-12 2xl:px-16">
+        <div className="grid gap-8 lg:grid-cols-12 lg:items-center lg:gap-x-6 xl:gap-x-8 2xl:gap-x-12">
+          <div className="order-2 lg:order-1 lg:col-span-5 lg:pr-4 xl:pr-6 2xl:pr-10">
             <header>
               <p className="font-display text-[9px] font-semibold tracking-[0.44em] text-cd-teal">
                 {crazyLegsInstitutional.kicker}
               </p>
-              <h2 className="cd-display-title mt-4 max-w-[15ch] font-rock text-[clamp(1.55rem,4.2vw,2.7rem)] uppercase leading-[0.98] tracking-[0.07em] text-[#ebe3d4]">
+              <h2 className="cd-display-title mt-4 max-w-[15ch] font-rock text-[clamp(1.55rem,4.2vw,2.7rem)] uppercase leading-[0.98] tracking-[0.07em] text-[#ebe3d4] hd-laptop:text-[clamp(1.45rem,3.5vw,2.25rem)]">
                 {crazyLegsInstitutional.title}
               </h2>
               <div className="mt-5 h-px w-16 bg-gradient-to-r from-cd-neon/70 via-cd-neon/35 to-transparent" aria-hidden />
@@ -69,7 +72,7 @@ export default function CrazyLegsIntroSection() {
             </div>
           </div>
 
-          <div className="order-1 lg:order-2 lg:col-span-7 lg:pl-6 xl:pl-12">
+          <div className="order-1 lg:order-2 lg:col-span-7 lg:pl-4 xl:pl-6 2xl:pl-12">
             <div className="mx-auto hidden max-w-[44rem] shadow-[0_18px_50px_rgba(0,0,0,0.22)] md:block">
               <div className="grid grid-cols-12 gap-1">
                 {collageItems.map((item) => (

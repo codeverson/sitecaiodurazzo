@@ -69,7 +69,7 @@ function AppShell() {
       ) : shouldShowMaintenance ? (
         <MaintenancePage />
       ) : (
-        <div className="relative min-h-screen bg-cd-base font-body text-cd-mist">
+        <div className="relative min-h-screen overflow-x-clip bg-cd-base font-body text-cd-mist">
           <SiteAmbient />
           {isStaffPage ? null : (
           <Header

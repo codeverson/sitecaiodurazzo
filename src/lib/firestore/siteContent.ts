@@ -14,6 +14,7 @@ import {
 import { db, isFirebaseConfigured } from "../firebase";
 import { discographyData, flattenDiscography } from "../../data/discographyData";
 import { heroSlideshowSlides } from "../../data/heroSlideshow";
+import { heroCopy } from "../../data/siteCopy";
 import { EXAMPLE_SHOWS } from "../../data/exampleShows";
 import { DEFAULT_YOUTUBE_VIDEOS } from "../../data/defaultYoutubeVideos";
 import type {
@@ -25,6 +26,29 @@ import type {
 } from "../../types/firebaseContent";
 import type { Show } from "../../types/show";
 import type { YoutubeVideoItem } from "../../types/youtubeVideo";
+
+function parseHeroTaglinesFromFirestore(raw: unknown): string[] | undefined {
+  if (!Array.isArray(raw)) return undefined;
+  const lines = raw
+    .filter((t): t is string => typeof t === "string")
+    .map((t) => t.trim())
+    .filter(Boolean);
+  return lines.length ? lines : undefined;
+}
+
+const LOCAL_HERO_TAGLINES_KEY = "caio-durazzo-hero-taglines-v1";
+
+function loadLocalHeroTaglines(): string[] | undefined {
+  if (typeof window === "undefined") return undefined;
+  try {
+    const stored = window.localStorage.getItem(LOCAL_HERO_TAGLINES_KEY);
+    if (!stored) return undefined;
+    const parsed: unknown = JSON.parse(stored);
+    return parseHeroTaglinesFromFirestore(parsed);
+  } catch {
+    return undefined;
+  }
+}
 
 const heroConverter: FirestoreDataConverter<HeroContentDocument> = {
   toFirestore(value) {
@@ -49,6 +73,7 @@ const heroConverter: FirestoreDataConverter<HeroContentDocument> = {
         })
         .filter((slide): slide is HeroSlideRecord => slide !== null)
         .sort((a, b) => a.sortOrder - b.sortOrder),
+      heroTaglines: parseHeroTaglinesFromFirestore(data.heroTaglines),
     };
   },
 };
@@ -107,6 +132,11 @@ const discographyConverter: FirestoreDataConverter<DiscographyRecord> = {
       project: typeof data.project === "string" ? data.project : undefined,
       role: typeof data.role === "string" ? data.role : undefined,
       coverUrl: typeof data.coverUrl === "string" ? data.coverUrl : undefined,
+      hidden: typeof data.hidden === "boolean" ? data.hidden : undefined,
+      excluded: typeof data.excluded === "boolean" ? data.excluded : undefined,
+      spotifyUrl: data.spotifyUrl === null ? null : typeof data.spotifyUrl === "string" ? data.spotifyUrl : undefined,
+      spotifyFound: typeof data.spotifyFound === "boolean" ? data.spotifyFound : undefined,
+      listenUrl: typeof data.listenUrl === "string" ? data.listenUrl : data.listenUrl === null ? null : undefined,
     };
   },
 };
@@ -152,18 +182,39 @@ export function buildSeedPayload(): SiteSeedPayload {
   };
 }
 
+export type HeroLiveSnapshot = {
+  slides: HeroSlideRecord[];
+  /** Vindo do Firestore ou do localStorage (dev); vazio/ausente usa siteCopy no cliente. */
+  heroTaglines?: string[];
+};
+
 export function subscribeHero(
-  callback: (slides: HeroSlideRecord[]) => void,
+  callback: (snap: HeroLiveSnapshot) => void,
   onError?: (error: Error) => void,
 ): () => void {
   if (!isFirebaseConfigured()) {
-    callback(buildSeedPayload().hero);
+    const localLines = loadLocalHeroTaglines();
+    callback({
+      slides: buildSeedPayload().hero,
+      heroTaglines: localLines,
+    });
     return () => {};
   }
   return onSnapshot(
     heroDocRef,
     (snapshot) => {
-      callback(snapshot.exists() ? snapshot.data().slides : buildSeedPayload().hero);
+      if (!snapshot.exists()) {
+        callback({
+          slides: buildSeedPayload().hero,
+          heroTaglines: [...heroCopy.heroTaglines],
+        });
+        return;
+      }
+      const docData = snapshot.data();
+      callback({
+        slides: docData.slides.length ? docData.slides : buildSeedPayload().hero,
+        heroTaglines: docData.heroTaglines,
+      });
     },
     (error) => onError?.(error),
   );
@@ -231,15 +282,23 @@ export function subscribeDiscography(
     discographyCollectionRef,
     (snapshot) => {
       const rows = snapshot.docs.map((docItem) => docItem.data());
-      callback(rows.length ? rows : buildSeedPayload().discography);
+      callback(rows);
     },
     (error) => onError?.(error),
   );
 }
 
 export async function saveHeroSlides(slides: HeroSlideRecord[]): Promise<void> {
-  await setDoc(heroDocRef, { slides });
+  if (!isFirebaseConfigured()) return;
+  await setDoc(heroDocRef, { slides }, { merge: true });
 }
+
+export async function saveHeroTaglines(heroTaglines: string[]): Promise<void> {
+  if (!isFirebaseConfigured()) return;
+  await setDoc(heroDocRef, { heroTaglines }, { merge: true });
+}
+
+export { LOCAL_HERO_TAGLINES_KEY };
 
 export async function saveSiteSettings(settings: SiteSettingsDocument): Promise<void> {
   await setDoc(settingsDocRef, settings, { merge: true });
@@ -262,7 +321,13 @@ export async function removeYoutubeVideo(id: number): Promise<void> {
 }
 
 export async function saveDiscographyRecord(record: DiscographyRecord): Promise<void> {
+  if (!isFirebaseConfigured()) return;
   await setDoc(doc(discographyCollectionRef, record.flatId), record, { merge: true });
+}
+
+export async function deleteDiscographyRecord(flatId: string): Promise<void> {
+  if (!isFirebaseConfigured()) return;
+  await deleteDoc(doc(discographyCollectionRef, flatId));
 }
 
 export async function seedFirestoreIfEmpty(): Promise<boolean> {
@@ -275,7 +340,10 @@ export async function seedFirestoreIfEmpty(): Promise<boolean> {
 
   const seed = buildSeedPayload();
   const batch = writeBatch(db);
-  batch.set(doc(db, "siteContent", "hero"), { slides: seed.hero });
+  batch.set(doc(db, "siteContent", "hero"), {
+    slides: seed.hero,
+    heroTaglines: [...heroCopy.heroTaglines],
+  });
   batch.set(doc(db, "siteContent", "settings"), seed.settings);
   seed.shows.forEach((show) => batch.set(doc(db, "shows", String(show.id)), show));
   seed.youtubeVideos.forEach((video) => batch.set(doc(db, "youtubeVideos", String(video.id)), video));

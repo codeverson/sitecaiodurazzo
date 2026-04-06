@@ -21,7 +21,7 @@ export default function BookingSection() {
       id="booking"
       className="relative scroll-mt-24 overflow-hidden bg-transparent py-[4.5rem] sm:py-[5.5rem] lg:py-[6.5rem]"
     >
-      <div className="relative z-[1] mx-auto max-w-[90rem] px-6 sm:px-10 lg:px-14 xl:px-16">
+      <div className="relative z-[1] mx-auto max-w-[90rem] px-6 sm:px-10 lg:px-10 hd-laptop:px-7 xl:px-12 2xl:px-16">
         <div className="mx-auto max-w-[76rem]">
           <div className="grid gap-10 sm:gap-12 xl:grid-cols-[minmax(0,1.05fr)_minmax(20rem,0.95fr)] xl:items-start xl:gap-14">
             <div className="max-w-[39rem]">

@@ -12,7 +12,7 @@ export default function LessonsPage() {
     <main className="bg-transparent text-cd-mist">
       <section
         id="top"
-        className="relative isolate overflow-x-clip bg-transparent pb-14 pt-28 sm:pb-16 sm:pt-32 lg:pb-20 lg:pt-36"
+        className="relative isolate overflow-x-clip bg-transparent pb-14 pt-28 sm:pb-16 sm:pt-32 lg:pb-20 lg:pt-36 hd-laptop:pb-16 hd-laptop:pt-32"
       >
         <div className="absolute inset-0" aria-hidden>
           <img
@@ -26,12 +26,12 @@ export default function LessonsPage() {
           <div className="absolute inset-0 bg-film-grain-section opacity-[0.06] mix-blend-overlay" />
         </div>
 
-        <div className="relative z-10 mx-auto max-w-[90rem] px-6 sm:px-10 lg:px-14 xl:px-16">
+        <div className="relative z-10 mx-auto max-w-[90rem] px-6 sm:px-10 lg:px-10 hd-laptop:px-7 xl:px-12 2xl:px-16">
           <div className="max-w-3xl">
             <p className="font-display text-[9px] font-semibold tracking-[0.48em] text-cd-teal">
               {lessonsCopy.eyebrow}
             </p>
-            <h1 className="mt-6 font-rock text-[clamp(2.25rem,6vw,4.5rem)] uppercase leading-[0.95] tracking-[0.08em] text-[#f2ead8]">
+            <h1 className="mt-6 font-rock text-[clamp(2.25rem,6vw,4.5rem)] uppercase leading-[0.95] tracking-[0.08em] text-[#f2ead8] hd-laptop:text-[clamp(2rem,5.2vw,3.35rem)]">
               {lessonsCopy.title}
             </h1>
             <p className="mt-6 max-w-[44rem] font-body text-[0.98rem] leading-[1.82] text-cd-wash/[0.9] lg:text-[0.9rem] lg:leading-[1.78]">
@@ -59,21 +59,22 @@ export default function LessonsPage() {
         </div>
       </section>
 
-      <section className="relative isolate overflow-x-clip bg-transparent pb-16 pt-8 sm:pb-20 sm:pt-10 lg:pb-24 lg:pt-12">
+      <section className="relative isolate overflow-x-clip bg-transparent pb-16 pt-8 sm:pb-20 sm:pt-10 lg:pb-24 lg:pt-12 hd-laptop:pb-20 hd-laptop:pt-10">
         <div className="absolute inset-0" aria-hidden>
           <div className="absolute inset-0 bg-[radial-gradient(ellipse_78%_55%_at_50%_0%,rgba(255,255,255,0.018),transparent_64%)]" />
           <TextureBg src={textureAssets.paperFiber} opacity={0.022} blendMode="soft-light" />
           <div className="absolute inset-0 bg-film-grain-section opacity-[0.05] mix-blend-overlay" />
         </div>
 
-        <div className="relative z-10 mx-auto max-w-[90rem] px-6 sm:px-10 lg:px-14 xl:px-16">
+        <div className="relative z-10 mx-auto max-w-[90rem] px-6 sm:px-10 lg:px-10 hd-laptop:px-7 xl:px-12 2xl:px-16">
           <div className="overflow-hidden border border-cd-mist/[0.12] bg-[linear-gradient(160deg,rgba(30,12,16,0.92)_0%,rgba(11,5,7,0.98)_100%)] shadow-[0_32px_80px_rgba(0,0,0,0.45)]">
             <div className="border-b border-cd-mist/[0.08] px-5 py-4 sm:px-7">
               <p className="font-display text-[8px] font-semibold tracking-[0.34em] text-cd-neon/80">
                 VÍDEO DE APRESENTAÇÃO
               </p>
             </div>
-            <div className="relative aspect-video w-full bg-black">
+            <div className="mx-auto w-[80%] min-w-0 max-w-full">
+              <div className="relative aspect-video w-full bg-black">
               {videoSrc ? (
                 <iframe
                   title="Aulas de Guitarra e Violão com Caio Durazzo"
@@ -89,18 +90,19 @@ export default function LessonsPage() {
                   URL de vídeo inválida.
                 </div>
               )}
+              </div>
             </div>
           </div>
         </div>
       </section>
 
-      <section className="relative isolate overflow-x-clip bg-transparent pb-20 pt-4 sm:pb-24 sm:pt-6 lg:pb-28">
+      <section className="relative isolate overflow-x-clip bg-transparent pb-20 pt-4 sm:pb-24 sm:pt-6 lg:pb-28 hd-laptop:pb-24">
         <div className="absolute inset-0" aria-hidden>
           <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(255,255,255,0.012)_0%,transparent_36%,transparent_78%,rgba(0,0,0,0.1)_100%)]" />
           <TextureBg src={textureAssets.concreteWall} opacity={0.028} blendMode="soft-light" />
         </div>
 
-        <div className="relative z-10 mx-auto max-w-[90rem] px-6 sm:px-10 lg:px-14 xl:px-16">
+        <div className="relative z-10 mx-auto max-w-[90rem] px-6 sm:px-10 lg:px-10 hd-laptop:px-7 xl:px-12 2xl:px-16">
           <section className="max-w-[52rem]">
             <h2 className="font-rock text-[clamp(1.5rem,3vw,2.15rem)] uppercase leading-[1.05] tracking-[0.07em] text-[#ebe3d4]">
               Apresentação
@@ -114,7 +116,7 @@ export default function LessonsPage() {
             </div>
           </section>
 
-          <div className="mt-14 grid gap-10 lg:grid-cols-2 lg:gap-14">
+          <div className="mt-14 grid gap-10 lg:grid-cols-2 lg:gap-12 hd-laptop:gap-10 2xl:gap-14">
             <section>
               <h2 className="font-rock text-[clamp(1.35rem,2.6vw,1.9rem)] uppercase leading-[1.06] tracking-[0.07em] text-[#ebe3d4]">
                 Para quem são as aulas
@@ -143,7 +145,7 @@ export default function LessonsPage() {
             </section>
           </div>
 
-          <div className="mt-14 grid gap-10 border-t border-cd-mist/[0.08] pt-10 sm:mt-16 sm:pt-12 lg:grid-cols-[minmax(0,1fr)_minmax(18rem,22rem)] lg:gap-14">
+          <div className="mt-14 grid gap-10 border-t border-cd-mist/[0.08] pt-10 sm:mt-16 sm:pt-12 lg:grid-cols-[minmax(0,1fr)_minmax(18rem,22rem)] lg:gap-12 hd-laptop:gap-10 2xl:gap-14">
             <section>
               <h2 className="font-rock text-[clamp(1.35rem,2.6vw,1.9rem)] uppercase leading-[1.06] tracking-[0.07em] text-[#ebe3d4]">
                 Como funcionam as aulas

@@ -21,10 +21,10 @@ export default function BioSection() {
       id="bio"
       className="relative isolate flex scroll-mt-24 flex-col overflow-x-clip bg-transparent py-14 text-cd-mist sm:py-16 lg:min-h-[100svh] lg:py-[4.5rem]"
     >
-      <div className="relative z-10 mx-auto flex w-full max-w-[90rem] flex-1 items-center px-6 sm:px-10 lg:px-14 xl:px-16">
+      <div className="relative z-10 mx-auto flex w-full max-w-[90rem] flex-1 items-center px-6 sm:px-10 lg:px-10 hd-laptop:px-7 xl:px-12 2xl:px-16">
         <div className="grid grid-cols-1 gap-10 sm:gap-12 lg:grid-cols-12 lg:items-start lg:gap-x-0 lg:gap-y-0">
           {/* Coluna esquerda: rótulo + título */}
-          <header className="relative lg:col-span-5 lg:pr-10 xl:pr-14">
+          <header className="relative lg:col-span-5 lg:pr-8 hd-laptop:pr-6 xl:pr-14">
             <p className="font-display text-[9px] font-semibold tracking-[0.48em] text-cd-teal">{kicker}</p>
             <p className="mt-6 font-rock uppercase leading-[0.9] tracking-[0.11em] text-[#f2ead8] sm:mt-7 lg:mt-10">
               <span className="block text-[clamp(1.8rem,8vw,3.1rem)] leading-[0.88]">
@@ -44,7 +44,7 @@ export default function BioSection() {
           </header>
 
           {/* Coluna direita: texto corrido editorial */}
-          <div className="lg:col-span-7 lg:pl-10 lg:pr-10 xl:pl-16 xl:pr-16">
+          <div className="lg:col-span-7 lg:pl-8 lg:pr-8 hd-laptop:pl-6 hd-laptop:pr-6 xl:pl-16 xl:pr-16">
             <div className="max-w-[42rem] space-y-6 lg:space-y-8">
               {paragraphs.map((para, i) => {
                 const base =
@@ -91,7 +91,7 @@ export default function BioSection() {
           </div>
         </div>
       </div>
-      <div className="relative z-10 mx-auto mt-auto w-full max-w-[90rem] px-6 pt-10 sm:px-10 sm:pt-12 lg:px-14 lg:pt-14 xl:px-16" aria-hidden>
+      <div className="relative z-10 mx-auto mt-auto w-full max-w-[90rem] px-6 pt-10 sm:px-10 sm:pt-12 lg:px-10 lg:pt-12 hd-laptop:px-7 xl:px-12 xl:pt-14 2xl:px-16" aria-hidden>
         <div className="section-divider-slash" />
       </div>
     </section>

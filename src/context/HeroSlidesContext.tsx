@@ -4,11 +4,19 @@ import {
   useContext,
   useEffect,
   useMemo,
+  useRef,
   useState,
   type ReactNode,
 } from "react";
+import { heroCopy } from "../data/siteCopy";
 import { heroSlideshowSlides, type HeroSlide } from "../data/heroSlideshow";
-import { saveHeroSlides, subscribeHero } from "../lib/firestore/siteContent";
+import { isFirebaseConfigured } from "../lib/firebase";
+import {
+  LOCAL_HERO_TAGLINES_KEY,
+  saveHeroSlides,
+  saveHeroTaglines,
+  subscribeHero,
+} from "../lib/firestore/siteContent";
 import type { HeroSlideRecord } from "../types/firebaseContent";
 
 const MAX_FILE_BYTES = 12 * 1024 * 1024;
@@ -19,6 +27,12 @@ type HeroSlideOverride = Pick<HeroSlide, "id" | "src" | "objectPosition" | "labe
 
 type HeroSlidesContextValue = {
   slides: HeroSlide[];
+  /** Frases rotativas abaixo do nome (fallback em `heroCopy.heroTaglines` se vazio). */
+  heroTaglines: string[];
+  replaceHeroTaglines: (lines: string[]) => void;
+  addHeroTagline: () => void;
+  removeHeroTagline: (index: number) => boolean;
+  moveHeroTagline: (index: number, delta: -1 | 1) => void;
   setSlide: (id: string, patch: Partial<Pick<HeroSlide, "src" | "objectPosition" | "label">>) => void;
   moveSlide: (id: string, delta: -1 | 1) => void;
   addSlide: () => void;
@@ -39,21 +53,90 @@ function buildDefaultOverrides(): HeroSlideOverride[] {
   }));
 }
 
+function defaultHeroTaglines(): string[] {
+  return [...heroCopy.heroTaglines];
+}
+
+function normalizeIncomingTaglines(raw?: string[]): string[] {
+  const trimmed = raw?.map((t) => t.trim()).filter(Boolean) ?? [];
+  return trimmed.length > 0 ? trimmed : defaultHeroTaglines();
+}
+
 export function HeroSlidesProvider({ children }: { children: ReactNode }) {
   const [slideOverrides, setSlideOverrides] = useState<HeroSlideOverride[]>(buildDefaultOverrides);
+  const [heroTaglines, setHeroTaglines] = useState<string[]>(defaultHeroTaglines);
+  const heroTaglinesRef = useRef(heroTaglines);
+  heroTaglinesRef.current = heroTaglines;
 
-  useEffect(() => subscribeHero((slides) => {
-    const defaults = buildDefaultOverrides();
-    const defaultById = new Map(defaults.map((slide) => [slide.id, slide.defaultSrc]));
-    const normalized = slides.map((slide) => ({
-      id: slide.id,
-      src: slide.src,
-      objectPosition: slide.objectPosition,
-      label: slide.label,
-      defaultSrc: defaultById.get(slide.id) ?? slide.src,
-    }));
-    setSlideOverrides(normalized.length ? normalized : defaults);
-  }), []);
+  useEffect(
+    () =>
+      subscribeHero((snap) => {
+        const defaults = buildDefaultOverrides();
+        const defaultById = new Map(defaults.map((slide) => [slide.id, slide.defaultSrc]));
+        const normalized = snap.slides.map((slide) => ({
+          id: slide.id,
+          src: slide.src,
+          objectPosition: slide.objectPosition,
+          label: slide.label,
+          defaultSrc: defaultById.get(slide.id) ?? slide.src,
+        }));
+        setSlideOverrides(normalized.length ? normalized : defaults);
+        setHeroTaglines(normalizeIncomingTaglines(snap.heroTaglines));
+      }),
+    [],
+  );
+
+  const persistHeroTaglines = useCallback((lines: string[]) => {
+    const cleaned = lines.map((t) => t.trim()).filter(Boolean);
+    if (cleaned.length === 0) return;
+    heroTaglinesRef.current = cleaned;
+    setHeroTaglines(cleaned);
+    if (!isFirebaseConfigured()) {
+      try {
+        window.localStorage.setItem(LOCAL_HERO_TAGLINES_KEY, JSON.stringify(cleaned));
+      } catch {
+        /* quota / private mode */
+      }
+      return;
+    }
+    void saveHeroTaglines(cleaned);
+  }, []);
+
+  const replaceHeroTaglines = useCallback(
+    (lines: string[]) => {
+      const cleaned = lines.map((t) => t.trim()).filter(Boolean);
+      if (cleaned.length === 0) return;
+      persistHeroTaglines(cleaned);
+    },
+    [persistHeroTaglines],
+  );
+
+  const addHeroTagline = useCallback(() => {
+    persistHeroTaglines([...heroTaglinesRef.current, "Nova frase"]);
+  }, [persistHeroTaglines]);
+
+  const removeHeroTagline = useCallback(
+    (index: number): boolean => {
+      const cur = heroTaglinesRef.current;
+      if (cur.length <= 1) return false;
+      persistHeroTaglines(cur.filter((_, i) => i !== index));
+      return true;
+    },
+    [persistHeroTaglines],
+  );
+
+  const moveHeroTagline = useCallback(
+    (index: number, delta: -1 | 1) => {
+      const cur = heroTaglinesRef.current;
+      const nextIndex = index + delta;
+      if (nextIndex < 0 || nextIndex >= cur.length) return;
+      const next = [...cur];
+      const [moved] = next.splice(index, 1);
+      next.splice(nextIndex, 0, moved);
+      persistHeroTaglines(next);
+    },
+    [persistHeroTaglines],
+  );
 
   const persist = useCallback(async (next: HeroSlideOverride[]) => {
     const payload: HeroSlideRecord[] = next.map((slide, index) => ({
@@ -150,6 +233,11 @@ export function HeroSlidesProvider({ children }: { children: ReactNode }) {
   const value = useMemo(
     () => ({
       slides,
+      heroTaglines,
+      replaceHeroTaglines,
+      addHeroTagline,
+      removeHeroTagline,
+      moveHeroTagline,
       setSlide,
       moveSlide,
       addSlide,
@@ -157,7 +245,19 @@ export function HeroSlidesProvider({ children }: { children: ReactNode }) {
       resetSlideImage,
       maxFileBytes: MAX_FILE_BYTES,
     }),
-    [addSlide, moveSlide, removeSlide, resetSlideImage, setSlide, slides],
+    [
+      addHeroTagline,
+      addSlide,
+      heroTaglines,
+      moveHeroTagline,
+      moveSlide,
+      removeHeroTagline,
+      removeSlide,
+      replaceHeroTaglines,
+      resetSlideImage,
+      setSlide,
+      slides,
+    ],
   );
 
   return <HeroSlidesContext.Provider value={value}>{children}</HeroSlidesContext.Provider>;

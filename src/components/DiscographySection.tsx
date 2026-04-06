@@ -1,5 +1,17 @@
-import { useCallback, useEffect, useRef, useState, type MouseEvent, type PointerEvent } from "react";
-import type { DiscographyFlatItem } from "../data/discographyData";
+import {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+  type MouseEvent,
+  type PointerEvent,
+} from "react";
+import {
+  discographyLinkOpensSpotify,
+  getDiscographyListenUrl,
+  type DiscographyFlatItem,
+} from "../data/discographyData";
 import { useDiscographyCovers } from "../context/DiscographyCoversContext";
 import { resolveSpotifyAlbumData, type ResolvedAlbumArt } from "../lib/resolveSpotifyAlbumData";
 import { discographyCopy } from "../data/siteCopy";
@@ -97,12 +109,15 @@ function DiscSlide({
   active: boolean;
   setRef: (el: HTMLLIElement | null) => void;
 }) {
-  const hasSpotify = Boolean(item.spotifyUrl && item.spotifyFound);
+  const listenHref = getDiscographyListenUrl(item);
+  const opensSpotify = discographyLinkOpensSpotify(item, listenHref);
   const coverSrc = resolved?.coverUrl ?? null;
   const alt = `Capa: ${item.title} (${item.year})`;
-  const label = hasSpotify
-    ? `Ouvir ${item.title} no Spotify — abre em nova aba`
-    : `${item.title} — lançamento sem link no Spotify`;
+  const actionLabel = listenHref
+    ? opensSpotify
+      ? `Ouvir ${item.title} no Spotify — abre em nova aba`
+      : `Acessar áudio de ${item.title} — abre em nova aba`
+    : `${item.title} — lançamento sem link de áudio`;
 
   return (
     <li
@@ -111,19 +126,21 @@ function DiscSlide({
       data-disc-slide=""
       data-disc-index={index}
       className={[
-        "w-[82vw] shrink-0 snap-center sm:w-[min(70vw,19.5rem)] lg:w-[21rem]",
+        "w-[82vw] shrink-0 snap-center sm:w-[min(70vw,19.5rem)] lg:w-[min(19rem,82vw)] hd-laptop:w-[min(18.25rem,80vw)] xl:w-[21rem]",
         "transition-[opacity] duration-500 ease-out motion-reduce:transition-none",
         active ? "opacity-100" : "opacity-[0.48]",
       ].join(" ")}
     >
       <article
         className={[
-          "mx-auto flex h-full cursor-pointer flex-col border bg-[linear-gradient(165deg,rgba(18,15,13,0.95)_0%,rgba(5,4,3,0.98)_100%)] transition-[width,border-color,box-shadow] duration-500 ease-out motion-reduce:transition-none",
+          "mx-auto flex h-full flex-col border bg-[linear-gradient(165deg,rgba(18,15,13,0.95)_0%,rgba(5,4,3,0.98)_100%)] transition-[width,border-color,box-shadow] duration-500 ease-out motion-reduce:transition-none",
+          listenHref ? "cursor-pointer" : "cursor-default",
           active ? "w-full shadow-[0_28px_70px_rgba(0,0,0,0.55)]" : "w-[95%]",
           active
             ? "border-cd-mist/[0.14] ring-1 ring-cd-teal/35"
             : "border-cd-mist/[0.06] hover:border-cd-mist/[0.1]",
         ].join(" ")}
+        aria-label={listenHref ? actionLabel : undefined}
       >
         <div className="relative aspect-square w-full overflow-hidden">
           <div
@@ -149,11 +166,34 @@ function DiscSlide({
             className="pointer-events-none absolute inset-0 bg-film-grain-section opacity-[0.18] mix-blend-overlay"
             aria-hidden
           />
-          {hasSpotify ? (
-            <span className="absolute right-2 top-2 z-[2] inline-flex h-8 w-8 items-center justify-center border border-cream/18 bg-black/85 text-cd-goldhi">
+          {opensSpotify ? (
+            <a
+              href={listenHref}
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label={actionLabel}
+              data-disc-ignore-center="true"
+              onClick={(e) => e.stopPropagation()}
+              draggable={false}
+              className="absolute right-2 top-2 z-[2] inline-flex h-8 w-8 items-center justify-center border border-cream/18 bg-black/85 text-cd-goldhi"
+            >
               <SpotifyGlyph className="h-3.5 w-3.5" />
               <span className="sr-only">Disponível no Spotify</span>
-            </span>
+            </a>
+          ) : listenHref ? (
+            <a
+              href={listenHref}
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label={actionLabel}
+              data-disc-ignore-center="true"
+              onClick={(e) => e.stopPropagation()}
+              draggable={false}
+              className="absolute right-2 top-2 z-[2] inline-flex min-h-8 min-w-8 items-center justify-center border border-cream/18 bg-black/85 px-1.5 font-display text-[7px] tracking-[0.18em] text-cd-wash/90"
+            >
+              ÁUDIO
+              <span className="sr-only">Link externo para ouvir</span>
+            </a>
           ) : null}
         </div>
 
@@ -171,21 +211,21 @@ function DiscSlide({
           <p className="mt-3 font-body text-xs italic text-cd-muted/85">{item.format}</p>
 
           <div className="mt-5 flex flex-wrap items-center gap-3 border-t border-cd-mist/[0.07] pt-5">
-            {hasSpotify && item.spotifyUrl ? (
+            {listenHref ? (
               <a
-                href={item.spotifyUrl}
+                href={listenHref}
                 target="_blank"
                 rel="noopener noreferrer"
-                aria-label={label}
+                aria-label={actionLabel}
                 data-disc-ignore-center="true"
                 onClick={(e) => e.stopPropagation()}
                 draggable={false}
                 className="cd-btn-ghost !px-4 !py-2.5 !text-[8px] !tracking-[0.24em]"
               >
-                Ouvir no Spotify
+                {opensSpotify ? "Ouvir no Spotify" : "Acessar áudio"}
               </a>
             ) : (
-              <span className="font-display text-[8px] tracking-[0.28em] text-cd-faint" aria-label={label}>
+              <span className="font-display text-[8px] tracking-[0.28em] text-cd-faint" aria-label={actionLabel}>
                 CATÁLOGO
               </span>
             )}
@@ -198,7 +238,10 @@ function DiscSlide({
 
 export default function DiscographySection() {
   const { shelfItems } = useDiscographyCovers();
-  const orderedShelfItems = [...shelfItems].sort((a, b) => a.year - b.year);
+  const orderedShelfItems = useMemo(
+    () => [...shelfItems].sort((a, b) => a.year - b.year),
+    [shelfItems],
+  );
   const [resolved, setResolved] = useState<Record<string, ResolvedAlbumArt>>({});
   const [entered, setEntered] = useState(false);
   const [activeIndex, setActiveIndex] = useState(0);
@@ -458,12 +501,17 @@ export default function DiscographySection() {
         const slide = hit?.closest<HTMLElement>("[data-disc-slide][data-disc-index]");
         const index = slide ? Number(slide.dataset.discIndex) : Number.NaN;
         if (Number.isInteger(index)) {
+          const targetItem = orderedShelfItems[index];
+          const href = targetItem ? getDiscographyListenUrl(targetItem) : null;
+          if (href) {
+            window.open(href, "_blank", "noopener,noreferrer");
+          }
           focusSlide(index);
         }
       }
     }
     window.setTimeout(() => setDragging(false), 0);
-  }, [focusSlide]);
+  }, [focusSlide, orderedShelfItems]);
 
   const onClickCapture = useCallback((e: MouseEvent<HTMLUListElement>) => {
     if (!dragging) return;
@@ -479,13 +527,13 @@ export default function DiscographySection() {
       <div className="relative z-10 flex flex-1 flex-col">
         <header
           className={[
-            "mx-auto w-full max-w-[90rem] px-6 pb-2 sm:px-10 lg:px-14 xl:px-16",
+            "mx-auto w-full max-w-[90rem] px-6 pb-2 sm:px-10 lg:px-10 hd-laptop:px-7 xl:px-12 2xl:px-16",
             "transition-all duration-700 ease-out",
             entered ? "translate-y-0 opacity-100" : "translate-y-6 opacity-0",
           ].join(" ")}
         >
-          <div className="grid gap-8 lg:grid-cols-12 lg:items-end lg:gap-x-10 xl:gap-x-12">
-            <div className="lg:col-span-5 lg:pl-6 xl:pl-10">
+          <div className="grid gap-8 lg:grid-cols-12 lg:items-end lg:gap-x-8 xl:gap-x-10 2xl:gap-x-12">
+            <div className="lg:col-span-5 lg:pl-4 xl:pl-6 2xl:pl-10">
               <p className="font-display text-[9px] font-semibold tracking-[0.48em] text-cd-teal">
                 {discographyCopy.label.toUpperCase()}
               </p>
@@ -497,7 +545,7 @@ export default function DiscographySection() {
                 aria-hidden
               />
             </div>
-            <p className="max-w-[34rem] border-l-[3px] border-cd-teal/40 pl-5 font-body text-[0.95rem] leading-[1.8] text-cd-wash/[0.84] sm:pl-6 lg:col-span-7 lg:justify-self-start lg:max-w-[31rem] lg:pl-7 lg:pr-4 lg:text-[0.875rem] lg:leading-[1.76] xl:max-w-[33rem] xl:pr-8">
+            <p className="max-w-[34rem] border-l-[3px] border-cd-teal/40 pl-5 font-body text-[0.95rem] leading-[1.8] text-cd-wash/[0.84] sm:pl-6 lg:col-span-7 lg:justify-self-start lg:max-w-[31rem] lg:pl-6 lg:pr-3 lg:text-[0.875rem] lg:leading-[1.76] xl:max-w-[33rem] xl:pl-7 xl:pr-8">
               {discographyCopy.text}
             </p>
           </div>
@@ -509,7 +557,7 @@ export default function DiscographySection() {
           aria-roledescription="carrossel"
           aria-label="Discografia — deslize horizontalmente ou use as setas"
         >
-          <div className="mx-auto flex max-w-[90rem] flex-col items-center justify-center gap-3 px-6 pb-5 text-center sm:px-10 lg:gap-4 lg:px-14 xl:px-16">
+          <div className="mx-auto flex max-w-[90rem] flex-col items-center justify-center gap-3 px-6 pb-5 text-center sm:px-10 lg:gap-4 lg:px-10 hd-laptop:gap-3 hd-laptop:px-7 xl:px-12 2xl:px-16">
             <div className="flex items-center justify-center gap-3 sm:gap-4">
               <ShelfArrow dir="prev" disabled={!canPrev} onClick={() => go(-1)} />
               <p className="min-w-[5.5rem] text-center font-display text-[8px] tracking-[0.26em] text-cd-faint/75">

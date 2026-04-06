@@ -42,7 +42,7 @@ export default function AgendaSection() {
       id="agenda"
       className="relative isolate flex scroll-mt-24 flex-col overflow-x-clip bg-transparent py-12 text-cd-mist sm:py-14 lg:min-h-[100vh] lg:py-16"
     >
-      <div className="relative z-10 mx-auto flex w-full max-w-[90rem] flex-1 items-center px-6 sm:px-10 lg:px-14 xl:px-16">
+      <div className="relative z-10 mx-auto flex w-full max-w-[90rem] flex-1 items-center px-6 sm:px-10 lg:px-10 hd-laptop:px-7 xl:px-12 2xl:px-16">
         <div className="w-full">
           <header
             className={[
@@ -209,7 +209,7 @@ export default function AgendaSection() {
           </div>
 
           <div className="mt-auto pt-10 sm:pt-12 lg:pt-14">
-            <div className="flex flex-col gap-8 lg:flex-row lg:items-end lg:justify-between lg:gap-14">
+            <div className="flex flex-col gap-8 lg:flex-row lg:items-end lg:justify-between lg:gap-10 2xl:gap-14">
               <div className="max-w-xl border-l-[3px] border-cd-teal/50 pl-6 sm:pl-8">
                 <p className="font-display text-[8px] font-semibold tracking-[0.38em] text-cd-teal/90">
                   {agendaCopy.bookingKicker.toUpperCase()}

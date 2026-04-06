@@ -4,10 +4,80 @@ import { heroCopy, marqueeRibbonCopy } from "../data/siteCopy";
 import HeroSlideshow from "./HeroSlideshow";
 import MarqueeStrip from "./MarqueeStrip";
 
+const HERO_TAGLINE_DISPLAY_MS = 3000;
+const HERO_TAGLINE_FADE_MS = 450;
+
+function HeroRotatingTagline({ lines, className }: { lines: string[]; className?: string }) {
+  const safeLines = lines.length > 0 ? lines : [...heroCopy.heroTaglines];
+  const [index, setIndex] = useState(0);
+  const [opacity, setOpacity] = useState(1);
+  const reduceMotion =
+    typeof window !== "undefined" && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+  useEffect(() => {
+    setIndex(0);
+    setOpacity(1);
+  }, [lines]);
+
+  useEffect(() => {
+    if (safeLines.length <= 1 || reduceMotion) return;
+
+    const timeouts: number[] = [];
+    let cancelled = false;
+    const n = safeLines.length;
+
+    const queue = (fn: () => void, ms: number) => {
+      const id = window.setTimeout(() => {
+        if (!cancelled) fn();
+      }, ms);
+      timeouts.push(id);
+    };
+
+    const cycle = () => {
+      queue(() => {
+        setOpacity(0);
+        queue(() => {
+          setIndex((i) => (i + 1) % n);
+          requestAnimationFrame(() => {
+            requestAnimationFrame(() => setOpacity(1));
+          });
+          // Só recomeça os 3s depois do fade-in, para cada frase ficar ~3s legível.
+          queue(() => {
+            cycle();
+          }, HERO_TAGLINE_FADE_MS);
+        }, HERO_TAGLINE_FADE_MS);
+      }, HERO_TAGLINE_DISPLAY_MS);
+    };
+
+    cycle();
+
+    return () => {
+      cancelled = true;
+      timeouts.forEach((id) => window.clearTimeout(id));
+    };
+  }, [safeLines.length, reduceMotion, lines]);
+
+  const line = reduceMotion ? safeLines[0] : safeLines[index % safeLines.length];
+
+  return (
+    <p
+      className={className}
+      aria-live={reduceMotion ? undefined : "polite"}
+      aria-atomic="true"
+      style={{
+        opacity: reduceMotion ? 1 : opacity,
+        transition: reduceMotion ? undefined : `opacity ${HERO_TAGLINE_FADE_MS}ms ease-in-out`,
+      }}
+    >
+      {line}
+    </p>
+  );
+}
+
 export default function Hero() {
   const [visible, setVisible] = useState(false);
   const line = marqueeRibbonCopy;
-  const { slides } = useHeroSlides();
+  const { slides, heroTaglines } = useHeroSlides();
 
   useEffect(() => {
     const t = window.requestAnimationFrame(() => setVisible(true));
@@ -34,7 +104,7 @@ export default function Hero() {
         </div>
 
         <div className="relative z-10 flex min-h-[42rem] flex-col justify-end pb-12 pt-24 sm:min-h-[100svh] sm:pb-[4.5rem] sm:pt-32 lg:justify-center lg:pb-[5.5rem] lg:pt-24">
-          <div className="mx-auto w-full max-w-[100rem] px-6 sm:px-10 lg:px-14">
+          <div className="mx-auto w-full max-w-[100rem] px-6 sm:px-10 lg:px-9 hd-laptop:px-7 xl:px-12">
             <div
               className={[
                 "relative max-w-[34rem] motion-reduce:translate-y-0 motion-reduce:opacity-100 motion-reduce:transition-none transition-[opacity,transform] duration-700 ease-out lg:max-w-lg xl:max-w-[38rem]",
@@ -49,16 +119,17 @@ export default function Hero() {
 
               <h1
                 className={[
-                  "cd-display-title font-rock text-[clamp(2.6rem,9.5vw,5rem)] uppercase leading-[0.95] tracking-[0.1em] text-[#f2ead8]",
+                  "cd-display-title font-rock text-[clamp(2.6rem,9.5vw,5rem)] uppercase leading-[0.95] tracking-[0.1em] text-[#f2ead8] hd-laptop:text-[clamp(2.35rem,7.5vw,3.75rem)]",
                   heroCopy.micro.trim() ? "mt-5" : "",
                 ].join(" ")}
               >
                 {heroCopy.title}
               </h1>
 
-              <p className="mt-5 font-heading text-[clamp(0.95rem,2.2vw,1.15rem)] font-medium uppercase tracking-[0.2em] text-cd-wash/90">
-                {heroCopy.tagline}
-              </p>
+              <HeroRotatingTagline
+                lines={heroTaglines}
+                className="mt-5 min-h-[3rem] font-heading text-[clamp(0.95rem,2.2vw,1.15rem)] font-medium uppercase leading-snug tracking-[0.2em] text-cd-wash/90"
+              />
 
               <div className="mt-10 flex flex-wrap items-center gap-4">
                 <a href="#agenda" className="cd-btn-primary">

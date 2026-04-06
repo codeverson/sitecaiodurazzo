@@ -9,6 +9,8 @@ export type DiscographyRelease = {
   format: string;
   spotifyUrl: string | null;
   spotifyFound: boolean;
+  /** Link alternativo (Drive, arquivo, etc.) quando não há Spotify — editável no Backstage. */
+  listenUrl?: string | null;
   localCoverPath?: string;
   coverUrlOverride?: string;
 };
@@ -226,4 +228,21 @@ export function flattenDiscography(projects: DiscographyProject[]): DiscographyF
       flatId: `d-${pi}-${ri}`,
     })),
   );
+}
+
+const SAFE_HTTP = /^https?:\/\//i;
+
+/** URL principal para ouvir: Spotify primeiro, senão link manual (Drive etc.). */
+export function getDiscographyListenUrl(item: DiscographyFlatItem): string | null {
+  const sp = item.spotifyUrl?.trim() ?? "";
+  if (sp && SAFE_HTTP.test(sp)) return sp;
+  const ext = item.listenUrl?.trim() ?? "";
+  if (ext && SAFE_HTTP.test(ext)) return ext;
+  return null;
+}
+
+export function discographyLinkOpensSpotify(item: DiscographyFlatItem, url: string | null): boolean {
+  if (!url) return false;
+  const sp = item.spotifyUrl?.trim() ?? "";
+  return Boolean(sp && url === sp);
 }
